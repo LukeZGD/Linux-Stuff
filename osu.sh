@@ -8,7 +8,7 @@ sudo pacman -Sy
 cd osuscript
 sudo cp limits.conf /etc/security
 
-mkdir /etc/pulse/daemon.conf.d
+sudo mkdir /etc/pulse/daemon.conf.d
 sudo cp 10-better-latency.conf /etc/pulse/daemon.conf.d
 
 sudo cp osu /usr/bin
@@ -16,8 +16,9 @@ sudo cp osukill /usr/bin
 sudo chmod +x /usr/bin/osu
 sudo chmod +x /usr/bin/osukill
 
-pactl list sinks
+pactl list sinks > sinks
 xed notes
+xed sinks
 sudo nano /etc/pulse/default.pa
 
 
