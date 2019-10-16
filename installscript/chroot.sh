@@ -39,12 +39,12 @@ then
     read swappart
     swapuuid=$(lsblk -no UUID $swappart)
     echo "[Log] Got UUID of $rootpart: $rootuuid"
-    echo "Creating arch.conf entry"
+    echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
 linux /vmlinuz-linux-zen
-initrd /intel-ucode.img (or amd-ucode)
+initrd /intel-ucode.img
 initrd /initramfs-linux-zen.img
-options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet"
+options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" | sudo tee -a /boot/loader/entries/arch.conf
 fi
 
 echo "[Input] Enter username"
