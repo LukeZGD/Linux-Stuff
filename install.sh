@@ -3,22 +3,37 @@
 clear
 
 echo "LukeZGD Arch Install Script"
-echo "Press [enter]"
+echo "This script will assume that you have a working Internet connection"
+echo "Press [enter] to continue, or ^C to cancel"
 read
 
-cd installscript
+echo ""
+echo "[Log] Moving installscript to root"
+cp -R installscript /
+cd /installscript
 echo "[Log] Moving mirrorlist"
 cp mirrorlist /etc/pacman.d/mirrorlist
-echo "[Input] cfdisk or cgdisk?"
-read diskprog
-echo ""
-lsblk
-echo ""
-echo "[Input] Please enter device to be used (/dev/sdX)"
-read disk
-echo "Will now enter $diskprog with device $disk. Press [enter]"
-read
-$diskprog $disk
+
+function setupdisk {
+    echo "[Input] cfdisk or cgdisk?"
+    read diskprog
+    echo ""
+    lsblk
+    echo ""
+    echo "[Input] Please enter device to be used (/dev/sdX)"
+    read disk
+    echo "Will now enter $diskprog with device $disk. Press [enter]"
+    read
+    $diskprog $disk
+}
+
+setupdisk
+echo "Do you want to set up disk again? (y/n)"
+read setupdiska
+if [ $setupdiska == y ]
+then
+    setupdisk
+fi
 
 clear
 lsblk
