@@ -1,16 +1,17 @@
 #!/bin/bash
 
+echo "[Log] Installing packages listed in 'pacman'"
+pacman -S --noconfirm - < /pacman
+echo "[Log] Installing packages listed in 'pacman2'"
+pacman -S --noconfirm - < /pacman2
 echo "[Log] Setting locale.."
-cp /etc/locale.gen /etc/locale.gen.bak
-echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
-rm -rf /etc/locale.gen
-mv /etc/locale.gen.bak /etc/locale.gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Hongkong /etc/localtime
 hwclock --systohc --utc
 echo "[Log] hosts file"
-echo "127.0.0.1 localhost" > /etc/hosts
+echo "127.0.0.1 localhost" >> /etc/hosts
 echo "[Log] Running passwd"
 passwd
 echo "[Input] (y)Grub | (n)systemd-boot"
@@ -44,7 +45,7 @@ then
 linux /vmlinuz-linux-zen
 initrd /intel-ucode.img
 initrd /initramfs-linux-zen.img
-options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" | sudo tee -a /boot/loader/entries/arch.conf
+options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" > /boot/loader/entries/arch.conf
 fi
 
 echo "[Input] Enter username"
@@ -53,7 +54,7 @@ echo "[Log] Creating user $username"
 useradd -m -g users -G wheel,audio -s /bin/bash $username
 echo "[Log] Running passwd $username"
 passwd $username
-echo "[Input] Create 2nd user account? (y/n)"
+echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
 read userc2
 if [ $userc2 == y ]
 then
@@ -64,9 +65,8 @@ then
     echo "[Log] Running passwd $username2"
     passwd $username2
 fi
-echo "[Log] Will now run EDITOR=nano visudo. Press [enter]"
-read
-EDITOR=nano visudo
+echo "Running visudo"
+echo "%wheel ALL=(ALL) ALL" | sudo EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable lightdm NetworkManager.service bluetooth.service org.cups.cupsd.service
 
@@ -81,7 +81,11 @@ then
     MatchIsTouchpad "on"
     Option "Tapping" "on"
     Option "TappingButtonMap" "lmr"
-EndSection' | sudo tee -a /etc/X11/xorg.conf.d/30-touchpad.conf
+EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
+echo "Removing install stuff from root"
+rm -rf /pacman
+rm -rf /pacman2
+rm -rf /chroot.sh
 echo "[Log] Script done"
 

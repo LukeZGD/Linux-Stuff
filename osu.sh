@@ -33,8 +33,7 @@ fi
 sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
 sudo pacman -U --noconfirm wine-osu-3.12-1-x86_64.pkg.tar.xz
 
-cp -R dotcache/wine /home/lukee/.cache
-cp -R dotcache/winetricks /home/lukee/.cache
+cp -R /run/media/lukee/LukeHDDNew/Inst_Arch/dotcache/winetricks /home/lukee/.cache
 
 export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
 export WINEARCH=win32 # Only needed when executing the first command with that WINEPREFIX
@@ -44,5 +43,4 @@ winetricks dotnet40
 winetricks gdiplus
 winetricks cjkfonts
 
-rm -rf /home/lukee/.cache/wine
 rm -rf /home/lukee/.cache/winetricks
