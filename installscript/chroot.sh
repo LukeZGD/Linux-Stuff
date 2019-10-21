@@ -53,6 +53,17 @@ echo "[Log] Creating user $username"
 useradd -m -g users -G wheel,audio -s /bin/bash $username
 echo "[Log] Running passwd $username"
 passwd $username
+echo "[Input] Create 2nd user account? (y/n)"
+read userc2
+if [ $userc2 == y ]
+then
+    echo "[Input] Enter username"
+    read username2
+    echo "[Log] Creating user $username2"
+    useradd -m -g users -G audio -s /bin/bash $username2
+    echo "[Log] Running passwd $username2"
+    passwd $username2
+fi
 echo "[Log] Will now run EDITOR=nano visudo. Press [enter]"
 read
 EDITOR=nano visudo
