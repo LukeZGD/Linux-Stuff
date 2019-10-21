@@ -17,7 +17,6 @@ wget
 bluez
 bluez-plugins
 bluez-utils
-blueman
 
 alsa-utils
 pavucontrol
