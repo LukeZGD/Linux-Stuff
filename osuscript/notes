@@ -1,4 +1,0 @@
-load-module module-udev-detect tsched=0 fixed_latency_range=yes
-
-load-module module-null-sink sink_name="audiocap" sink_properties=device.description="audiocap"
-load-module module-loopback latency_msec=1 sink="audiocap" source="<sink name>.monitor"

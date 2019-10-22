@@ -17,6 +17,7 @@ wget
 bluez
 bluez-plugins
 bluez-utils
+blueman
 
 alsa-utils
 pavucontrol
@@ -34,20 +35,16 @@ ntfs-3g
 
 xorg
 xorg-xinit
-lightdm
-lightdm-gtk-greeter
-lightdm-gtk-greeter-settings
+sddm
 
-plasma
-dolphin
+xfce4
+xfce4-goodies
 xed
-xfce4-terminal
-xfce4-screenshooter
 
 networkmanager
 network-manager-applet
 
-ark
+file-roller
 p7zip
 zip
 unzip

@@ -11,12 +11,17 @@ system-config-printer
 audacity
 ffmpeg
 gimp
-gthumb
 handbrake
 kdenlive
 lame
 mcomix
 obs-studio
+
+gnome-keyring
+seahorse
+
+catfish
+mlocate
 
 ffmpegthumbs
 filezilla

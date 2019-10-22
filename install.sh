@@ -27,7 +27,7 @@ lsblk
 echo ""
 echo "[Input] Please enter root partition (/dev/sdaX)"
 read rootpart
-echo "[Input] Please enter home partition /dev/sdaX)"
+echo "[Input] Please enter home partition (/dev/sdaX)"
 read homepart
 echo "[Input] Please enter swap partition (/dev/sdaX)"
 read swappart
@@ -66,16 +66,18 @@ then
     mount $efipart /mnt/boot
 fi
 
+echo "[Log] Copying chroot.sh to /mnt"
+cp installscript/chroot.sh /mnt
+echo "[Log] Copying pacman lists to /mnt"
+cp installscript/pacman /mnt
+cp installscript/pacman2 /mnt
+
 echo "[Log] Running pacman -Sy"
 pacman -Sy
 echo "[Log] Installing base"
 pacstrap -i /mnt base
 echo "[Log] Generating fstab"
 genfstab -U -p /mnt >> /mnt/etc/fstab
-echo "[Log] Copying chroot.sh to /mnt"
-cp installscript/chroot.sh /mnt
-echo "[Log] Copying pacman lists to /mnt"
-cp installscript/pacman /mnt
-cp installscript/pacman2 /mnt
 echo "[Log] Running arch-chroot /mnt ./chroot.sh"
 arch-chroot /mnt ./chroot.sh
+echo "[Log] Script done"

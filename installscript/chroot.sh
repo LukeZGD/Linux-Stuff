@@ -18,6 +18,7 @@ echo "[Input] (y)Grub | (n)systemd-boot"
 read grubinstall
 if [ $grubinstall == y ]
 then
+    lsblk
     echo "[Input] Partition? (/dev/sdaX)"
     read part
     echo "[Log] Run grub-install"
@@ -48,6 +49,10 @@ initrd /initramfs-linux-zen.img
 options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" > /boot/loader/entries/arch.conf
 fi
 
+echo "[Input] Enter hostname"
+read hostname
+echo "[Log] Creating /etc/hostname"
+echo $hostname > /etc/hostname
 echo "[Input] Enter username"
 read username
 echo "[Log] Creating user $username"
@@ -68,7 +73,7 @@ fi
 echo "Running visudo"
 echo "%wheel ALL=(ALL) ALL" | sudo EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable lightdm NetworkManager.service bluetooth.service org.cups.cupsd.service
+systemctl enable sddm NetworkManager bluetooth org.cups.cupsd
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (y/n)"
 read touchpad
@@ -87,5 +92,4 @@ echo "Removing install stuff from root"
 rm -rf /pacman
 rm -rf /pacman2
 rm -rf /chroot.sh
-echo "[Log] Script done"
 
