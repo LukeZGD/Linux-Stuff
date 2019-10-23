@@ -25,13 +25,16 @@ $diskprog $disk
 clear
 lsblk
 echo ""
-echo "[Input] Please enter root partition (/dev/sdaX)"
-read rootpart
-echo "[Input] Please enter home partition (/dev/sdaX)"
+until [ ! -z "$rootpart" ]
+do
+    echo "[Input] Please enter root partition (/dev/sdaX) (REQUIRED)"
+    read rootpart
+done
+echo "[Input] Please enter home partition (/dev/sdaX) (leave blank if none)"
 read homepart
-echo "[Input] Please enter swap partition (/dev/sdaX)"
+echo "[Input] Please enter swap partition (/dev/sdaX) (leave blank if none)"
 read swappart
-echo "[Input] Please enter EFI partition (/dev/sdaX) (leave blank if no EFI)"
+echo "[Input] Please enter EFI partition (/dev/sdaX) (leave blank if none)"
 read efipart
 
 echo "[Log] Formatting $rootpart as ext4"
@@ -39,24 +42,28 @@ mkfs.ext4 $rootpart
 echo "[Log] Mounting $rootpart to /mnt"
 mount $rootpart /mnt
 
-echo "[Input] Format home partition? (y/n)"
-read formathome
-if [ $formathome == y ]
+if [ ! -z "$homepart" ]
+    echo "[Input] Format home partition? (y/n)"
+    read formathome
+    if [ $formathome == y ]
+    then
+        echo "[Log] Formatting $homepart as ext4"
+        mkfs.ext4 $homepart
+    fi
+    echo "[Log] Creating directory /mnt/home"
+    mkdir /mnt/home
+    echo "[Log] Mounting $homepart to /mnt/home"
+    mount $homepart /mnt/home
+
+if [ ! -z "$swappart" ]
 then
-    echo "[Log] Formatting $homepart as ext4"
-    mkfs.ext4 $homepart
+    echo "[Log] Formatting $swappart as swap"
+    mkswap $swappart
+    echo "[Log] Running swapon $swappart"
+    swapon $swappart
 fi
-echo "[Log] Creating directory /mnt/home"
-mkdir /mnt/home
-echo "[Log] Mounting $homepart to /mnt/home"
-mount $homepart /mnt/home
 
-echo "[Log] Formatting $swappart as swap"
-mkswap $swappart
-echo "[Log] Running swapon $swappart"
-swapon $swappart
-
-if [ $efipart != "" ]
+if [ ! -z "$efipart" ]
 then
     echo "[Log] Formatting $efipart as fat32"
     mkfs.fat -F32 $efipart
@@ -72,8 +79,13 @@ echo "[Log] Copying pacman lists to /mnt"
 cp installscript/pacman /mnt
 cp installscript/pacman2 /mnt
 
-echo "[Log] Running pacman -Sy"
-pacman -Sy
+echo "[Input] Copy local cache to /mnt? (y/n)"
+read dotcache
+if [ $dotcache == y ]
+then
+    mkdir -p /mnt/var/cache/pacman
+    cp -R pkg /mnt/var/cache/pacman
+fi
 echo "[Log] Installing base"
 pacstrap -i /mnt base
 echo "[Log] Generating fstab"

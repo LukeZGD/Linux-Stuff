@@ -23,10 +23,7 @@ then
     read part
     echo "[Log] Run grub-install"
     grub-install $part
-    echo "[Log] Will now run nano /etc/default/grub. Press [enter]"
-    read
-    nano /etc/default/grub
-    echo "[Log] Run grub-mkconfig"
+    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 fi
 if [ $grubinstall == n ]
@@ -70,7 +67,7 @@ then
     echo "[Log] Running passwd $username2"
     passwd $username2
 fi
-echo "Running visudo"
+echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | sudo EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable sddm NetworkManager bluetooth org.cups.cupsd

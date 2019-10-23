@@ -26,10 +26,8 @@ sudo chmod +x /usr/bin/osukill
 
 sink=$(pacmd info |grep "Default sink name" |cut -c 20-)
 
-sudo sed -i '/load-module module-udev-detect/s/^/#/' /etc/pulse/default.pa
-sudo echo "load-module module-udev-detect tsched=0 fixed_latency_range=yes
-
-load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
+sudo sed -i "s/load-module module-udev-detect/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" /etc/pulse/default.pa
+sudo echo "load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
 load-module module-loopback latency_msec=1 sink=\"audiocap\" source=\"$sink.monitor\"" >> /etc/pulse/default.pa
 
 echo "390xx or nah (y/n)"
