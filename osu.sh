@@ -1,5 +1,25 @@
 #!/bin/bash
 
+osu='
+#!/bin/sh
+export WINEPREFIX="$HOME/.wine_osu"
+export STAGING_AUDIO_DURATION=50000
+
+# Arch Linux/wine-osu users should uncomment next line
+# for the patch to be effective
+export PATH=/opt/wine-osu/bin:$PATH
+
+cd ~/osu # Or wherever you installed osu! in
+wine osu!.exe "$@"
+'
+
+osukill='
+#!/bin/sh
+export WINEPREFIX="$HOME/.wine_osu"
+
+wineserver -k
+'
+
 sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
@@ -19,12 +39,12 @@ resample-method = speex-float-0
 default-fragments = 2 # Minimum is 2
 default-fragment-size-msec = 4" > /etc/pulse/daemon.conf.d/10-better-latency.conf
 
-sudo cp osu /usr/bin
-sudo cp osukill /usr/bin
+sudo echo $osu > /usr/bin/osu
+sudo echo $osukill > /usr/bin/osukill
 sudo chmod +x /usr/bin/osu
 sudo chmod +x /usr/bin/osukill
 
-sink=$(pacmd info |grep "Default sink name" |cut -c 20-)
+sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
 
 sudo sed -i "s/load-module module-udev-detect/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" /etc/pulse/default.pa
 sudo echo "load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
@@ -45,7 +65,7 @@ fi
 sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
 sudo pacman -U --noconfirm wine-osu-3.12-2-x86_64.pkg.tar.xz
 
-cp -R /run/media/lukee/LukeHDDNew/Inst_Arch/dotcache/winetricks /home/lukee/.cache
+cp -R dotcache/winetricks /home/lukee/.cache
 
 export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
 export WINEARCH=win32 # Only needed when executing the first command with that WINEPREFIX

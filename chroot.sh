@@ -70,7 +70,7 @@ fi
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | sudo EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable sddm NetworkManager bluetooth org.cups.cupsd
+systemctl enable lightdm NetworkManager bluetooth org.cups.cupsd
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (y/n)"
 read touchpad

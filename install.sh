@@ -1,5 +1,19 @@
 #!/bin/bash
 
+mirrorlist = '
+Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
+Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://mirror.aarnet.edu.au/pub/archlinux/$repo/os/$arch
+Server = http://archlinux.mirror.digitalpacific.com.au/$repo/os/$arch
+Server = http://ftp.iinet.net.au/pub/archlinux/$repo/os/$arch
+Server = http://mirror.internode.on.net/pub/archlinux/$repo/os/$arch
+Server = http://archlinux.melbourneitmirror.net/$repo/os/$arch
+Server = http://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = http://ftp.swin.edu.au/archlinux/$repo/os/$arch
+'
+
 clear
 
 echo "LukeZGD Arch Install Script"
@@ -8,8 +22,8 @@ echo "Press [enter] to continue, or ^C to cancel"
 read
 
 echo ""
-echo "[Log] Moving mirrorlist"
-cp installscript/mirrorlist /etc/pacman.d/mirrorlist
+echo "[Log] Creating mirrorlist"
+echo $mirrorlist >> /etc/pacman.d/mirrorlist
 
 echo "[Input] cfdisk or cgdisk?"
 read diskprog
@@ -43,6 +57,7 @@ echo "[Log] Mounting $rootpart to /mnt"
 mount $rootpart /mnt
 
 if [ ! -z "$homepart" ]
+then
     echo "[Input] Format home partition? (y/n)"
     read formathome
     if [ $formathome == y ]
@@ -54,6 +69,7 @@ if [ ! -z "$homepart" ]
     mkdir /mnt/home
     echo "[Log] Mounting $homepart to /mnt/home"
     mount $homepart /mnt/home
+fi
 
 if [ ! -z "$swappart" ]
 then
@@ -74,10 +90,10 @@ then
 fi
 
 echo "[Log] Copying chroot.sh to /mnt"
-cp installscript/chroot.sh /mnt
+cp chroot.sh /mnt
 echo "[Log] Copying pacman lists to /mnt"
-cp installscript/pacman /mnt
-cp installscript/pacman2 /mnt
+cp pacman /mnt
+cp pacman2 /mnt
 
 echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
