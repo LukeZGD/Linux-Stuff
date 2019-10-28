@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mirrorlist = '
+mirrorlist='
 Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
 Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
@@ -23,7 +23,7 @@ read
 
 echo ""
 echo "[Log] Creating mirrorlist"
-echo $mirrorlist >> /etc/pacman.d/mirrorlist
+echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 
 echo "[Input] cfdisk or cgdisk?"
 read diskprog
@@ -105,7 +105,7 @@ fi
 echo "[Log] Installing base"
 pacstrap -i /mnt base
 echo "[Log] Generating fstab"
-genfstab -U -p /mnt >> /mnt/etc/fstab
+genfstab -U -p /mnt > /mnt/etc/fstab
 echo "[Log] Running arch-chroot /mnt ./chroot.sh"
 arch-chroot /mnt ./chroot.sh
 echo "[Log] Script done"

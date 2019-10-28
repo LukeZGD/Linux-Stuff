@@ -24,11 +24,12 @@ sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
 cd osuscript
-sudo echo "@audio - nice -20
-@audio - rtprio 99 " >> /etc/security/limits.conf
+sudo cp -R /etc/security/limits.conf /etc/security/limits.conf.bak
+echo "@audio - nice -20
+@audio - rtprio 99 " | sudo tee /etc/security/limits.conf
 
 sudo mkdir /etc/pulse/daemon.conf.d
-sudo echo "high-priority = yes
+echo "high-priority = yes
 nice-level = -15
 
 realtime-scheduling = yes
@@ -37,18 +38,20 @@ realtime-priority = 50
 resample-method = speex-float-0
 
 default-fragments = 2 # Minimum is 2
-default-fragment-size-msec = 4" > /etc/pulse/daemon.conf.d/10-better-latency.conf
+default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
 
-sudo echo $osu > /usr/bin/osu
-sudo echo $osukill > /usr/bin/osukill
+echo "$osu" | sudo tee /usr/bin/osu
+echo "$osukill" | sudo tee /usr/bin/osukill
 sudo chmod +x /usr/bin/osu
 sudo chmod +x /usr/bin/osukill
 
 sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
 
-sudo sed -i "s/load-module module-udev-detect/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" /etc/pulse/default.pa
-sudo echo "load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
-load-module module-loopback latency_msec=1 sink=\"audiocap\" source=\"$sink.monitor\"" >> /etc/pulse/default.pa
+mkdir ~/.config/pulse
+cp -R /etc/pulse/default.pa ~/.config/pulse/default.pa
+sudo sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" ~/.config/pulse/default.pa
+echo "load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
+load-module module-loopback latency_msec=1 sink=\"audiocap\" source=\"$sink.monitor\"" | sudo tee -a ~/.config/pulse/default.pa
 
 echo "390xx or nah (y/n)"
 read sel

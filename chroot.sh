@@ -19,7 +19,7 @@ read grubinstall
 if [ $grubinstall == y ]
 then
     lsblk
-    echo "[Input] Partition? (/dev/sdaX)"
+    echo "[Input] Disk? (/dev/sdX)"
     read part
     echo "[Log] Run grub-install"
     grub-install $part
@@ -30,6 +30,7 @@ if [ $grubinstall == n ]
 then
     echo "[Log] run bootctl install"
     bootctl install
+    lsblk
     echo "[Input] Please enter root partition (/dev/sdaX)"
     read rootpart
     rootuuid=$(lsblk -no UUID $rootpart)

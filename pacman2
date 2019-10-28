@@ -10,12 +10,13 @@ system-config-printer
 
 audacity
 ffmpeg
-gimp
 handbrake
 kdenlive
+kolourpaint
 lame
 mcomix
 obs-studio
+pinta
 
 gnome-keyring
 seahorse
@@ -23,7 +24,7 @@ seahorse
 catfish
 mlocate
 
-ffmpegthumbs
+ffmpegthumbnailer
 filezilla
 galculator
 htop
