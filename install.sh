@@ -81,8 +81,13 @@ fi
 
 if [ ! -z "$efipart" ]
 then
-    echo "[Log] Formatting $efipart as fat32"
-    mkfs.fat -F32 $efipart
+    echo "[Input] Format EFI partition? (y/n)"
+    read formatefi
+    if [ $formatefi == y ]
+    then
+        echo "[Log] Formatting $efipart as fat32"
+        mkfs.fat -F32 $efipart
+    fi    
     echo "[Log] Creating directory /mnt/boot"
     mkdir /mnt/boot
     echo "[Log] Mounting $efipart to /mnt/boot"
