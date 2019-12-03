@@ -12,6 +12,13 @@ Server = http://archlinux.melbourneitmirror.net/$repo/os/$arch
 Server = http://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = http://ftp.swin.edu.au/archlinux/$repo/os/$arch
+Server = http://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = https://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = https://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch
+Server = https://sgp.mirror.pkgbuild.com/$repo/os/$arch
+Server = http://mirror.nus.edu.sg/archlinux/$repo/os/$arch
 '
 
 clear
@@ -81,6 +88,14 @@ fi
 
 if [ ! -z "$efipart" ]
 then
+    echo "[Input] 32-bit EFI? (y/n)"
+    read i386efi
+    if [ $i386efi == y ]
+    then
+        efidir="/mnt/boot/EFI"
+    else
+        efidir="/mnt/boot"
+    fi
     echo "[Input] Format EFI partition? (y/n)"
     read formatefi
     if [ $formatefi == y ]
@@ -89,7 +104,7 @@ then
         mkfs.fat -F32 $efipart
     fi    
     echo "[Log] Creating directory /mnt/boot"
-    mkdir /mnt/boot
+    mkdir -p $efidir
     echo "[Log] Mounting $efipart to /mnt/boot"
     mount $efipart /mnt/boot
 fi
@@ -109,6 +124,11 @@ then
 fi
 echo "[Log] Installing base"
 pacstrap -i /mnt base
+if [ $i386efi == y ]
+then
+    echo "[Log] Installing efibootmgr"
+    arch-chroot /mnt pacman -S --noconfirm efibootmgr
+fi
 echo "[Log] Generating fstab"
 genfstab -U -p /mnt > /mnt/etc/fstab
 echo "[Log] Running arch-chroot /mnt ./chroot.sh"

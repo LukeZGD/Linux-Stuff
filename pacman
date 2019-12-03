@@ -1,5 +1,4 @@
 base-devel
-grub
 intel-ucode
 linux-firmware
 linux-zen
@@ -42,7 +41,6 @@ gparted
 gvfs
 gvfs-afc
 gvfs-gphoto2
-exfat-utils
 ntfs-3g
 
 file-roller

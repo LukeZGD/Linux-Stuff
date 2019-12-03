@@ -1,11 +1,12 @@
 #!/bin/bash
 
 function grubinstall {
+    pacman -S --noconfirm grub
     lsblk
     echo "[Input] Disk? (/dev/sdX)"
     read part
     echo "[Log] Run grub-install"
-    grub-install $part
+    grub-install $part --target=$grubtarget
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -28,7 +29,6 @@ linux /vmlinuz-linux-zen
 initrd /intel-ucode.img
 initrd /initramfs-linux-zen.img
 options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" > /boot/loader/entries/arch.conf
-fi
 }
 
 echo "[Log] Installing packages listed in 'pacman'"
@@ -45,13 +45,22 @@ echo "[Log] hosts file"
 echo "127.0.0.1 localhost" >> /etc/hosts
 echo "[Log] Running passwd"
 passwd
-echo "[Input]"
-select opt in "grub" "systemd-boot"; do
-    case $opt in
-        "grub" ) grubinstall; break;;
-        "systemd-boot" ) systemdinstall; break;;
-    esac
-done
+
+if [ $(which efibootmgr) ]
+then
+    grubtarget=i386-efi
+    echo "[Log] Installing grub"
+    grubinstall
+else
+    grubtarget=i386-pc
+    echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
+    select opt in "grub" "systemd-boot"; do
+        case $opt in
+            "grub" ) grubinstall; break;;
+            "systemd-boot" ) systemdinstall; break;;
+        esac
+    done
+fi
 
 echo "[Input] Enter hostname"
 read hostname
@@ -75,7 +84,7 @@ then
     passwd $username2
 fi
 echo "[Log] Running visudo"
-echo "%wheel ALL=(ALL) ALL" | sudo EDITOR="tee -a" visudo
+echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable lightdm NetworkManager bluetooth
 systemctl enable org.cups.cupsd
@@ -93,8 +102,11 @@ then
     Option "TappingButtonMap" "lmr"
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
+
+sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
+cp unmountonlogout /usr/bin/
+
 echo "Removing install stuff from root"
 rm -rf /pacman
 rm -rf /pacman2
 rm -rf /chroot.sh
-
