@@ -1,5 +1,103 @@
 #!/bin/bash
 
+pacman=(
+base-devel
+intel-ucode
+linux-firmware
+linux-zen
+linux-zen-headers
+nano
+
+dialog
+git
+neofetch
+rsync
+pacman-contrib
+wget
+
+alsa-utils
+pavucontrol
+pulseaudio
+pulseaudio-alsa
+pulseaudio-bluetooth
+
+xorg-server
+xorg-xinit
+xorg-xrandr
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+
+xfce4
+xfce4-goodies
+
+networkmanager
+network-manager-applet
+
+bluez
+bluez-plugins
+bluez-utils
+blueman
+
+gnome-disk-utility
+gparted
+gvfs
+gvfs-afc
+gvfs-gphoto2
+ntfs-3g
+
+file-roller
+p7zip
+zip
+unzip
+unrar
+)
+
+pacman2=(
+adapta-gtk-theme
+papirus-icon-theme
+
+cups-pdf
+foomatic-db-gutenprint-ppds
+gutenprint
+hplip
+simple-scan
+system-config-printer
+
+audacity
+ffmpeg
+ffmpegthumbnailer
+handbrake
+kdenlive
+kolourpaint
+lame
+mcomix
+notepadqq
+obs-studio
+okteta
+openshot
+pinta
+vlc
+
+gnome-keyring
+seahorse
+
+catfish
+mlocate
+
+filezilla
+galculator
+htop
+ifuse
+jre8-openjdk
+libreoffice
+openssh
+noto-fonts-cjk
+noto-fonts-emoji
+qbittorrent
+uget
+)
+
 function grubinstall {
     pacman -S --noconfirm grub
     lsblk
@@ -32,9 +130,14 @@ options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" > /boot/l
 }
 
 echo "[Log] Installing packages listed in 'pacman'"
-pacman -S --noconfirm - < /pacman
-echo "[Log] Installing packages listed in 'pacman2'"
-pacman -S --noconfirm - < /pacman2
+pacman -S --noconfirm ${pacman[*]}
+echo "[Input] Install packages listed in pacman2? (y/n)"
+read installpacman2
+if [ $installpacman2 == y ]
+then
+    echo "[Log] Installing packages listed in 'pacman2'"
+    pacman -S --noconfirm ${pacman2[*]}
+fi
 echo "[Log] Setting locale.."
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
@@ -89,7 +192,7 @@ echo "[Log] Enabling services"
 systemctl enable lightdm NetworkManager bluetooth
 systemctl enable org.cups.cupsd
 
-echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (y/n)"
+echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/n)"
 read touchpad
 if [ $touchpad == y ]
 then
@@ -105,8 +208,7 @@ fi
 
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 cp unmountonlogout /usr/bin/
+chmod +x /usr/bin/unmountonlogout
 
-echo "Removing install stuff from root"
-rm -rf /pacman
-rm -rf /pacman2
+echo "Removing chroot.sh"
 rm -rf /chroot.sh

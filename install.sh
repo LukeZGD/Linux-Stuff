@@ -111,9 +111,6 @@ fi
 
 echo "[Log] Copying chroot.sh to /mnt"
 cp chroot.sh /mnt
-echo "[Log] Copying pacman lists to /mnt"
-cp pacman /mnt
-cp pacman2 /mnt
 
 echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
@@ -131,6 +128,6 @@ then
 fi
 echo "[Log] Generating fstab"
 genfstab -U -p /mnt > /mnt/etc/fstab
-echo "[Log] Running arch-chroot /mnt ./chroot.sh"
+echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
-echo "[Log] Script done"
+echo "[Log] Install script done!"
