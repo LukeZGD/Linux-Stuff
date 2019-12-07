@@ -207,8 +207,5 @@ EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-cp unmountonlogout /usr/bin/
-chmod +x /usr/bin/unmountonlogout
-
 echo "Removing chroot.sh"
 rm -rf /chroot.sh

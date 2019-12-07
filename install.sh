@@ -109,8 +109,10 @@ then
     mount $efipart /mnt/boot
 fi
 
-echo "[Log] Copying chroot.sh to /mnt"
+echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
+cp unmountonlogout /mnt/usr/bin/
+chmod +x /mnt/usr/bin/unmountonlogout
 
 echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
