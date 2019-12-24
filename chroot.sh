@@ -54,8 +54,8 @@ unrar
 )
 
 pacman2=(
-adapta-gtk-theme
 papirus-icon-theme
+qt5-styleplugins
 
 cups-pdf
 foomatic-db-gutenprint-ppds
@@ -95,7 +95,10 @@ openssh
 noto-fonts-cjk
 noto-fonts-emoji
 qbittorrent
+samba
+testdisk
 uget
+xfburn
 )
 
 function grubinstall {
@@ -207,5 +210,6 @@ EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
+echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
 echo "Removing chroot.sh"
 rm -rf /chroot.sh

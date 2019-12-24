@@ -3,6 +3,7 @@
 packages=(
 ncurses5-compat-libs
 python2-twodict-git
+
 chromium-vaapi-bin
 chromium-widevine
 cydia-impactor
@@ -37,11 +38,9 @@ libretro-mupen64plus-next
 libretro-nestopia
 libretro-overlays
 libretro-ppsspp
-libretro-shaders-slang
 libretro-snes9x
 retroarch
 retroarch-assets-ozone
-retroarch-assets-xmb
 )
 
 osu='
@@ -90,6 +89,7 @@ function 390xx {
 
 function emulatorsinstall {
     sudo pacman -S --noconfirm ${emulators[*]}
+    sudo pacman -U --noconfirm AUR/cemu/*.xz
 }
 
 function osu {
