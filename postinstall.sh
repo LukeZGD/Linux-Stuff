@@ -81,6 +81,7 @@ function laptop {
     sudo pacman -S --noconfirm nvidia-dkms nvidia-settings bbswitch-dkms tlp
     sudo pacman -U --noconfirm AUR/optimus-manager/*.xz
     sudo pacman -U --noconfirm AUR/optimus-manager-qt/*.xz
+    sudo systemctl enable tlp
 }
 
 function 390xx {
@@ -167,11 +168,11 @@ function osu {
 clear
 echo "LukeZGD Arch Post-Install Script"
 echo
-select opt in "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus" "NVIDIA 390xx" "osu!" "Emulators"; do
+select opt in "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators"; do
     case $opt in
         "Local AUR pkgs" ) postinstall; break;;
         "VirtualBox" ) vbox; break;;
-        "NVIDIA Optimus" ) laptop; break;;
+        "NVIDIA Optimus+TLP" ) laptop; break;;
         "NVIDIA 390xx" ) 390xx; break;;
         "osu!" ) osu; break;;
         "Emulators" ) emulatorsinstall; break;;

@@ -111,6 +111,7 @@ fi
 
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
+mkdir -p /mnt/usr/bin
 cp unmountonlogout /mnt/usr/bin/
 chmod +x /mnt/usr/bin/unmountonlogout
 

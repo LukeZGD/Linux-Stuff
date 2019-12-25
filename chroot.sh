@@ -7,6 +7,7 @@ linux-firmware
 linux-zen
 linux-zen-headers
 nano
+usbutils
 
 dialog
 git
@@ -53,9 +54,9 @@ unzip
 unrar
 )
 
+#qt5-styleplugins
 pacman2=(
 papirus-icon-theme
-qt5-styleplugins
 
 cups-pdf
 foomatic-db-gutenprint-ppds
@@ -210,6 +211,6 @@ EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
+#echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
 echo "Removing chroot.sh"
 rm -rf /chroot.sh
