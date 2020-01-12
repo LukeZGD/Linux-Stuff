@@ -6,7 +6,6 @@ python2-twodict-git
 
 chromium-vaapi-bin
 chromium-widevine
-cydia-impactor
 gallery-dl
 github-desktop-bin
 input-veikk-dkms
@@ -18,8 +17,7 @@ uget-integrator
 uget-integrator-browsers
 vlc-plugin-fluidsynth
 woeusb
-youtube-dl
-gui-git
+youtube-dl-gui-git
 yay-bin
 )
 
@@ -66,8 +64,18 @@ wineserver -k
 function postinstall {
     for package in "${packages[@]}"
     do
-        #sudo pacman -U --noconfirm AUR/$package/*.xz
-		yay $package
+        sudo pacman -U --noconfirm AUR/$package/*.xz
+    done
+}
+
+function postinstallyay {
+    git clone https://aur.archlinux.org/yay-bin.git
+    cd yay-bin
+    makepkg -si --noconfirm
+    rm -rf yay-bin
+    for package in "${packages[@]}"
+    do
+		yay --noconfirm $package
     done
 }
 
@@ -169,8 +177,9 @@ function osu {
 clear
 echo "LukeZGD Arch Post-Install Script"
 echo
-select opt in "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators"; do
+select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators"; do
     case $opt in
+        'Install AUR pkgs w/ yay' ) postinstallyay; break;;
         "Local AUR pkgs" ) postinstall; break;;
         "VirtualBox" ) vbox; break;;
         "NVIDIA Optimus+TLP" ) laptop; break;;

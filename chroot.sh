@@ -108,19 +108,26 @@ function grubinstall {
     lsblk
     echo "[Input] Disk? (/dev/sdX)"
     read part
+    echo "[Input] Please enter encrypted partition (/dev/sdaX)"
+    read rootpart
+    rootuuid=$(blkid -o value -s UUID $rootpart)
+    echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Run grub-install"
     grub-install $part --target=$grubtarget
+	echo "[Log] Edit /etc/default/grub"
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
+    sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
+    echo "[Log] Run grub-mkconfig"
+	grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function systemdinstall {
     echo "[Log] run bootctl install"
     bootctl install
     lsblk
-    echo "[Input] Please enter partition (/dev/sdaX)"
+    echo "[Input] Please enter encrypted partition (/dev/sdaX)"
     read rootpart
-    rootuuid=$(lsblk -no UUID $rootpart)
+    rootuuid=$(blkid -o value -s UUID $rootpart)
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
@@ -135,13 +142,8 @@ editor 0" > /boot/loader/loader.conf
 
 echo "[Log] Installing packages listed in 'pacman'"
 pacman -S --noconfirm ${pacman[*]}
-echo "[Input] Install packages listed in pacman2? (y/n)"
-read installpacman2
-if [ $installpacman2 == y ]
-then
-    echo "[Log] Installing packages listed in 'pacman2'"
-    pacman -S --noconfirm ${pacman2[*]}
-fi
+echo "[Log] Installing packages listed in 'pacman2'"
+pacman -S --noconfirm ${pacman2[*]}
 echo "[Log] Setting locale.."
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
@@ -168,6 +170,12 @@ else
         esac
     done
 fi
+
+echo "[Log] Edit mkinitcpio.conf"
+sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
+sed -i "s/MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
+echo "[Log] Run mkinitcpio"
+mkinitcpio -p linux-zen
 
 echo "[Input] Enter hostname"
 read hostname
@@ -213,5 +221,4 @@ fi
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 #echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
 echo "Removing chroot.sh"
-rm -rf /chroot.sh
-echo "HOOKS=\"base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck\""
+rm /chroot.sh

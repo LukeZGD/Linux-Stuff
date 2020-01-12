@@ -32,14 +32,11 @@ echo ""
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 
-select opt in "cfdisk" "cgdisk" "fdisk" "gdisk"; do
-    case $opt in
-        "cfdisk" ) diskprog="cfdisk"; break;;
-        "cgdisk" ) diskprog="cgdisk"; break;;
-        "fdisk" ) diskprog="fdisk"; break;;
-        "gdisk" ) diskprog="gdisk"; break;;
-    esac
-done
+if [[ $diskprog != y ]] || [[ $diskprog != Y ]] || [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
+echo "[Input] (y) fdisk BIOS/MBR, (n) gdisk UEFI/GPT"
+read diskprog
+fi
+
 echo ""
 lsblk
 echo ""
@@ -47,39 +44,28 @@ echo "[Input] Please enter device to be used (/dev/sdX)"
 read disk
 echo "Will now enter $diskprog with device $disk. Press [enter]"
 read
-echo "Commands for gdisk:
-# Erasure
-o
-Y
-
-# Create EFI
-n
-<enter>
-<enter>
-+512M
-EF00
-
-# Create partition
-n
-<enter>
-<enter>
-<enter>
-8E00
-
-# Check and write
-p
-w"
+echo "Commands:
+# Erase: o, y
+# Create boot (f): n, <enter>, <enter>, +256M
+# Create boot (g): n, <enter>, <enter>, +256M, EF00
+# Create partition (f): n, <enter>, <enter>, <enter>
+# Create partition (g): n, <enter>, <enter>, <enter>, 8E00
+# Check and write: p, w"
 $diskprog $disk
 
 clear
 lsblk
 echo ""
-echo "[Input] Please enter encrypted partition (/dev/sdaX) (REQUIRED)"
+echo "[Input] Please enter encrypted partition (/dev/sdaX)"
 read rootpart
-echo "[Input] Please enter EFI partition (/dev/sdaX)"
-read efipart
+echo "[Input] Please enter boot partition (/dev/sdaX)"
+read bootpart
 
-mkfs.vfat -F32 $efipart
+if [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
+mkfs.vfat -F32 $bootpart
+elif [[ $diskprog != y ]] || [[ $diskprog != Y ]]; then
+mkfs.ext2 $bootpart
+fi
 cryptsetup luksFormat $rootpart
 cryptsetup luksOpen $rootpart lvm
 pvcreate /dev/mapper/lvm
@@ -93,7 +79,7 @@ mkswap /dev/mapper/vg0-swap
 mount /dev/mapper/vg0-root /mnt
 mkdir /mnt/boot /mnt/home
 mount /dev/mapper/vg0-home /mnt/home
-mount $efipart /mnt/boot
+mount $bootpart /mnt/boot
 swapon /dev/mapper/vg0-swap
 
 echo "[Log] Copying stuff to /mnt"
