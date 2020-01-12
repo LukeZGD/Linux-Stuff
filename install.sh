@@ -32,8 +32,14 @@ echo ""
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 
-echo "[Input] cfdisk or cgdisk?"
-read diskprog
+select opt in "cfdisk" "cgdisk" "fdisk" "gdisk"; do
+    case $opt in
+        "cfdisk" ) diskprog="cfdisk"; break;;
+        "cgdisk" ) diskprog="cgdisk"; break;;
+        "fdisk" ) diskprog="fdisk"; break;;
+        "gdisk" ) diskprog="gdisk"; break;;
+    esac
+done
 echo ""
 lsblk
 echo ""
@@ -41,73 +47,54 @@ echo "[Input] Please enter device to be used (/dev/sdX)"
 read disk
 echo "Will now enter $diskprog with device $disk. Press [enter]"
 read
+echo "Commands for gdisk:
+# Erasure
+o
+Y
+
+# Create EFI
+n
+<enter>
+<enter>
++512M
+EF00
+
+# Create partition
+n
+<enter>
+<enter>
+<enter>
+8E00
+
+# Check and write
+p
+w"
 $diskprog $disk
 
 clear
 lsblk
 echo ""
-until [ ! -z "$rootpart" ]
-do
-    echo "[Input] Please enter root partition (/dev/sdaX) (REQUIRED)"
-    read rootpart
-done
-echo "[Input] Please enter home partition (/dev/sdaX) (leave blank if none)"
-read homepart
-echo "[Input] Please enter swap partition (/dev/sdaX) (leave blank if none)"
-read swappart
-echo "[Input] Please enter EFI partition (/dev/sdaX) (leave blank if none)"
+echo "[Input] Please enter encrypted partition (/dev/sdaX) (REQUIRED)"
+read rootpart
+echo "[Input] Please enter EFI partition (/dev/sdaX)"
 read efipart
 
-echo "[Log] Formatting $rootpart as ext4"
-mkfs.ext4 $rootpart
-echo "[Log] Mounting $rootpart to /mnt"
-mount $rootpart /mnt
-
-if [ ! -z "$homepart" ]
-then
-    echo "[Input] Format home partition? (y/n)"
-    read formathome
-    if [ $formathome == y ]
-    then
-        echo "[Log] Formatting $homepart as ext4"
-        mkfs.ext4 $homepart
-    fi
-    echo "[Log] Creating directory /mnt/home"
-    mkdir /mnt/home
-    echo "[Log] Mounting $homepart to /mnt/home"
-    mount $homepart /mnt/home
-fi
-
-if [ ! -z "$swappart" ]
-then
-    echo "[Log] Formatting $swappart as swap"
-    mkswap $swappart
-    echo "[Log] Running swapon $swappart"
-    swapon $swappart
-fi
-
-if [ ! -z "$efipart" ]
-then
-    echo "[Input] 32-bit EFI? (y/n)"
-    read i386efi
-    if [ $i386efi == y ]
-    then
-        efidir="/mnt/boot/EFI"
-    else
-        efidir="/mnt/boot"
-    fi
-    echo "[Input] Format EFI partition? (y/n)"
-    read formatefi
-    if [ $formatefi == y ]
-    then
-        echo "[Log] Formatting $efipart as fat32"
-        mkfs.fat -F32 $efipart
-    fi    
-    echo "[Log] Creating directory /mnt/boot"
-    mkdir -p $efidir
-    echo "[Log] Mounting $efipart to /mnt/boot"
-    mount $efipart /mnt/boot
-fi
+mkfs.vfat -F32 $efipart
+cryptsetup luksFormat $rootpart
+cryptsetup luksOpen $rootpart lvm
+pvcreate /dev/mapper/lvm
+vgcreate vg0 /dev/mapper/lvm
+lvcreate -L 6G vg0 -n swap
+lvcreate -L 25G vg0 -n root
+lvcreate -l 100%FREE vg0 -n home
+mkfs.ext4 /dev/mapper/vg0-root
+mkfs.ext4 /dev/mapper/vg0-home
+mkswap /dev/mapper/vg0-swap
+mount /dev/mapper/vg0-root /mnt
+mkdir /mnt/boot /mnt/home
+mount /dev/mapper/vg0-home /mnt/home
+mount $efipart /mnt/boot
+swapon /dev/mapper/vg0-swap
 
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
@@ -120,17 +107,18 @@ read dotcache
 if [ $dotcache == y ]
 then
     mkdir -p /mnt/var/cache/pacman
-    cp -R pkg /mnt/var/cache/pacman
+    cp -R Backups/pkg /mnt/var/cache/pacman
+    umount /mnt2
 fi
 echo "[Log] Installing base"
-pacstrap -i /mnt base
+pacstrap /mnt base
 if [ $i386efi == y ]
 then
     echo "[Log] Installing efibootmgr"
     arch-chroot /mnt pacman -S --noconfirm efibootmgr
 fi
 echo "[Log] Generating fstab"
-genfstab -U -p /mnt > /mnt/etc/fstab
+genfstab -pU /mnt > /mnt/etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
 echo "[Log] Install script done!"

@@ -66,7 +66,8 @@ wineserver -k
 function postinstall {
     for package in "${packages[@]}"
     do
-        sudo pacman -U --noconfirm AUR/$package/*.xz
+        #sudo pacman -U --noconfirm AUR/$package/*.xz
+		yay $package
     done
 }
 

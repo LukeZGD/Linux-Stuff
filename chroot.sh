@@ -2,6 +2,7 @@
 
 pacman=(
 base-devel
+fish
 intel-ucode
 linux-firmware
 linux-zen
@@ -117,20 +118,19 @@ function systemdinstall {
     echo "[Log] run bootctl install"
     bootctl install
     lsblk
-    echo "[Input] Please enter root partition (/dev/sdaX)"
+    echo "[Input] Please enter partition (/dev/sdaX)"
     read rootpart
     rootuuid=$(lsblk -no UUID $rootpart)
-    echo "[Log] Got UUID of $rootpart: $rootuuid"
-    echo "[Input] Please enter swap partition (/dev/sdaX)"
-    read swappart
-    swapuuid=$(lsblk -no UUID $swappart)
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
 linux /vmlinuz-linux-zen
 initrd /intel-ucode.img
 initrd /initramfs-linux-zen.img
-options root=UUID=$rootuuid rw resume=UUID=$swapuuid loglevel=3 quiet" > /boot/loader/entries/arch.conf
+options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw quiet" > /boot/loader/entries/arch.conf
+	echo "timeout 0
+default arch
+editor 0" > /boot/loader/loader.conf
 }
 
 echo "[Log] Installing packages listed in 'pacman'"
@@ -176,7 +176,7 @@ echo $hostname > /etc/hostname
 echo "[Input] Enter username"
 read username
 echo "[Log] Creating user $username"
-useradd -m -g users -G wheel,audio -s /bin/bash $username
+useradd -m -g users -G wheel,audio -s /usr/bin/fish $username
 echo "[Log] Running passwd $username"
 passwd $username
 echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
@@ -186,7 +186,7 @@ then
     echo "[Input] Enter username"
     read username2
     echo "[Log] Creating user $username2"
-    useradd -m -g users -G audio -s /bin/bash $username2
+    useradd -m -g users -G audio -s /usr/bin/fish $username2
     echo "[Log] Running passwd $username2"
     passwd $username2
 fi
@@ -214,3 +214,4 @@ sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonl
 #echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
 echo "Removing chroot.sh"
 rm -rf /chroot.sh
+echo "HOOKS=\"base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck\""
