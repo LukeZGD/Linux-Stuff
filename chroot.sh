@@ -218,6 +218,22 @@ then
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
+echo '#!/bin/bash
+for device in /sys/block/*
+do
+    if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
+    then
+        echo Found $device to unmount
+        DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
+        echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
+        UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
+        if sudo umount $UM
+          then echo Done umounting
+        fi
+    fi
+done' | sudo tee /usr/bin/unmountonlogout
+chmod +x /usr/bin/unmountonlogout
+
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 #echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
 echo "Removing chroot.sh"

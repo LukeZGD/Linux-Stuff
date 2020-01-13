@@ -8,7 +8,6 @@ chromium-vaapi-bin
 chromium-widevine
 gallery-dl
 github-desktop-bin
-input-veikk-dkms
 qdirstat
 ttf-ms-fonts
 ttf-tahoma
@@ -66,6 +65,7 @@ function postinstall {
     do
         sudo pacman -U --noconfirm AUR/$package/*.xz
     done
+    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms-r43.f873d2b-1-x86_64.pkg.tar.xz
 }
 
 function postinstallyay {
@@ -75,8 +75,9 @@ function postinstallyay {
     rm -rf yay-bin
     for package in "${packages[@]}"
     do
-		yay --noconfirm $package
+        yay --noconfirm $package
     done
+    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms-r43.f873d2b-1-x86_64.pkg.tar.xz
 }
 
 function vbox {
@@ -149,7 +150,7 @@ function osu {
         sudo pacman -S --noconfirm lib32-nvidia-utils
     fi
     sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
-    sudo pacman -U --noconfirm wine-osu-3.12-2-x86_64.pkg.tar.xz
+    sudo pacman -U --noconfirm ~/Documents/wine-osu-3.12-2-x86_64.pkg.tar.xz
 
     cp -R dotcache/winetricks /home/lukee/.cache
 
@@ -172,12 +173,44 @@ function osu {
     echo "Script done"
 }
 
+function devkitPro {
+echo 'DEVKITPRO=/opt/devkitpro
+DEVKITARM=/opt/devkitpro/devkitARM
+DEVKITPPC=/opt/devkitpro/devkitPPC' | sudo tee -a /etc/environment
+sudo pacman-key --recv F7FD5492264BB9D0
+sudo pacman-key --lsign F7FD5492264BB9D0
+sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
+echo '[dkp-libs]
+Server = https://downloads.devkitpro.org/packages
+[dkp-linux]
+Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy
+}
+
+function rc-local {
+echo '[Unit]
+Description=/etc/rc.local compatibility
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/rc-local.service
+sudo systemctl enable rc-local.service
+echo '#!/bin/bash
+echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
+exit 0' | sudo tee /etc/rc.local
+sudo chmod +x /etc/rc.local
+}
+
 # ----------------------------------
 
 clear
 echo "LukeZGD Arch Post-Install Script"
 echo
-select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators"; do
+select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro" "rc-local"; do
     case $opt in
         'Install AUR pkgs w/ yay' ) postinstallyay; break;;
         "Local AUR pkgs" ) postinstall; break;;
@@ -186,5 +219,7 @@ select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Op
         "NVIDIA 390xx" ) 390xx; break;;
         "osu!" ) osu; break;;
         "Emulators" ) emulatorsinstall; break;;
+        "devkitPro" ) devkitPro; break;;
+        "rc-local" ) rc-local; break;;
     esac
 done

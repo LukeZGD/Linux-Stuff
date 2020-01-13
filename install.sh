@@ -85,8 +85,6 @@ swapon /dev/mapper/vg0-swap
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
 mkdir -p /mnt/usr/bin
-cp unmountonlogout /mnt/usr/bin/
-chmod +x /mnt/usr/bin/unmountonlogout
 
 echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
