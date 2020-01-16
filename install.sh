@@ -31,6 +31,8 @@ read
 echo ""
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
+echo "[Log] Enabling ntp"
+timedatectl set-ntp true
 
 if [[ $diskprog != y ]] || [[ $diskprog != Y ]] || [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
 echo "[Input] (y) fdisk BIOS/MBR, (n) gdisk UEFI/GPT"

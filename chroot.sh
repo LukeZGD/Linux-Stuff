@@ -48,15 +48,12 @@ gvfs-afc
 gvfs-gphoto2
 ntfs-3g
 
-file-roller
+ark
 p7zip
 zip
 unzip
 unrar
-)
 
-#qt5-styleplugins
-pacman2=(
 papirus-icon-theme
 
 cups-pdf
@@ -66,14 +63,17 @@ hplip
 simple-scan
 system-config-printer
 
+audacious
 audacity
 ffmpeg
 ffmpegthumbnailer
+fluidsynth
 handbrake
 kdenlive
 kolourpaint
 lame
 mcomix
+nemo
 notepadqq
 obs-studio
 okteta
@@ -84,15 +84,12 @@ vlc
 gnome-keyring
 seahorse
 
-catfish
-mlocate
-
 filezilla
 galculator
 htop
 ifuse
 jre8-openjdk
-libreoffice
+love
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
@@ -116,6 +113,7 @@ function grubinstall {
     grub-install $part --target=$grubtarget
 	echo "[Log] Edit /etc/default/grub"
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
     sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
 	grub-mkconfig -o /boot/grub/grub.cfg
@@ -140,16 +138,14 @@ default arch
 editor 0" > /boot/loader/loader.conf
 }
 
-echo "[Log] Installing packages listed in 'pacman'"
+echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacman[*]}
-echo "[Log] Installing packages listed in 'pacman2'"
-pacman -S --noconfirm ${pacman2[*]}
 echo "[Log] Setting locale.."
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Hongkong /etc/localtime
-hwclock -w --localtime
+hwclock --systohc
 echo "[Log] hosts file"
 echo "127.0.0.1 localhost" >> /etc/hosts
 echo "[Log] Running passwd"
@@ -218,6 +214,7 @@ then
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
+echo "[Log] Creating unmountonlogout script"
 echo '#!/bin/bash
 for device in /sys/block/*
 do
@@ -231,10 +228,9 @@ do
           then echo Done umounting
         fi
     fi
-done' | sudo tee /usr/bin/unmountonlogout
+done' | tee /usr/bin/unmountonlogout
 chmod +x /usr/bin/unmountonlogout
-
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-#echo "QT_QPA_PLATFORMTHEME=gtk2" >> /etc/environment
+
 echo "Removing chroot.sh"
 rm /chroot.sh

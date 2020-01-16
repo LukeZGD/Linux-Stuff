@@ -1,21 +1,19 @@
 #!/bin/bash
 
 packages=(
+libsndio-61-compat
 ncurses5-compat-libs
 python2-twodict-git
-
+adwaita-qt
 chromium-vaapi-bin
 chromium-widevine
 gallery-dl
 github-desktop-bin
 qdirstat
-ttf-ms-fonts
-ttf-tahoma
-ttf-vista-fonts
 uget-integrator
 uget-integrator-browsers
-vlc-plugin-fluidsynth
 woeusb
+wps-office
 youtube-dl-gui-git
 yay-bin
 )
@@ -63,9 +61,9 @@ wineserver -k
 function postinstall {
     for package in "${packages[@]}"
     do
-        sudo pacman -U --noconfirm AUR/$package/*.xz
+        sudo pacman -U --noconfirm ~/.cache/yay/$package/*.xz
     done
-    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms-r43.f873d2b-1-x86_64.pkg.tar.xz
+    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms*.xz ~/Documents/ttf-ms-win10/*
 }
 
 function postinstallyay {
@@ -77,12 +75,12 @@ function postinstallyay {
     do
         yay --noconfirm $package
     done
-    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms-r43.f873d2b-1-x86_64.pkg.tar.xz
+    sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms*.xz  ~/Documents/ttf-ms-win10/*
 }
 
 function vbox {
     sudo pacman -S --noconfirm virtualbox virtualbox-host-dkms virtualbox-guest-iso
-    sudo pacman -U --noconfirm AUR/virtualbox-ext-oracle/*.xz
+    sudo pacman -U --noconfirm ~/.cache/yay/virtualbox-ext-oracle/*.xz
     sudo usermod -aG vboxusers $SUDO_USER
     sudo modprobe vboxdrv
 }
@@ -150,9 +148,10 @@ function osu {
         sudo pacman -S --noconfirm lib32-nvidia-utils
     fi
     sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
-    sudo pacman -U --noconfirm ~/Documents/wine-osu-3.12-2-x86_64.pkg.tar.xz
+    sudo pacman -U --noconfirm ~/Documents/wine-osu*.xz
 
-    cp -R dotcache/winetricks /home/lukee/.cache
+    sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/wine/ /home/$USER/.cache/yay/
+    sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/winetricks/ /home/$USER/.cache/winetricks/
 
     export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
     export WINEARCH=win32 # Only needed when executing the first command with that WINEPREFIX
@@ -184,7 +183,7 @@ echo '[dkp-libs]
 Server = https://downloads.devkitpro.org/packages
 [dkp-linux]
 Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy
+sudo pacman -Sy 3ds-dev switch-dev
 }
 
 function rc-local {
