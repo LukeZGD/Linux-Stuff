@@ -35,8 +35,13 @@ echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
 if [[ $diskprog != y ]] || [[ $diskprog != Y ]] || [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
-echo "[Input] (y) fdisk BIOS/MBR, (n) gdisk UEFI/GPT"
-read diskprog
+  echo "[Input] (y) fdisk BIOS/MBR, (n) gdisk UEFI/GPT"
+  read diskprog
+fi
+if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
+  diskprog=fdisk
+else
+  diskprog=gdisk
 fi
 
 echo ""

@@ -7,6 +7,7 @@ python2-twodict-git
 adwaita-qt
 chromium-vaapi-bin
 chromium-widevine
+exfat-utils-nofuse
 gallery-dl
 github-desktop-bin
 qdirstat
@@ -150,7 +151,6 @@ function osu {
     sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
     sudo pacman -U --noconfirm ~/Documents/wine-osu*.xz
 
-    sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/wine/ /home/$USER/.cache/yay/
     sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/winetricks/ /home/$USER/.cache/winetricks/
 
     export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
@@ -160,8 +160,7 @@ function osu {
     winetricks dotnet40
     winetricks gdiplus
     winetricks cjkfonts
-
-    rm -rf /home/lukee/.cache/winetricks
+    
     echo "Preparations complete. Download and install osu! now? (y/n) (needs wget)"
     read installoss
     if [ $installoss == y ]
