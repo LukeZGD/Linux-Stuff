@@ -101,34 +101,34 @@ xfburn
 )
 
 function grubinstall {
-    pacman -S --noconfirm grub
-    lsblk
-    echo "[Input] Disk? (/dev/sdX)"
-    read part
-    echo "[Input] Please enter encrypted partition (/dev/sdaX)"
-    read rootpart
-    rootuuid=$(blkid -o value -s UUID $rootpart)
-    echo "[Log] Got UUID of $rootpart: $rootuuid"
-    echo "[Log] Run grub-install"
-    grub-install $part --target=$grubtarget
-	echo "[Log] Edit /etc/default/grub"
-    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
-    sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
-    echo "[Log] Run grub-mkconfig"
+  pacman -S --noconfirm grub
+  lsblk
+  echo "[Input] Disk? (/dev/sdX)"
+  read part
+  echo "[Input] Please enter encrypted partition (/dev/sdaX)"
+  read rootpart
+  rootuuid=$(blkid -o value -s UUID $rootpart)
+  echo "[Log] Got UUID of $rootpart: $rootuuid"
+  echo "[Log] Run grub-install"
+  grub-install $part --target=$grubtarget
+  echo "[Log] Edit /etc/default/grub"
+  sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
+  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
+  sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
+  echo "[Log] Run grub-mkconfig"
 	grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function systemdinstall {
-    echo "[Log] run bootctl install"
-    bootctl install
-    lsblk
-    echo "[Input] Please enter encrypted partition (/dev/sdaX)"
-    read rootpart
-    rootuuid=$(blkid -o value -s UUID $rootpart)
-    echo "[Log] Got UUID of $rootpart: $rootuuid"
-    echo "[Log] Creating arch.conf entry"
-    echo "title Arch Linux
+  echo "[Log] run bootctl install"
+  bootctl install
+  lsblk
+  echo "[Input] Please enter encrypted partition (/dev/sdaX)"
+  read rootpart
+  rootuuid=$(blkid -o value -s UUID $rootpart)
+  echo "[Log] Got UUID of $rootpart: $rootuuid"
+  echo "[Log] Creating arch.conf entry"
+  echo "title Arch Linux
 linux /vmlinuz-linux-zen
 initrd /intel-ucode.img
 initrd /initramfs-linux-zen.img
@@ -153,18 +153,18 @@ passwd
 
 if [ $(which efibootmgr) ]
 then
-    grubtarget=i386-efi
-    echo "[Log] Installing grub"
-    grubinstall
+  grubtarget=i386-efi
+  echo "[Log] Installing grub"
+  grubinstall
 else
-    grubtarget=i386-pc
-    echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
-    select opt in "grub" "systemd-boot"; do
-        case $opt in
-            "grub" ) grubinstall; break;;
-            "systemd-boot" ) systemdinstall; break;;
-        esac
-    done
+  grubtarget=i386-pc
+  echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
+  select opt in "grub" "systemd-boot"; do
+    case $opt in
+      "grub" ) grubinstall; break;;
+      "systemd-boot" ) systemdinstall; break;;
+    esac
+  done
 fi
 
 echo "[Log] Edit mkinitcpio.conf"
@@ -187,12 +187,12 @@ echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
 read userc2
 if [ $userc2 == y ]
 then
-    echo "[Input] Enter username"
-    read username2
-    echo "[Log] Creating user $username2"
-    useradd -m -g users -G audio -s /usr/bin/fish $username2
-    echo "[Log] Running passwd $username2"
-    passwd $username2
+  echo "[Input] Enter username"
+  read username2
+  echo "[Log] Creating user $username2"
+  useradd -m -g users -G audio -s /usr/bin/fish $username2
+  echo "[Log] Running passwd $username2"
+  passwd $username2
 fi
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
@@ -204,13 +204,13 @@ echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpad
 read touchpad
 if [ $touchpad == y ]
 then
-    echo "Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
-    echo 'Section "InputClass"
-    Identifier "touchpad"
-    Driver "libinput"
-    MatchIsTouchpad "on"
-    Option "Tapping" "on"
-    Option "TappingButtonMap" "lmr"
+  echo "Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
+  echo 'Section "InputClass"
+  Identifier "touchpad"
+  Driver "libinput"
+  MatchIsTouchpad "on"
+  Option "Tapping" "on"
+  Option "TappingButtonMap" "lmr"
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
@@ -218,16 +218,16 @@ echo "[Log] Creating unmountonlogout script"
 echo '#!/bin/bash
 for device in /sys/block/*
 do
-    if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
-    then
-        echo Found $device to unmount
-        DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
-        echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
-        UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
-        if sudo umount $UM
-          then echo Done umounting
-        fi
+  if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
+  then
+    echo Found $device to unmount
+    DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
+    echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
+    UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
+    if sudo umount $UM
+      then echo Done umounting
     fi
+  fi
 done' | tee /usr/bin/unmountonlogout
 chmod +x /usr/bin/unmountonlogout
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf

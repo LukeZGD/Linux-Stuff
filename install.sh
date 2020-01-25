@@ -102,9 +102,9 @@ echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
 if [ $dotcache == y ]
 then
-    mkdir -p /mnt/var/cache/pacman
-    cp -R Backups/pkg /mnt/var/cache/pacman
-    umount /mnt2
+  mkdir -p /mnt/var/cache/pacman
+  cp -R Backups/pkg /mnt/var/cache/pacman
+  umount /mnt2
 fi
 echo "[Log] Installing base"
 pacstrap /mnt base
