@@ -23,15 +23,15 @@ pulseaudio
 pulseaudio-alsa
 pulseaudio-bluetooth
 
-xorg-server
-xorg-xinit
-xorg-xrandr
 lightdm
 lightdm-gtk-greeter
 lightdm-gtk-greeter-settings
-
 xfce4
 xfce4-goodies
+xorg-server
+xorg-xinit
+xorg-xrandr
+xsecurelock
 
 networkmanager
 network-manager-applet
@@ -73,13 +73,13 @@ kdenlive
 kolourpaint
 lame
 mcomix
+mpv
 nemo
 notepadqq
 obs-studio
 okteta
 openshot
 pinta
-vlc
 
 gnome-keyring
 seahorse
@@ -231,6 +231,41 @@ do
 done' | tee /usr/bin/unmountonlogout
 chmod +x /usr/bin/unmountonlogout
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
+
+echo '[Log] Configure other stuff'
+echo '[Unit]
+Description=/etc/rc.local compatibility
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | tee /usr/lib/systemd/system/rc-local.service
+echo '#!/bin/bash
+echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
+exit 0' | tee /etc/rc.local
+chmod +x /etc/rc.local
+pacman -R --noconfirm xfce4-power-manager xfce4-screensaver
+echo 'export XSECURELOCK_SWITCH_USER_COMMAND=\'dm-tool switch-to-greeter\'
+export XSECURELOCK_SHOW_DATETIME=1' | tee -a /etc/environment
+echo 'HandlePowerKey=suspend
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
+IdleAction=suspend
+IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
+echo "[Unit]
+Description=Lock the screen on resume from suspend
+
+[Service]
+User=$username
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/xsecurelock
+
+[Install]
+WantedBy=suspend.target" | tee /etc/systemd/system/lock.service
+systemctl enable rc-local lock
 
 echo "Removing chroot.sh"
 rm /chroot.sh

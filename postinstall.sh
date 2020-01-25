@@ -42,11 +42,11 @@ retroarch-assets-ozone
 osu='
 #!/bin/sh
 export WINEPREFIX="$HOME/.wine_osu"
-export STAGING_AUDIO_DURATION=50000
+#export STAGING_AUDIO_DURATION=50000
 
 # Arch Linux/wine-osu users should uncomment next line
 # for the patch to be effective
-export PATH=/opt/wine-osu/bin:$PATH
+#export PATH=/opt/wine-osu/bin:$PATH
 
 cd ~/osu # Or wherever you installed osu! in
 wine osu!.exe "$@"
@@ -149,17 +149,17 @@ function osu {
         sudo pacman -S --noconfirm lib32-nvidia-utils
     fi
     sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
-    sudo pacman -U --noconfirm ~/Documents/wine-osu*.xz
+    #sudo pacman -U --noconfirm ~/Documents/wine-osu*.xz
 
     sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/winetricks/ /home/$USER/.cache/winetricks/
 
     export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
     export WINEARCH=win32 # Only needed when executing the first command with that WINEPREFIX
-    export PATH=/opt/wine-osu/bin:$PATH
+    #export PATH=/opt/wine-osu/bin:$PATH
 
     winetricks dotnet40
     winetricks gdiplus
-    winetricks cjkfonts
+    #winetricks cjkfonts
     
     echo "Preparations complete. Download and install osu! now? (y/n) (needs wget)"
     read installoss
@@ -185,24 +185,6 @@ Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacm
 sudo pacman -Sy 3ds-dev switch-dev
 }
 
-function rc-local {
-echo '[Unit]
-Description=/etc/rc.local compatibility
-
-[Service]
-Type=oneshot
-ExecStart=/etc/rc.local
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/rc-local.service
-sudo systemctl enable rc-local.service
-echo '#!/bin/bash
-echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
-exit 0' | sudo tee /etc/rc.local
-sudo chmod +x /etc/rc.local
-}
-
 # ----------------------------------
 
 clear
@@ -218,6 +200,5 @@ select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Op
         "osu!" ) osu; break;;
         "Emulators" ) emulatorsinstall; break;;
         "devkitPro" ) devkitPro; break;;
-        "rc-local" ) rc-local; break;;
     esac
 done

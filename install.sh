@@ -51,13 +51,13 @@ echo "[Input] Please enter device to be used (/dev/sdX)"
 read disk
 echo "Will now enter $diskprog with device $disk. Press [enter]"
 read
-echo "Commands:
-# Erase: o, y
-# Create boot (f): n, <enter>, <enter>, +256M
-# Create boot (g): n, <enter>, <enter>, +256M, EF00
-# Create partition (f): n, <enter>, <enter>, <enter>
-# Create partition (g): n, <enter>, <enter>, <enter>, 8E00
-# Check and write: p, w"
+echo "Commands: (f) fdisk (g) gdisk
+# Erase: o y
+# Create boot (f): n <enter> <enter> <enter> +256M
+# Create boot (g): n <enter> <enter> <enter> +256M EF00
+# Create partition (f): n, <enter> <enter> <enter> <enter>
+# Create partition (g): n, <enter> <enter> <enter> <enter> 8E00
+# Check and write: p w"
 $diskprog $disk
 
 clear
@@ -67,31 +67,36 @@ echo "[Input] Please enter encrypted partition (/dev/sdaX)"
 read rootpart
 echo "[Input] Please enter boot partition (/dev/sdaX)"
 read bootpart
+echo "[Input] (y) Clean install | (N) Format root only"
+read formatroot
 
-if [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
-mkfs.vfat -F32 $bootpart
-elif [[ $diskprog != y ]] || [[ $diskprog != Y ]]; then
-mkfs.ext2 $bootpart
+if [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
+  if [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
+    mkfs.vfat -F32 $bootpart
+  elif [[ $diskprog != y ]] || [[ $diskprog != Y ]]; then
+    mkfs.ext2 $bootpart
+  fi
+  cryptsetup luksFormat $rootpart
+  cryptsetup luksOpen $rootpart lvm
+  pvcreate /dev/mapper/lvm
+  vgcreate vg0 /dev/mapper/lvm
+  lvcreate -L 6G vg0 -n swap
+  lvcreate -L 25G vg0 -n root
+  lvcreate -l 100%FREE vg0 -n home
+  mkfs.ext4 /dev/mapper/vg0-home
+else
+  cryptsetup luksOpen $rootpart lvm
 fi
-cryptsetup luksFormat $rootpart
-cryptsetup luksOpen $rootpart lvm
-pvcreate /dev/mapper/lvm
-vgcreate vg0 /dev/mapper/lvm
-lvcreate -L 6G vg0 -n swap
-lvcreate -L 25G vg0 -n root
-lvcreate -l 100%FREE vg0 -n home
 mkfs.ext4 /dev/mapper/vg0-root
-mkfs.ext4 /dev/mapper/vg0-home
 mkswap /dev/mapper/vg0-swap
 mount /dev/mapper/vg0-root /mnt
-mkdir /mnt/boot /mnt/home
+mkdir /mnt/boot /mnt/home 2>/dev/null
 mount /dev/mapper/vg0-home /mnt/home
 mount $bootpart /mnt/boot
 swapon /dev/mapper/vg0-swap
 
-echo "[Log] Copying stuff to /mnt"
+echo "[Log] Copying chroot.sh to /mnt"
 cp chroot.sh /mnt
-mkdir -p /mnt/usr/bin
 
 echo "[Input] Copy local cache to /mnt? (y/n)"
 read dotcache
@@ -105,8 +110,8 @@ echo "[Log] Installing base"
 pacstrap /mnt base
 if [ $i386efi == y ]
 then
-    echo "[Log] Installing efibootmgr"
-    arch-chroot /mnt pacman -S --noconfirm efibootmgr
+  echo "[Log] Installing efibootmgr"
+  arch-chroot /mnt pacman -S --noconfirm efibootmgr
 fi
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
