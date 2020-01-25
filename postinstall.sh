@@ -125,8 +125,7 @@ function osu {
 
   echo "$osu" | sudo tee /usr/bin/osu
   echo "$osukill" | sudo tee /usr/bin/osukill
-  sudo chmod +x /usr/bin/osu
-  sudo chmod +x /usr/bin/osukill
+  sudo chmod +x /usr/bin/osu /usr/bin/osukill
 
   sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
 

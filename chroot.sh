@@ -110,13 +110,29 @@ function grubinstall {
   rootuuid=$(blkid -o value -s UUID $rootpart)
   echo "[Log] Got UUID of $rootpart: $rootuuid"
   echo "[Log] Run grub-install"
-  grub-install $part --target=$grubtarget
+  grub-install $part --target=i386-pc
   echo "[Log] Edit /etc/default/grub"
   sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
   sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
   sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
   echo "[Log] Run grub-mkconfig"
-	grub-mkconfig -o /boot/grub/grub.cfg
+  grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+function grubinstallia32 {
+  pacman -S --noconfirm grub
+  lsblk
+  echo "[Input] Disk? (/dev/sdX)"
+  read part
+  echo "[Input] Please enter swap partition (/dev/sdaX)"
+  read swappart
+  swapuuid=$(blkid -o value -s UUID $swappart)
+  echo "[Log] Got UUID of $swappart: $swapuuid"
+  echo "[Log] Run grub-install"
+  grub-install $part --target=i386-efi
+  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=UUID=$swapuuid\"|g" /etc/default/grub
+  sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
+  grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function systemdinstall {
@@ -140,7 +156,7 @@ editor 0" > /boot/loader/loader.conf
 
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacman[*]}
-echo "[Log] Setting locale.."
+echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 echo "[Log] Time stuff"
@@ -153,17 +169,15 @@ passwd
 
 if [ $(which efibootmgr) ]
 then
-  grubtarget=i386-efi
   echo "[Log] Installing grub"
-  grubinstall
+  grubinstallia32
 else
-  grubtarget=i386-pc
   echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
   select opt in "grub" "systemd-boot"; do
-    case $opt in
-      "grub" ) grubinstall; break;;
-      "systemd-boot" ) systemdinstall; break;;
-    esac
+  case $opt in
+    "grub" ) grubinstall; break;;
+    "systemd-boot" ) systemdinstall; break;;
+  esac
   done
 fi
 
@@ -197,14 +211,13 @@ fi
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable lightdm NetworkManager bluetooth
-systemctl enable org.cups.cupsd
+systemctl enable lightdm NetworkManager bluetooth org.cups.cupsd
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/n)"
 read touchpad
 if [ $touchpad == y ]
 then
-  echo "Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
+  echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
   echo 'Section "InputClass"
   Identifier "touchpad"
   Driver "libinput"
@@ -214,25 +227,25 @@ then
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
-echo "[Log] Creating unmountonlogout script"
+echo "[Log] Configuring unmountonlogout"
 echo '#!/bin/bash
 for device in /sys/block/*
 do
   if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
   then
-    echo Found $device to unmount
-    DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
-    echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
-    UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
-    if sudo umount $UM
-      then echo Done umounting
-    fi
+  echo Found $device to unmount
+  DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
+  echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
+  UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
+  if sudo umount $UM
+    then echo Done umounting
+  fi
   fi
 done' | tee /usr/bin/unmountonlogout
 chmod +x /usr/bin/unmountonlogout
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 
-echo '[Log] Configure other stuff'
+echo "[Log] Configuring rc-local"
 echo '[Unit]
 Description=/etc/rc.local compatibility
 
@@ -247,9 +260,11 @@ echo '#!/bin/bash
 echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
 exit 0' | tee /etc/rc.local
 chmod +x /etc/rc.local
-pacman -R --noconfirm xfce4-power-manager xfce4-screensaver
-echo 'export XSECURELOCK_SWITCH_USER_COMMAND=\'dm-tool switch-to-greeter\'
-export XSECURELOCK_SHOW_DATETIME=1' | tee -a /etc/environment
+
+echo "[Log] Configuring power management and lock"
+pacman -R --noconfirm xfce4-screensaver
+echo 'XSECURELOCK_SWITCH_USER_COMMAND=\'dm-tool switch-to-greeter\'
+XSECURELOCK_SHOW_DATETIME=1' | tee -a /etc/environment
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
@@ -265,7 +280,8 @@ ExecStart=/usr/bin/xsecurelock
 
 [Install]
 WantedBy=suspend.target" | tee /etc/systemd/system/lock.service
-systemctl enable rc-local lock
 
-echo "Removing chroot.sh"
+echo "[Log] Enabling new services"
+systemctl enable rc-local lock
+echo "[Log] Removing chroot.sh"
 rm /chroot.sh

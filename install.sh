@@ -49,8 +49,7 @@ lsblk
 echo ""
 echo "[Input] Please enter device to be used (/dev/sdX)"
 read disk
-echo "Will now enter $diskprog with device $disk. Press [enter]"
-read
+echo "[Log] Will now enter $diskprog with device $disk"
 echo "Commands: (f) fdisk (g) gdisk
 # Erase: o y
 # Create boot (f): n <enter> <enter> <enter> +256M
@@ -63,14 +62,27 @@ $diskprog $disk
 clear
 lsblk
 echo ""
-echo "[Input] Please enter encrypted partition (/dev/sdaX)"
+echo "[Input] Please enter encrypted/root partition (/dev/sdaX)"
 read rootpart
 echo "[Input] Please enter boot partition (/dev/sdaX)"
 read bootpart
-echo "[Input] (y) Clean install | (N) Format root only"
-read formatroot
+echo "[Input] Please enter swap partition (ia32 only) (/dev/sdaX)"
+read swappart
+if [[ ! -z $swappart ]]; then
+  echo "[Input] (y) Clean install | (N) Format root only"
+  read formatroot
+fi
 
-if [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
+echo "[Log] Formatting stuff..."
+if [[ -z $swappart ]]; then
+  mkfs.ext4 $rootpart
+  mount $rootpart /mnt
+  mkswap $swappart
+  swapon $swappart
+  mkfs.fat -F32 $bootpart
+  mkdir -p /mnt/boot/EFI
+  mount $bootpart /mnt/boot/EFI
+elif [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
   if [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
     mkfs.vfat -F32 $bootpart
   elif [[ $diskprog != y ]] || [[ $diskprog != Y ]]; then
@@ -87,13 +99,15 @@ if [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
 else
   cryptsetup luksOpen $rootpart lvm
 fi
-mkfs.ext4 /dev/mapper/vg0-root
-mkswap /dev/mapper/vg0-swap
-mount /dev/mapper/vg0-root /mnt
-mkdir /mnt/boot /mnt/home 2>/dev/null
-mount /dev/mapper/vg0-home /mnt/home
-mount $bootpart /mnt/boot
-swapon /dev/mapper/vg0-swap
+if [[ ! -z $swappart ]]; then
+  mkfs.ext4 /dev/mapper/vg0-root
+  mkswap /dev/mapper/vg0-swap
+  mount /dev/mapper/vg0-root /mnt
+  mkdir /mnt/boot /mnt/home 2>/dev/null
+  mount /dev/mapper/vg0-home /mnt/home
+  mount $bootpart /mnt/boot
+  swapon /dev/mapper/vg0-swap
+fi
 
 echo "[Log] Copying chroot.sh to /mnt"
 cp chroot.sh /mnt
@@ -108,11 +122,6 @@ then
 fi
 echo "[Log] Installing base"
 pacstrap /mnt base
-if [ $i386efi == y ]
-then
-  echo "[Log] Installing efibootmgr"
-  arch-chroot /mnt pacman -S --noconfirm efibootmgr
-fi
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
