@@ -28,6 +28,8 @@ echo "This script will assume that you have a working Internet connection"
 echo "Press [enter] to continue, or ^C to cancel"
 read
 
+umount -R /mnt 2>/dev/null
+
 echo ""
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
@@ -35,7 +37,7 @@ echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
 if [[ $diskprog != y ]] || [[ $diskprog != Y ]] || [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
-  echo "[Input] (y) fdisk BIOS/MBR, (n) gdisk UEFI/GPT"
+  echo "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT"
   read diskprog
 fi
 if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
@@ -66,15 +68,17 @@ echo "[Input] Please enter encrypted/root partition (/dev/sdaX)"
 read rootpart
 echo "[Input] Please enter boot partition (/dev/sdaX)"
 read bootpart
-echo "[Input] Please enter swap partition (ia32 only) (/dev/sdaX)"
+echo "[Input] Please enter swap partition (ia32 ONLY) (/dev/sdaX)"
 read swappart
-if [[ ! -z $swappart ]]; then
-  echo "[Input] (y) Clean install | (N) Format root only"
-  read formatroot
+if [[ -z $swappart ]]; then
+  echo "[Input] Format boot partition? (Y/n)"
+  read formatboot
+  echo "[Input] Clean install? (Y/n)"
+  read formathome
 fi
 
-echo "[Log] Formatting stuff..."
-if [[ -z $swappart ]]; then
+echo "[Log] Formatting/mounting stuff... (enter new drive password when prompted)"
+if [[ ! -z $swappart ]]; then
   mkfs.ext4 $rootpart
   mount $rootpart /mnt
   mkswap $swappart
@@ -82,12 +86,7 @@ if [[ -z $swappart ]]; then
   mkfs.fat -F32 $bootpart
   mkdir -p /mnt/boot/EFI
   mount $bootpart /mnt/boot/EFI
-elif [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
-  if [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
-    mkfs.vfat -F32 $bootpart
-  elif [[ $diskprog != y ]] || [[ $diskprog != Y ]]; then
-    mkfs.ext2 $bootpart
-  fi
+elif [[ $formathome != n ]] || [[ $formathome != N ]]; then  
   cryptsetup luksFormat $rootpart
   cryptsetup luksOpen $rootpart lvm
   pvcreate /dev/mapper/lvm
@@ -99,7 +98,14 @@ elif [[ $formatroot == y ]] || [[ $formatroot == Y ]]; then
 else
   cryptsetup luksOpen $rootpart lvm
 fi
-if [[ ! -z $swappart ]]; then
+if [[ $formatboot != n ]] || [[ $formatboot != N ]]; then
+  if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
+    mkfs.ext2 $bootpart
+  else
+    mkfs.vfat -F32 $bootpart
+  fi
+fi
+if [[ -z $swappart ]]; then
   mkfs.ext4 /dev/mapper/vg0-root
   mkswap /dev/mapper/vg0-swap
   mount /dev/mapper/vg0-root /mnt
@@ -109,21 +115,18 @@ if [[ ! -z $swappart ]]; then
   swapon /dev/mapper/vg0-swap
 fi
 
-echo "[Log] Copying chroot.sh to /mnt"
+echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
-
-echo "[Input] Copy local cache to /mnt? (y/n)"
-read dotcache
-if [ $dotcache == y ]
-then
-  mkdir -p /mnt/var/cache/pacman
-  cp -R Backups/pkg /mnt/var/cache/pacman
-  umount /mnt2
-fi
+mkdir -p /mnt/var/cache/pacman
+cp -R Backups/pkg /mnt/var/cache/pacman
 echo "[Log] Installing base"
 pacstrap /mnt base
+if [[ ! -z $swappart ]]; then
+  touch /mnt/ia32
+fi
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
+echo 'tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0' | tee -a /mnt/etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
 echo "[Log] Install script done!"

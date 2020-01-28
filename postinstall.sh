@@ -4,15 +4,13 @@ packages=(
 libsndio-61-compat
 ncurses5-compat-libs
 python2-twodict-git
+adapta-backgrounds
 adwaita-qt
 chromium-vaapi-bin
 chromium-widevine
-exfat-utils-nofuse
 gallery-dl
 github-desktop-bin
 qdirstat
-uget-integrator
-uget-integrator-browsers
 woeusb
 wps-office
 youtube-dl-gui-git
@@ -42,12 +40,6 @@ retroarch-assets-ozone
 osu='
 #!/bin/sh
 export WINEPREFIX="$HOME/.wine_osu"
-#export STAGING_AUDIO_DURATION=50000
-
-# Arch Linux/wine-osu users should uncomment next line
-# for the patch to be effective
-#export PATH=/opt/wine-osu/bin:$PATH
-
 cd ~/osu # Or wherever you installed osu! in
 wine osu!.exe "$@"
 '
@@ -55,14 +47,13 @@ wine osu!.exe "$@"
 osukill='
 #!/bin/sh
 export WINEPREFIX="$HOME/.wine_osu"
-
 wineserver -k
 '
 
 function postinstall {
   for package in "${packages[@]}"
   do
-    sudo pacman -U --noconfirm ~/.cache/yay/$package/*.xz
+    sudo pacman -U --noconfirm ~/.cache/yay/$package/${package}*.xz
   done
   sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms*.xz ~/Documents/ttf-ms-win10/*
 }
@@ -82,7 +73,7 @@ function postinstallyay {
 function vbox {
   sudo pacman -S --noconfirm virtualbox virtualbox-host-dkms virtualbox-guest-iso
   sudo pacman -U --noconfirm ~/.cache/yay/virtualbox-ext-oracle/*.xz
-  sudo usermod -aG vboxusers $SUDO_USER
+  sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
@@ -109,7 +100,7 @@ function osu {
   cd osuscript
   sudo cp -R /etc/security/limits.conf /etc/security/limits.conf.bak
   echo "@audio - nice -20
-  @audio - rtprio 99 " | sudo tee /etc/security/limits.conf
+  @audio - rtprio 99" | sudo tee /etc/security/limits.conf
 
   sudo mkdir /etc/pulse/daemon.conf.d
   echo "high-priority = yes
@@ -129,11 +120,9 @@ function osu {
 
   sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
 
-  mkdir ~/.config/pulse
+  mkdir ~/.config/pulse 2>/dev/null
   cp -R /etc/pulse/default.pa ~/.config/pulse/default.pa
-  sudo sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" ~/.config/pulse/default.pa
-  echo "load-module module-null-sink sink_name=\"audiocap\" sink_properties=device.description=\"audiocap\"
-  load-module module-loopback latency_msec=1 sink=\"audiocap\" source=\"$sink.monitor\"" | sudo tee -a ~/.config/pulse/default.pa
+  sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" ~/.config/pulse/default.pa
 
   echo "390xx or nah (y/n)"
   read sel
@@ -147,24 +136,21 @@ function osu {
   then
     sudo pacman -S --noconfirm lib32-nvidia-utils
   fi
-  sudo pacman -S --noconfirm winetricks lib32-libxcomposite lib32-gnutls
-  #sudo pacman -U --noconfirm ~/Documents/wine-osu*.xz
+  sudo pacman -S --noconfirm lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
 
-  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD/Backups/winetricks/ /home/$USER/.cache/winetricks/
-
-  export WINEPREFIX="$HOME/.wine_osu" # This is the path to a hidden folder in your home folder.
-  export WINEARCH=win32 # Only needed when executing the first command with that WINEPREFIX
-  #export PATH=/opt/wine-osu/bin:$PATH
+  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ /home/$USER/.cache/winetricks/
+  rm -rf ~/.wine_osu
+  
+  export WINEPREFIX="$HOME/.wine_osu"
+  export WINEARCH=win32
 
   winetricks dotnet40
   winetricks gdiplus
-  #winetricks cjkfonts
   
-  echo "Preparations complete. Download and install osu! now? (y/n) (needs wget)"
+  echo "Preparations complete. Download and install osu! now? (y/N)"
   read installoss
-  if [ $installoss == y ]
-  then
-    wget 'https://m1.ppy.sh/r/osu!install.exe'
+  if [ $installoss == y ] || [ $installoss == Y ]; then
+    curl -L -# 'https://m1.ppy.sh/r/osu!install.exe'
     wine 'osu!install.exe'
   fi
   echo "Script done"
@@ -189,7 +175,7 @@ sudo pacman -Sy 3ds-dev switch-dev
 clear
 echo "LukeZGD Arch Post-Install Script"
 echo
-select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro" "rc-local"; do
+select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
   case $opt in
     'Install AUR pkgs w/ yay' ) postinstallyay; break;;
     "Local AUR pkgs" ) postinstall; break;;

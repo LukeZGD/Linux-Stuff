@@ -41,6 +41,7 @@ bluez-plugins
 bluez-utils
 blueman
 
+exfat-utils
 gnome-disk-utility
 gparted
 gvfs
@@ -84,8 +85,8 @@ pinta
 gnome-keyring
 seahorse
 
-filezilla
 galculator
+gsmartcontrol
 htop
 ifuse
 jre8-openjdk
@@ -96,7 +97,6 @@ noto-fonts-emoji
 qbittorrent
 samba
 testdisk
-uget
 xfburn
 )
 
@@ -167,10 +167,10 @@ echo "127.0.0.1 localhost" >> /etc/hosts
 echo "[Log] Running passwd"
 passwd
 
-if [ $(which efibootmgr) ]
-then
+if [ -f /ia32 ]; then
   echo "[Log] Installing grub"
   grubinstallia32
+  rm /ia32
 else
   echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
   select opt in "grub" "systemd-boot"; do
@@ -199,8 +199,7 @@ echo "[Log] Running passwd $username"
 passwd $username
 echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
 read userc2
-if [ $userc2 == y ]
-then
+if [ $userc2 == y ] || [ $userc2 == Y ]; then
   echo "[Input] Enter username"
   read username2
   echo "[Log] Creating user $username2"
@@ -213,10 +212,9 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable lightdm NetworkManager bluetooth org.cups.cupsd
 
-echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/n)"
+echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
 read touchpad
-if [ $touchpad == y ]
-then
+if [ $touchpad == y ] || [ $touchpad == Y ]; then
   echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
   echo 'Section "InputClass"
   Identifier "touchpad"
@@ -228,20 +226,22 @@ EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 echo "[Log] Configuring unmountonlogout"
-echo '#!/bin/bash
+cat > /usr/bin/unmountonlogout << 'EOF'
+#!/bin/bash
 for device in /sys/block/*
 do
   if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
   then
-  echo Found $device to unmount
-  DEVTO=`echo $device|awk -F"/" \'NF>1{print $NF}\'`
-  echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'` is the exact device
-  UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk \'{print $1}\'`
-  if sudo umount $UM
-    then echo Done umounting
+    echo Found $device to unmount
+    DEVTO=`echo $device|awk -F"/" 'NF>1{print $NF}'`
+    echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'` is the exact device
+    UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'`
+    if sudo umount $UM
+      then echo Done umounting
+    fi
   fi
-  fi
-done' | tee /usr/bin/unmountonlogout
+done
+EOF
 chmod +x /usr/bin/unmountonlogout
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 
@@ -263,8 +263,6 @@ chmod +x /etc/rc.local
 
 echo "[Log] Configuring power management and lock"
 pacman -R --noconfirm xfce4-screensaver
-echo 'XSECURELOCK_SWITCH_USER_COMMAND=\'dm-tool switch-to-greeter\'
-XSECURELOCK_SHOW_DATETIME=1' | tee -a /etc/environment
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
@@ -276,10 +274,20 @@ Description=Lock the screen on resume from suspend
 [Service]
 User=$username
 Environment=DISPLAY=:0
+Environment=\"XSECURELOCK_SWITCH_USER_COMMAND='dm-tool switch-to-greeter'\"
+Environment=\"XSECURELOCK_SHOW_DATETIME=1\"
 ExecStart=/usr/bin/xsecurelock
 
 [Install]
 WantedBy=suspend.target" | tee /etc/systemd/system/lock.service
+
+echo "[Log] lightdm-gtk-greeter.conf"
+echo '[greeter]
+theme-name = Adwaita-dark
+icon-theme-name = Papirus-Dark
+font-name = Cantarell 20
+background = /usr/share/backgrounds/adapta/tealized.jpg
+user-background = false' > /etc/lightdm/lightdm-gtk-greeter.conf
 
 echo "[Log] Enabling new services"
 systemctl enable rc-local lock
