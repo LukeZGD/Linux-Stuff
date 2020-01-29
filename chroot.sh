@@ -274,8 +274,8 @@ Description=Lock the screen on resume from suspend
 [Service]
 User=$username
 Environment=DISPLAY=:0
-Environment=\"XSECURELOCK_SWITCH_USER_COMMAND='dm-tool switch-to-greeter'\"
-Environment=\"XSECURELOCK_SHOW_DATETIME=1\"
+Environment='XSECURELOCK_SWITCH_USER_COMMAND=dm-tool switch-to-greeter'
+Environment='XSECURELOCK_SHOW_DATETIME=1'
 ExecStart=/usr/bin/xsecurelock
 
 [Install]

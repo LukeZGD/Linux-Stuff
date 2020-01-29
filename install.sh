@@ -36,10 +36,8 @@ echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
-if [[ $diskprog != y ]] || [[ $diskprog != Y ]] || [[ $diskprog != n ]] || [[ $diskprog != N ]]; then
-  echo "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT"
-  read diskprog
-fi
+echo "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT"
+read diskprog
 if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
   diskprog=fdisk
 else
@@ -77,7 +75,7 @@ if [[ -z $swappart ]]; then
   read formathome
 fi
 
-echo "[Log] Formatting/mounting stuff... (enter new drive password when prompted)"
+echo "[Log] Formatting/mounting stuff... (for clean install, enter new encrypt password)"
 if [[ ! -z $swappart ]]; then
   mkfs.ext4 $rootpart
   mount $rootpart /mnt
@@ -86,7 +84,8 @@ if [[ ! -z $swappart ]]; then
   mkfs.fat -F32 $bootpart
   mkdir -p /mnt/boot/EFI
   mount $bootpart /mnt/boot/EFI
-elif [[ $formathome != n ]] || [[ $formathome != N ]]; then  
+elif [[ $formathome != n ]] && [[ $formathome != N ]]; then 
+  echo "[Log] Clean install: formatting encrypted partition"
   cryptsetup luksFormat $rootpart
   cryptsetup luksOpen $rootpart lvm
   pvcreate /dev/mapper/lvm
@@ -96,9 +95,11 @@ elif [[ $formathome != n ]] || [[ $formathome != N ]]; then
   lvcreate -l 100%FREE vg0 -n home
   mkfs.ext4 /dev/mapper/vg0-home
 else
+  echo "[Log] Not clean install: unlock existing partition and format root volume only"
   cryptsetup luksOpen $rootpart lvm
 fi
-if [[ $formatboot != n ]] || [[ $formatboot != N ]]; then
+if [[ $formatboot != n ]] && [[ $formatboot != N ]]; then
+  echo "[Log] Formatting boot partition"
   if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
     mkfs.ext2 $bootpart
   else
@@ -106,6 +107,7 @@ if [[ $formatboot != n ]] || [[ $formatboot != N ]]; then
   fi
 fi
 if [[ -z $swappart ]]; then
+  echo "[Log] Formatting and mounting volumes"
   mkfs.ext4 /dev/mapper/vg0-root
   mkswap /dev/mapper/vg0-swap
   mount /dev/mapper/vg0-root /mnt

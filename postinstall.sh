@@ -9,6 +9,7 @@ adwaita-qt
 chromium-vaapi-bin
 chromium-widevine
 gallery-dl
+gconf
 github-desktop-bin
 qdirstat
 woeusb
@@ -78,19 +79,19 @@ function vbox {
 }
 
 function laptop {
-  sudo pacman -S --noconfirm nvidia-dkms nvidia-settings bbswitch-dkms tlp
+  sudo pacman -S --noconfirm bbswitch-dkms nvidia-dkms nvidia-settings opencl-nvidia tlp
   sudo pacman -U --noconfirm AUR/optimus-manager/*.xz
   sudo pacman -U --noconfirm AUR/optimus-manager-qt/*.xz
   sudo systemctl enable tlp
 }
 
 function 390xx {
-  sudo pacman -S --noconfirm nvidia-390xx-dkms nvidia-390xx-settings
+  sudo pacman -S --noconfirm nvidia-390xx-dkms nvidia-390xx-settings opencl-nvidia-390xx
 }
 
 function emulatorsinstall {
   sudo pacman -S --noconfirm ${emulators[*]}
-  sudo pacman -U --noconfirm AUR/cemu/*.xz
+  sudo pacman -U --noconfirm ~/.cache/yay/cemu/*.xz
 }
 
 function osu {
@@ -157,17 +158,17 @@ function osu {
 }
 
 function devkitPro {
-echo 'DEVKITPRO=/opt/devkitpro
-DEVKITARM=/opt/devkitpro/devkitARM
-DEVKITPPC=/opt/devkitpro/devkitPPC' | sudo tee -a /etc/environment
-sudo pacman-key --recv F7FD5492264BB9D0
-sudo pacman-key --lsign F7FD5492264BB9D0
-sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
-echo '[dkp-libs]
-Server = https://downloads.devkitpro.org/packages
-[dkp-linux]
-Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy 3ds-dev switch-dev
+  echo 'DEVKITPRO=/opt/devkitpro
+  DEVKITARM=/opt/devkitpro/devkitARM
+  DEVKITPPC=/opt/devkitpro/devkitPPC' | sudo tee -a /etc/environment
+  sudo pacman-key --recv F7FD5492264BB9D0
+  sudo pacman-key --lsign F7FD5492264BB9D0
+  sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
+  echo '[dkp-libs]
+  Server = https://downloads.devkitpro.org/packages
+  [dkp-linux]
+  Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf
+  sudo pacman -Sy 3ds-dev switch-dev
 }
 
 # ----------------------------------
@@ -175,9 +176,9 @@ sudo pacman -Sy 3ds-dev switch-dev
 clear
 echo "LukeZGD Arch Post-Install Script"
 echo
-select opt in 'Install AUR pkgs w/ yay' "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
+select opt in "Install AUR pkgs w/ yay" "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
   case $opt in
-    'Install AUR pkgs w/ yay' ) postinstallyay; break;;
+    "Install AUR pkgs w/ yay" ) postinstallyay; break;;
     "Local AUR pkgs" ) postinstall; break;;
     "VirtualBox" ) vbox; break;;
     "NVIDIA Optimus+TLP" ) laptop; break;;
