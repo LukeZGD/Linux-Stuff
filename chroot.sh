@@ -5,9 +5,10 @@ base-devel
 fish
 intel-ucode
 linux-firmware
-linux-zen
-linux-zen-headers
+linux-lts
+linux-lts-headers
 nano
+nano-syntax-highlighting
 usbutils
 
 dialog
@@ -71,7 +72,7 @@ ffmpegthumbnailer
 fluidsynth
 handbrake
 kdenlive
-kolourpaint
+krita
 lame
 mcomix
 mpv
@@ -79,7 +80,6 @@ nemo
 notepadqq
 obs-studio
 okteta
-openshot
 pinta
 
 gnome-keyring
@@ -120,7 +120,7 @@ function grubinstall {
 }
 
 function grubinstallia32 {
-  pacman -S --noconfirm grub
+  pacman -S --noconfirm grub efibootmgr
   lsblk
   echo "[Input] Disk? (/dev/sdX)"
   read part
@@ -136,6 +136,7 @@ function grubinstallia32 {
 }
 
 function systemdinstall {
+  pacman -S --noconfirm efibootmgr
   echo "[Log] run bootctl install"
   bootctl install
   lsblk
@@ -145,9 +146,9 @@ function systemdinstall {
   echo "[Log] Got UUID of $rootpart: $rootuuid"
   echo "[Log] Creating arch.conf entry"
   echo "title Arch Linux
-linux /vmlinuz-linux-zen
+linux /vmlinuz-linux-lts
 initrd /intel-ucode.img
-initrd /initramfs-linux-zen.img
+initrd /initramfs-linux-lts.img
 options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw quiet" > /boot/loader/entries/arch.conf
 	echo "timeout 0
 default arch
@@ -157,7 +158,8 @@ editor 0" > /boot/loader/loader.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacman[*]}
 echo "[Log] Setting locale"
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
 locale-gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Hongkong /etc/localtime
@@ -185,7 +187,7 @@ echo "[Log] Edit mkinitcpio.conf"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
 sed -i "s/MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
 echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux-zen
+mkinitcpio -p linux-lts
 
 echo "[Input] Enter hostname"
 read hostname
@@ -281,15 +283,17 @@ ExecStart=/usr/bin/xsecurelock
 [Install]
 WantedBy=suspend.target" | tee /etc/systemd/system/lock.service
 
-echo "[Log] lightdm-gtk-greeter.conf"
+echo "[Log] Other configs"
 echo '[greeter]
 theme-name = Adwaita-dark
 icon-theme-name = Papirus-Dark
 font-name = Cantarell 20
 background = /usr/share/backgrounds/adapta/tealized.jpg
-user-background = false' > /etc/lightdm/lightdm-gtk-greeter.conf
+user-background = false
+clock-format = %a %d %b, %I:%M %p' > /etc/lightdm/lightdm-gtk-greeter.conf
+echo 'include "/usr/share/nano/*.nanorc"
+include "/usr/share/nano-syntax-highlighting/*.nanorc"' > /etc/nanorc
 
 echo "[Log] Enabling new services"
 systemctl enable rc-local lock
-echo "[Log] Removing chroot.sh"
-rm /chroot.sh
+echo "[Log] chroot script done"

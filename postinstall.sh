@@ -36,6 +36,7 @@ libretro-ppsspp
 libretro-snes9x
 retroarch
 retroarch-assets-ozone
+retroarch-assets-xmb
 )
 
 osu='
@@ -52,11 +53,12 @@ wineserver -k
 '
 
 function postinstall {
+  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/yay/ /home/$USER/.cache/yay/
   for package in "${packages[@]}"
   do
     sudo pacman -U --noconfirm ~/.cache/yay/$package/${package}*.xz
   done
-  sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms*.xz ~/Documents/ttf-ms-win10/*
+  postinstallcomm
 }
 
 function postinstallyay {
@@ -68,7 +70,23 @@ function postinstallyay {
   do
     yay --noconfirm $package
   done
-  sudo pacman -U --noconfirm ~/Documents/input-veikk-dkms*.xz  ~/Documents/ttf-ms-win10/*
+  postinstallcomm
+}
+
+function postinstallcomm {
+  sudo pacman -U --noconfirm ~/Documents/packages/* #for veikk drivers and fonts
+  gsettings set org.nemo.desktop ignored-desktop-handlers ["'xfdesktop'"]
+  gsettings set org.nemo.desktop font 'Cantarell Regular 10'
+  gsettings set org.nemo.preferences size-prefixes 'base-2'
+  xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
+  xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
+  echo 'export XSECURELOCK_SWITCH_USER_COMMAND=\'dm-tool switch-to-greeter\'
+  export XSECURELOCK_SHOW_DATETIME=1
+  if [ ! -h $HOME/.xsession-errors ]; then
+    /bin/rm $HOME/.xsession-errors
+    ln -s /dev/null $HOME/.xsession-errors
+  fi' >> ~/.xprofile
+  echo 
 }
 
 function vbox {
@@ -79,14 +97,13 @@ function vbox {
 }
 
 function laptop {
-  sudo pacman -S --noconfirm bbswitch-dkms nvidia-dkms nvidia-settings opencl-nvidia tlp
-  sudo pacman -U --noconfirm AUR/optimus-manager/*.xz
-  sudo pacman -U --noconfirm AUR/optimus-manager-qt/*.xz
+  sudo pacman -S --noconfirm bbswitch-dkms nvidia-lts nvidia-settings tlp
+  sudo pacman -U --noconfirm ~/.cache/yay/optimus-manager/*.xz ~/.cache/yay/optimus-manager-qt/*.xz
   sudo systemctl enable tlp
 }
 
 function 390xx {
-  sudo pacman -S --noconfirm nvidia-390xx-dkms nvidia-390xx-settings opencl-nvidia-390xx
+  sudo pacman -S --noconfirm nvidia-390xx-lts nvidia-390xx-settings
 }
 
 function emulatorsinstall {
