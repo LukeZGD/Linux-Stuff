@@ -1,21 +1,28 @@
 #!/bin/bash
 
 packages=(
+gconf
 libsndio-61-compat
 ncurses5-compat-libs
 python2-twodict-git
+
 adapta-backgrounds
 adwaita-qt
 chromium-vaapi-bin
 chromium-widevine
+etcher-bin
 gallery-dl
-gconf
 github-desktop-bin
 qdirstat
 woeusb
 wps-office
-youtube-dl-gui-git
 yay-bin
+youtube-dl-gui-git
+
+checkra1n-cli
+libirecovery-git
+libimobiledevice-git
+idevicerestore-git
 )
 
 emulators=(
@@ -108,7 +115,7 @@ function 390xx {
 
 function emulatorsinstall {
   sudo pacman -S --noconfirm ${emulators[*]}
-  sudo pacman -U --noconfirm ~/.cache/yay/cemu/*.xz
+  sudo pacman -U --noconfirm ~/.cache/yay/cemu/*.xz ~/.cache/yay/rpcs3-bin/*.xz
 }
 
 function osu {

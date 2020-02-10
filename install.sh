@@ -2,6 +2,8 @@
 
 mirrorlist='
 Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
+Server = http://mirror.rise.ph/archlinux/$repo/os/$arch
+Server = http://mirror.nus.edu.sg/archlinux/$repo/os/$arch
 Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://mirror.aarnet.edu.au/pub/archlinux/$repo/os/$arch
@@ -18,7 +20,6 @@ Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
 Server = https://mirror.aktkn.sg/archlinux/$repo/os/$arch
 Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch
 Server = https://sgp.mirror.pkgbuild.com/$repo/os/$arch
-Server = http://mirror.nus.edu.sg/archlinux/$repo/os/$arch
 '
 
 clear
