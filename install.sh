@@ -2,10 +2,16 @@
 
 mirrorlist='
 Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
-Server = http://mirror.rise.ph/archlinux/$repo/os/$arch
 Server = http://mirror.nus.edu.sg/archlinux/$repo/os/$arch
 Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = http://mirror.rise.ph/archlinux/$repo/os/$arch
+Server = http://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = https://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = https://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch
+Server = https://sgp.mirror.pkgbuild.com/$repo/os/$arch
 Server = https://mirror.aarnet.edu.au/pub/archlinux/$repo/os/$arch
 Server = http://archlinux.mirror.digitalpacific.com.au/$repo/os/$arch
 Server = http://ftp.iinet.net.au/pub/archlinux/$repo/os/$arch
@@ -14,12 +20,6 @@ Server = http://archlinux.melbourneitmirror.net/$repo/os/$arch
 Server = http://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = https://syd.mirror.rackspace.com/archlinux/$repo/os/$arch
 Server = http://ftp.swin.edu.au/archlinux/$repo/os/$arch
-Server = http://mirror.0x.sg/archlinux/$repo/os/$arch
-Server = https://mirror.0x.sg/archlinux/$repo/os/$arch
-Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
-Server = https://mirror.aktkn.sg/archlinux/$repo/os/$arch
-Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch
-Server = https://sgp.mirror.pkgbuild.com/$repo/os/$arch
 '
 
 clear
@@ -133,5 +133,5 @@ echo 'tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0' | tee -a /mnt/etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
 echo "[Log] Removing chroot.sh"
-rm /chroot.sh
+rm /mnt/chroot.sh
 echo "[Log] Install script done!"

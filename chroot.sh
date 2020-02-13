@@ -27,12 +27,23 @@ pulseaudio-bluetooth
 lightdm
 lightdm-gtk-greeter
 lightdm-gtk-greeter-settings
-xfce4
-xfce4-goodies
 xorg-server
 xorg-xinit
 xorg-xrandr
-xsecurelock
+
+papirus-icon-theme
+ristretto
+xfce4
+xfce4-artwork
+xfce4-battery-plugin
+xfce4-clipman-plugin
+xfce4-notifyd
+xfce4-pulseaudio-plugin
+xfce4-screenshooter
+xfce4-sensors-plugin
+xfce4-taskmanager
+xfce4-xkb-plugin
+
 
 networkmanager
 network-manager-applet
@@ -55,8 +66,6 @@ p7zip
 zip
 unzip
 unrar
-
-papirus-icon-theme
 
 cups-pdf
 foomatic-db-gutenprint-ppds
@@ -90,11 +99,13 @@ gsmartcontrol
 htop
 ifuse
 jre8-openjdk
+krdc
 love
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
 qbittorrent
+freerdp
 samba
 testdisk
 xfburn
@@ -274,14 +285,11 @@ echo "[Unit]
 Description=Lock the screen on resume from suspend
 
 [Service]
-User=$username
-Environment=DISPLAY=:0
-Environment='XSECURELOCK_SWITCH_USER_COMMAND=dm-tool switch-to-greeter'
-Environment='XSECURELOCK_SHOW_DATETIME=1'
-ExecStart=/usr/bin/xsecurelock
+User=%I
+ExecStart=/usr/bin/dm-tool lock
 
 [Install]
-WantedBy=suspend.target" | tee /etc/systemd/system/lock.service
+WantedBy=suspend.target hibernate.target hybrid-sleep.target" | tee /etc/systemd/system/lock@.service
 
 echo "[Log] Other configs"
 echo '[greeter]
@@ -295,5 +303,5 @@ echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' > /etc/nanorc
 
 echo "[Log] Enabling new services"
-systemctl enable rc-local lock
+systemctl enable rc-local lock@$username
 echo "[Log] chroot script done"
