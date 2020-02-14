@@ -2,20 +2,19 @@
 
 pacman=(
 base-devel
+dialog
 fish
+git
 intel-ucode
 linux-firmware
 linux-lts
 linux-lts-headers
 nano
 nano-syntax-highlighting
-usbutils
-
-dialog
-git
 neofetch
-rsync
 pacman-contrib
+rsync
+usbutils
 wget
 
 alsa-utils
@@ -31,27 +30,36 @@ xorg-server
 xorg-xinit
 xorg-xrandr
 
+exo
+garcon
+nemo
+nitrogen
 papirus-icon-theme
-ristretto
-xfce4
+tumbler
+xfce4-appfinder
 xfce4-artwork
 xfce4-battery-plugin
 xfce4-clipman-plugin
 xfce4-notifyd
+xfce4-panel
+xfce4-power-manager
 xfce4-pulseaudio-plugin
 xfce4-screenshooter
 xfce4-sensors-plugin
+xfce4-session
+xfce4-settings
 xfce4-taskmanager
+xfce4-terminal
+xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
-
-
-networkmanager
-network-manager-applet
+xfwm4
 
 bluez
 bluez-plugins
 bluez-utils
 blueman
+networkmanager
+network-manager-applet
 
 exfat-utils
 gnome-disk-utility
@@ -85,21 +93,20 @@ krita
 lame
 mcomix
 mpv
-nemo
 notepadqq
 obs-studio
 okteta
 pinta
-
-gnome-keyring
-seahorse
+ristretto
 
 galculator
+gnome-keyring
 gsmartcontrol
 htop
 ifuse
 jre8-openjdk
 krdc
+light-locker
 love
 openssh
 noto-fonts-cjk
@@ -107,6 +114,7 @@ noto-fonts-emoji
 qbittorrent
 freerdp
 samba
+seahorse
 testdisk
 xfburn
 )
@@ -273,24 +281,13 @@ echo '#!/bin/bash
 echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
 exit 0' | tee /etc/rc.local
 chmod +x /etc/rc.local
-
+systemctl enable rc-local
 echo "[Log] Configuring power management and lock"
-pacman -R --noconfirm xfce4-screensaver
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
-echo "[Unit]
-Description=Lock the screen on resume from suspend
-
-[Service]
-User=%I
-ExecStart=/usr/bin/dm-tool lock
-
-[Install]
-WantedBy=suspend.target hibernate.target hybrid-sleep.target" | tee /etc/systemd/system/lock@.service
-
 echo "[Log] Other configs"
 echo '[greeter]
 theme-name = Adwaita-dark
@@ -302,6 +299,4 @@ clock-format = %a %d %b, %I:%M %p' > /etc/lightdm/lightdm-gtk-greeter.conf
 echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' > /etc/nanorc
 
-echo "[Log] Enabling new services"
-systemctl enable rc-local lock@$username
 echo "[Log] chroot script done"

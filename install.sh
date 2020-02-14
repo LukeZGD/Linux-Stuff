@@ -130,6 +130,7 @@ fi
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
 echo 'tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0' | tee -a /mnt/etc/fstab
+sed -i "s/relatime/noatime/" /etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
 echo "[Log] Removing chroot.sh"

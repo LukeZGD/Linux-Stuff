@@ -1,7 +1,9 @@
 #!/bin/bash
 
 packages=(
+checkra1n-cli
 gconf
+libirecovery-git
 libsndio-61-compat
 ncurses5-compat-libs
 python2-twodict-git
@@ -18,9 +20,6 @@ woeusb
 wps-office
 yay-bin
 youtube-dl-gui-git
-
-checkra1n-cli
-libirecovery-git
 )
 
 emulators=(
@@ -83,19 +82,34 @@ function postinstallyay {
 }
 
 function postinstallcomm {
-  sudo pacman -U --noconfirm ~/Documents/packages/* #for veikk drivers and fonts
-  #gsettings set org.nemo.desktop ignored-desktop-handlers ["'xfdesktop'"]
-  #gsettings set org.nemo.desktop font 'Cantarell Regular 10'
-  #gsettings set org.nemo.preferences size-prefixes 'base-2'
+  [ -e ~/Documents/packages/ ] && sudo pacman -U ~/Documents/packages/* #for veikk drivers and fonts
+  gsettings set org.nemo.desktop font 'Cantarell Regular 10'
+  gsettings set org.nemo.preferences size-prefixes 'base-2'
   xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
   xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
-  echo "export XSECURELOCK_SWITCH_USER_COMMAND='dm-tool switch-to-greeter'
-  export XSECURELOCK_SHOW_DATETIME=1
-  if [ ! -h $HOME/.xsession-errors ]; then
-    /bin/rm $HOME/.xsession-errors
-    ln -s /dev/null $HOME/.xsession-errors
-  fi" > ~/.xprofile
-  echo 
+  echo '[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=nemo-desktop
+Exec=nemo-desktop
+OnlyShowIn=XFCE;
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false' > ~/.config/autostart/nemo-desktop.desktop
+  echo "[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=nitrogen
+Exec=nitrogen --set-auto /home/$USER/Pictures/background.png
+OnlyShowIn=XFCE;
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false" > ~/.config/autostart/nitrogen.desktop
+  echo 'ENABLE NEMO-DESKTOP AND NITROGEN IN SESSION AND STARTUP'
 }
 
 function vbox {
@@ -203,10 +217,11 @@ clear
 echo "LukeZGD Arch Post-Install Script"
 echo "This script will assume that you have a working Internet connection"
 echo
-select opt in "Install AUR pkgs w/ yay" "Local AUR pkgs" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
+select opt in "Install AUR pkgs w/ yay" "Local AUR pkgs" "Postinstall commands" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
   case $opt in
     "Install AUR pkgs w/ yay" ) postinstallyay; break;;
     "Local AUR pkgs" ) postinstall; break;;
+    "Postinstall commands" ) postinstallcomm; break;;
     "VirtualBox" ) vbox; break;;
     "NVIDIA Optimus+TLP" ) laptop; break;;
     "NVIDIA 390xx" ) 390xx; break;;
