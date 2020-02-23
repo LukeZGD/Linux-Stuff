@@ -46,7 +46,7 @@ retroarch-assets-xmb
 osu='
 #!/bin/sh
 export WINEPREFIX="$HOME/.wine_osu"
-cd ~/osu # Or wherever you installed osu! in
+cd $HOME/osu # Or wherever you installed osu! in
 wine osu!.exe "$@"
 '
 
@@ -60,10 +60,10 @@ function postinstall {
   sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/yay/ /home/$USER/.cache/yay/
   for package in "${packages[@]}"
   do
-    sudo pacman -U --noconfirm ~/.cache/yay/$package/${package}*.xz
+    sudo pacman -U --noconfirm $HOME/.cache/yay/$package/${package}*.xz
   done
-  sudo pacman -U ~/.cache/yay/libimobiledevice-git/libimobiledevice-git*.xz
-  sudo pacman -U --noconfirm ~/.cache/yay/idevicerestore-git/idevicerestore-git*.xz
+  sudo pacman -U $HOME/.cache/yay/libimobiledevice-git/libimobiledevice-git*.xz
+  sudo pacman -U --noconfirm $HOME/.cache/yay/idevicerestore-git/idevicerestore-git*.xz
   postinstallcomm
 }
 
@@ -82,46 +82,46 @@ function postinstallyay {
 }
 
 function postinstallcomm {
-  [ -e ~/Documents/packages/ ] && sudo pacman -U ~/Documents/packages/* #for veikk drivers and fonts
+  [ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
   gsettings set org.nemo.desktop font 'Cantarell Regular 10'
   gsettings set org.nemo.preferences size-prefixes 'base-2'
   xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
   xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
-  echo '[Desktop Entry]
-Encoding=UTF-8
-Version=0.9.4
-Type=Application
-Name=nemo-desktop
-Exec=nemo-desktop
-OnlyShowIn=XFCE;
-RunHook=0
-StartupNotify=false
-Terminal=false
-Hidden=false' > ~/.config/autostart/nemo-desktop.desktop
+  autocreate "nemo-desktop" "env GTK_THEME=Adwaita nemo-desktop"
+  autocreate "light-locker"
+  autocreate "xfce4-clipman"
+  autocreate "nitrogen" "nitrogen --set-auto $HOME/Pictures/background.png"
+}
+
+function autocreate {
+  if [ -z "$2" ]; then
+    a=$1
+  else
+    a=$2
+  fi
   echo "[Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
-Name=nitrogen
-Exec=nitrogen --set-auto /home/$USER/Pictures/background.png
+Name=$1
+Exec=$a
 OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false
 Terminal=false
-Hidden=false" > ~/.config/autostart/nitrogen.desktop
-  echo 'ENABLE NEMO-DESKTOP AND NITROGEN IN SESSION AND STARTUP'
+Hidden=false" > $HOME/.config/autostart/$1.desktop
 }
 
 function vbox {
   sudo pacman -S --noconfirm virtualbox virtualbox-host-dkms virtualbox-guest-iso
-  sudo pacman -U --noconfirm ~/.cache/yay/virtualbox-ext-oracle/*.xz
+  sudo pacman -U --noconfirm $HOME/.cache/yay/virtualbox-ext-oracle/*.xz
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
   sudo pacman -S --noconfirm bbswitch-dkms nvidia-lts nvidia-settings tlp
-  sudo pacman -U --noconfirm ~/.cache/yay/optimus-manager/*.xz ~/.cache/yay/optimus-manager-qt/*.xz
+  sudo pacman -U --noconfirm $HOME/.cache/yay/optimus-manager/*.xz $HOME/.cache/yay/optimus-manager-qt/*.xz
   sudo systemctl enable tlp
 }
 
@@ -131,7 +131,7 @@ function 390xx {
 
 function emulatorsinstall {
   sudo pacman -S --noconfirm ${emulators[*]}
-  sudo pacman -U --noconfirm ~/.cache/yay/cemu/*.xz ~/.cache/yay/rpcs3-bin/*.xz
+  sudo pacman -U --noconfirm $HOME/.cache/yay/cemu/*.xz $HOME/.cache/yay/rpcs3-bin/*.xz
 }
 
 function osu {
@@ -161,9 +161,9 @@ function osu {
 
   sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
 
-  mkdir ~/.config/pulse 2>/dev/null
-  cp -R /etc/pulse/default.pa ~/.config/pulse/default.pa
-  sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" ~/.config/pulse/default.pa
+  mkdir $HOME/.config/pulse 2>/dev/null
+  cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
+  sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
 
   echo "390xx or nah (y/n)"
   read sel
@@ -180,7 +180,7 @@ function osu {
   sudo pacman -S --noconfirm lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
 
   sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ /home/$USER/.cache/winetricks/
-  rm -rf ~/.wine_osu
+  rm -rf $HOME/.wine_osu
   
   export WINEPREFIX="$HOME/.wine_osu"
   export WINEARCH=win32
