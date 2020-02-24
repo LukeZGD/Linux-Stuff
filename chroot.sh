@@ -298,5 +298,7 @@ user-background = false
 clock-format = %a %d %b, %I:%M %p' > /etc/lightdm/lightdm-gtk-greeter.conf
 echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' > /etc/nanorc
+sed -i "s/#Color/Color/" /etc/pacman.conf
+sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 
 echo "[Log] chroot script done"
