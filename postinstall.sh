@@ -18,29 +18,35 @@ github-desktop-bin
 qdirstat
 woeusb
 wps-office
-yay-bin
 youtube-dl-gui-git
 )
 
-emulators=(
-dolphin-emu
-pcsx2
-libretro-beetle-psx-hw
-libretro-bsnes
-libretro-citra
-libretro-core-info
-libretro-desmume
-libretro-gambatte
-libretro-melonds
-libretro-mgba
-libretro-mupen64plus-next
-libretro-nestopia
-libretro-overlays
-libretro-ppsspp
-libretro-snes9x
-retroarch
-retroarch-assets-ozone
-retroarch-assets-xmb
+pacman=(
+fish
+linux54-headers
+nano-syntax-highlighting
+neofetch
+
+audacious
+audacity
+fluidsynth
+handbrake
+kdenlive
+krita
+mpv
+obs-studio
+okteta
+pinta
+
+gnome-keyring
+gsmartcontrol
+ifuse
+jre8-openjdk
+krdc
+love
+freerdp
+seahorse
+testdisk
 )
 
 osu='
@@ -56,41 +62,76 @@ export WINEPREFIX="$HOME/.wine_osu"
 wineserver -k
 '
 
-function postinstall {
-  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/yay/ /home/$USER/.cache/yay/
-  for package in "${packages[@]}"
-  do
-    sudo pacman -U --noconfirm $HOME/.cache/yay/$package/${package}*.xz
-  done
-  sudo pacman -U $HOME/.cache/yay/libimobiledevice-git/libimobiledevice-git*.xz
-  sudo pacman -U --noconfirm $HOME/.cache/yay/idevicerestore-git/idevicerestore-git*.xz
-  postinstallcomm
+paccache=/var/cache/pacman/pkg
+
+function installpac {
+  git clone https://aur.archlinux.org/$1.git
+  cd $1
+  makepkg -si --noconfirm
+  cd ..
+  rm -rf $1
 }
 
-function postinstallyay {
-  git clone https://aur.archlinux.org/yay-bin.git
-  cd yay-bin
-  makepkg -si --noconfirm
-  rm -rf yay-bin
+function postinstall {
   for package in "${packages[@]}"
   do
-    yay --noconfirm $package
+    sudo pacman -U --noconfirm $paccache/${package}*.xz
   done
-  yay libimobiledevice-git
-  yay --noconfirm idevicerestore-git
-  postinstallcomm
+  installpac libimobiledevice-git
+  sudo pacman -U --noconfirm $paccache/idevicerestore-git*.xz
+}
+
+function postinstallpamac {
+  pamac install ${packages[@]}
+  installpac libimobiledevice-git
+  pamac install idevicerestore-git
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
-  gsettings set org.nemo.desktop font 'Cantarell Regular 10'
-  gsettings set org.nemo.preferences size-prefixes 'base-2'
-  xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
-  xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
-  autocreate "nemo-desktop" "env GTK_THEME=Adwaita nemo-desktop"
-  autocreate "light-locker"
-  autocreate "xfce4-clipman"
-  autocreate "nitrogen" "nitrogen --set-auto $HOME/Pictures/background.png"
+echo "[Log] Install packages"
+sudo pacman -S --noconfirm ${pacman[*]}
+sudo pacman -R ark firefox gwenview yakuake
+[ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
+echo "[Log] set fish as default shell"
+sudo usermod -aG audio -s /usr/bin/fish $USER
+echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
+read userc2
+if [ $userc2 == y ] || [ $userc2 == Y ]; then
+  echo "[Input] Enter username"
+  read username2
+  echo "[Log] Creating user $username2"
+  sudo useradd -m -g users -G audio -s /usr/bin/fish $username2
+  echo "[Log] Running passwd $username2"
+  sudo passwd $username2
+fi
+echo "[Log] Configure stuff"
+echo 'include "/usr/share/nano/*.nanorc"
+include "/usr/share/nano-syntax-highlighting/*.nanorc"' | sudo tee /etc/nanorc
+sudo sed -i "s/#Color/Color/" /etc/pacman.conf
+sudo sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+echo "[Log] Configuring rc-local"
+echo '[Unit]
+Description=/etc/rc.local compatibility
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/rc-local.service
+echo '#!/bin/bash
+echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
+exit 0' | sudo tee /etc/rc.local
+sudo chmod +x /etc/rc.local
+sudo systemctl enable rc-local
+#gsettings set org.nemo.desktop font 'Cantarell Regular 10'
+#gsettings set org.nemo.preferences size-prefixes 'base-2'
+#xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
+#xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
+#autocreate "light-locker"
+#autocreate "xfce4-clipman"
+#echo 'export QT_STYLE_OVERRIDE=adwaita-dark' | tee -a $HOME/.xprofile
 }
 
 function autocreate {
@@ -114,15 +155,16 @@ Hidden=false" > $HOME/.config/autostart/$1.desktop
 
 function vbox {
   sudo pacman -S --noconfirm virtualbox virtualbox-host-dkms virtualbox-guest-iso
-  sudo pacman -U --noconfirm $HOME/.cache/yay/virtualbox-ext-oracle/*.xz
+  sudo pacman -U --noconfirm $paccache/virtualbox-ext-oracle*.xz
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
-  sudo pacman -S --noconfirm bbswitch-dkms nvidia-lts nvidia-settings tlp
-  sudo pacman -U --noconfirm $HOME/.cache/yay/optimus-manager/*.xz $HOME/.cache/yay/optimus-manager-qt/*.xz
-  sudo systemctl enable tlp
+  #sudo pacman -S --noconfirm bbswitch-dkms nvidia-lts nvidia-settings tlp
+  #sudo pacman -U --noconfirm $paccache/optimus-manager*.xz $paccache/optimus-manager-qt*.xz
+  #sudo systemctl enable tlp
+  pamac install optimus-manager optimus-manager-qt
 }
 
 function 390xx {
@@ -130,15 +172,14 @@ function 390xx {
 }
 
 function emulatorsinstall {
-  sudo pacman -S --noconfirm ${emulators[*]}
-  sudo pacman -U --noconfirm $HOME/.cache/yay/cemu/*.xz $HOME/.cache/yay/rpcs3-bin/*.xz
+  sudo pacman -S --noconfirm desmume dolphin-emu fceux pcsx2 mgba-qt mupen64plus ppsspp snes9x-gtk 
+  pamac install cemu rpcs3-bin
 }
 
 function osu {
   sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
   sudo pacman -Sy
-
-  cd osuscript
+  
   sudo cp -R /etc/security/limits.conf /etc/security/limits.conf.bak
   echo "@audio - nice -20
   @audio - rtprio 99" | sudo tee /etc/security/limits.conf
@@ -165,21 +206,19 @@ function osu {
   cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
   sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
 
-  echo "390xx or nah (y/n)"
+  echo "390xx or nah (y/N)"
   read sel
-  if [ $sel == y ]
-  then
+  if [[ $sel == y ]]; then
     sudo pacman -S --noconfirm lib32-nvidia-390xx-utils
   fi
-  echo "nvidia or nah (y/n)"
+  echo "nvidia or nah (y/N)"
   read nvidia
-  if [ $nvidia == y ]
-  then
+  if [[ $nvidia == y ]]; then
     sudo pacman -S --noconfirm lib32-nvidia-utils
   fi
   sudo pacman -S --noconfirm lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
 
-  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ /home/$USER/.cache/winetricks/
+  sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ $HOME/.cache/winetricks/
   rm -rf $HOME/.wine_osu
   
   export WINEPREFIX="$HOME/.wine_osu"
@@ -188,6 +227,7 @@ function osu {
   winetricks dotnet40
   winetricks gdiplus
   
+  sudo usermod -aG audio $USER
   echo "Preparations complete. Download and install osu! now? (y/N)"
   read installoss
   if [ $installoss == y ] || [ $installoss == Y ]; then
@@ -198,9 +238,9 @@ function osu {
 }
 
 function devkitPro {
-  echo 'DEVKITPRO=/opt/devkitpro
-  DEVKITARM=/opt/devkitpro/devkitARM
-  DEVKITPPC=/opt/devkitpro/devkitPPC' | sudo tee -a /etc/environment
+  echo 'export DEVKITPRO=/opt/devkitpro
+  export DEVKITARM=/opt/devkitpro/devkitARM
+  export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee -a $HOME/.profile
   sudo pacman-key --recv F7FD5492264BB9D0
   sudo pacman-key --lsign F7FD5492264BB9D0
   sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
@@ -217,10 +257,11 @@ clear
 echo "LukeZGD Arch Post-Install Script"
 echo "This script will assume that you have a working Internet connection"
 echo
-select opt in "Install AUR pkgs w/ yay" "Local AUR pkgs" "Postinstall commands" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
+select opt in "Install pamac" "Install AUR pkgs cache" "Install AUR pkgs pamac" "Postinstall commands" "VirtualBox" "NVIDIA Optimus+TLP" "NVIDIA 390xx" "osu!" "Emulators" "devkitPro"; do
   case $opt in
-    "Install AUR pkgs w/ yay" ) postinstallyay; break;;
-    "Local AUR pkgs" ) postinstall; break;;
+    "Install pamac" ) installpac pamac-aur; break;;
+    "Install AUR pkgs cache" ) postinstall; break;;
+    "Install AUR pkgs pamac" ) postinstallpamac; break;;
     "Postinstall commands" ) postinstallcomm; break;;
     "VirtualBox" ) vbox; break;;
     "NVIDIA Optimus+TLP" ) laptop; break;;

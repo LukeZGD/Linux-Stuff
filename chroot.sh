@@ -30,11 +30,11 @@ xorg-server
 xorg-xinit
 xorg-xrandr
 
+catfish
 exo
 garcon
-nemo
-nitrogen
 papirus-icon-theme
+thunar
 tumbler
 xfce4-appfinder
 xfce4-artwork
@@ -52,6 +52,7 @@ xfce4-taskmanager
 xfce4-terminal
 xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
+xfdesktop
 xfwm4
 
 bluez
@@ -69,7 +70,7 @@ gvfs-afc
 gvfs-gphoto2
 ntfs-3g
 
-ark
+engrampa
 p7zip
 zip
 unzip
@@ -88,16 +89,15 @@ ffmpeg
 ffmpegthumbnailer
 fluidsynth
 handbrake
+kate
 kdenlive
 krita
 lame
-mcomix
 mpv
-notepadqq
 obs-studio
 okteta
 pinta
-ristretto
+viewnior
 
 galculator
 gnome-keyring
@@ -218,16 +218,6 @@ echo "[Log] Creating user $username"
 useradd -m -g users -G wheel,audio -s /usr/bin/fish $username
 echo "[Log] Running passwd $username"
 passwd $username
-echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
-read userc2
-if [ $userc2 == y ] || [ $userc2 == Y ]; then
-  echo "[Input] Enter username"
-  read username2
-  echo "[Log] Creating user $username2"
-  useradd -m -g users -G audio -s /usr/bin/fish $username2
-  echo "[Log] Running passwd $username2"
-  passwd $username2
-fi
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
@@ -265,30 +255,13 @@ done
 EOF
 chmod +x /usr/bin/unmountonlogout
 sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-
-echo "[Log] Configuring rc-local"
-echo '[Unit]
-Description=/etc/rc.local compatibility
-
-[Service]
-Type=oneshot
-ExecStart=/etc/rc.local
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target' | tee /usr/lib/systemd/system/rc-local.service
-echo '#!/bin/bash
-echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
-exit 0' | tee /etc/rc.local
-chmod +x /etc/rc.local
-systemctl enable rc-local
-echo "[Log] Configuring power management and lock"
+echo "[Log] Configure power management and lock"
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
-echo "[Log] Other configs"
+echo "[Log] LightDM GTK config"
 echo '[greeter]
 theme-name = Adwaita-dark
 icon-theme-name = Papirus-Dark
@@ -296,9 +269,5 @@ font-name = Cantarell 20
 background = /usr/share/backgrounds/adapta/tealized.jpg
 user-background = false
 clock-format = %a %d %b, %I:%M %p' > /etc/lightdm/lightdm-gtk-greeter.conf
-echo 'include "/usr/share/nano/*.nanorc"
-include "/usr/share/nano-syntax-highlighting/*.nanorc"' > /etc/nanorc
-sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 
 echo "[Log] chroot script done"
