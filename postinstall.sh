@@ -37,8 +37,11 @@ mpv
 obs-studio
 okteta
 pinta
+viewnior
 
+gnome-disk-utility
 gnome-keyring
+gparted
 gsmartcontrol
 ifuse
 jre8-openjdk
@@ -67,7 +70,7 @@ paccache=/var/cache/pacman/pkg
 function installpac {
   git clone https://aur.archlinux.org/$1.git
   cd $1
-  makepkg -si --noconfirm
+  makepkg -si
   cd ..
   rm -rf $1
 }
@@ -90,7 +93,7 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R ark firefox gwenview yakuake
+sudo pacman -R appimagelauncher firefox gwenview yakuake
 [ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER

@@ -23,42 +23,13 @@ pulseaudio
 pulseaudio-alsa
 pulseaudio-bluetooth
 
-lightdm
-lightdm-gtk-greeter
-lightdm-gtk-greeter-settings
 xorg-server
 xorg-xinit
 xorg-xrandr
 
-catfish
-exo
-garcon
-papirus-icon-theme
-thunar
-tumbler
-xfce4-appfinder
-xfce4-artwork
-xfce4-battery-plugin
-xfce4-clipman-plugin
-xfce4-notifyd
-xfce4-panel
-xfce4-power-manager
-xfce4-pulseaudio-plugin
-xfce4-screenshooter
-xfce4-sensors-plugin
-xfce4-session
-xfce4-settings
-xfce4-taskmanager
-xfce4-terminal
-xfce4-whiskermenu-plugin
-xfce4-xkb-plugin
-xfdesktop
-xfwm4
-
 bluez
 bluez-plugins
 bluez-utils
-blueman
 networkmanager
 network-manager-applet
 
@@ -70,7 +41,6 @@ gvfs-afc
 gvfs-gphoto2
 ntfs-3g
 
-engrampa
 p7zip
 zip
 unzip
@@ -86,6 +56,7 @@ system-config-printer
 audacious
 audacity
 ffmpeg
+ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
 handbrake
@@ -99,25 +70,38 @@ okteta
 pinta
 viewnior
 
-galculator
 gnome-keyring
 gsmartcontrol
 htop
 ifuse
 jre8-openjdk
 krdc
-light-locker
 love
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
+papirus-icon-theme
 qbittorrent
 freerdp
 samba
 seahorse
 testdisk
+)
+
+pacmanxfce4=(
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+blueman
+catfish
+engrampa
+xfce4
+xfce4-goodies
+galculator
+light-locker
 xfburn
 )
+
 
 function grubinstall {
   pacman -S --noconfirm grub
@@ -174,8 +158,17 @@ default arch
 editor 0" > /boot/loader/loader.conf
 }
 
+# ----------------
+
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacman[*]}
+echo "[Input] (Y) KDE | (n) XFCE"
+read desktopenv
+if [ $desktopenv == n ] || [ $desktopenv == N ]; then
+  pacman -S --noconfirm ${pacmanxfce4[*]}
+else
+  pacman -S --noconfirm ${pacmankde[*]}
+fi
 echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
@@ -221,7 +214,9 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable lightdm NetworkManager bluetooth org.cups.cupsd
+systemctl enable NetworkManager bluetooth org.cups.cupsd
+systemctl enable lightdm
+systemctl enable sddm
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
 read touchpad
