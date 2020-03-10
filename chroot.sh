@@ -102,6 +102,20 @@ light-locker
 xfburn
 )
 
+pacmankde=(
+plasma
+ark
+dolphin
+dolphin-plugins
+filelight
+kate
+kcalc
+kdemultimedia-meta
+kdialog
+konsole
+kwalletmanager
+spectacle
+)
 
 function grubinstall {
   pacman -S --noconfirm grub

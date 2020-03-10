@@ -93,7 +93,7 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R appimagelauncher firefox gwenview yakuake
+sudo pacman -R appimagelauncher firefox gwenview vlc yakuake
 [ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER
