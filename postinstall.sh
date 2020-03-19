@@ -5,12 +5,12 @@ checkra1n-cli
 gconf
 libirecovery-git
 libsndio-61-compat
+libva-vdpau-driver-chromium
 ncurses5-compat-libs
 python2-twodict-git
 
 adapta-backgrounds
 adwaita-qt
-chromium-vaapi-bin
 chromium-widevine
 etcher-bin
 gallery-dl
@@ -46,6 +46,7 @@ gsmartcontrol
 ifuse
 jre8-openjdk
 krdc
+libressl
 love
 freerdp
 seahorse
@@ -135,6 +136,13 @@ sudo systemctl enable rc-local
 #autocreate "light-locker"
 #autocreate "xfce4-clipman"
 #echo 'export QT_STYLE_OVERRIDE=adwaita-dark' | tee -a $HOME/.xprofile
+echo '--ignore-gpu-blacklist
+--enable-gpu-rasterization
+--enable-native-gpu-memory-buffers
+--enable-zero-copy
+--disable-gpu-driver-bug-workarounds' > $HOME/.config/chromium-flags.conf
+sudo timedatectl set-ntp true
+sudo timedatectl set-local-rtc 1 --adjust-system-clock
 }
 
 function autocreate {

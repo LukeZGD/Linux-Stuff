@@ -76,6 +76,7 @@ htop
 ifuse
 jre8-openjdk
 krdc
+libressl
 love
 openssh
 noto-fonts-cjk
