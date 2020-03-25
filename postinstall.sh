@@ -29,11 +29,14 @@ neofetch
 
 audacious
 audacity
+breeze-gtk
+ffmpegthumbnailer
 fluidsynth
 handbrake
 kdenlive
 krita
 mpv
+nemo
 obs-studio
 okteta
 pinta
@@ -94,7 +97,7 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R appimagelauncher firefox gwenview vlc yakuake
+sudo pacman -R appimagelauncher firefox gwenview kget vlc yakuake
 [ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER
@@ -130,7 +133,7 @@ exit 0' | sudo tee /etc/rc.local
 sudo chmod +x /etc/rc.local
 sudo systemctl enable rc-local
 #gsettings set org.nemo.desktop font 'Cantarell Regular 10'
-#gsettings set org.nemo.preferences size-prefixes 'base-2'
+gsettings set org.nemo.preferences size-prefixes 'base-2'
 #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
 #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
 #autocreate "light-locker"
@@ -140,9 +143,14 @@ echo '--ignore-gpu-blacklist
 --enable-gpu-rasterization
 --enable-native-gpu-memory-buffers
 --enable-zero-copy
---disable-gpu-driver-bug-workarounds' > $HOME/.config/chromium-flags.conf
+--disable-gpu-driver-bug-workarounds' | tee $HOME/.config/chromium-flags.conf
 sudo timedatectl set-ntp true
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
+echo '[archlinuxcn]
+Server = https://repo.archlinuxcn.org/$arch' | sudo tee /etc/pacman.conf
+sudo pacman -Syy
+sudo pacman -S --noconfirm archlinuxcn-keyring
+sudo pacman -S --noconfirm chromium-vaapi
 }
 
 function autocreate {
@@ -161,7 +169,7 @@ OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false
 Terminal=false
-Hidden=false" > $HOME/.config/autostart/$1.desktop
+Hidden=false" | tee $HOME/.config/autostart/$1.desktop
 }
 
 function vbox {

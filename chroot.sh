@@ -106,6 +106,7 @@ xfburn
 pacmankde=(
 plasma
 ark
+breeze-gtk
 dolphin
 dolphin-plugins
 filelight
@@ -115,6 +116,7 @@ kdemultimedia-meta
 kdialog
 konsole
 kwalletmanager
+nemo
 spectacle
 )
 
