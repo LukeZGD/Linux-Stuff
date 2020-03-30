@@ -2,10 +2,10 @@
 
 packages=(
 checkra1n-cli
+ffmpeg-compat-57
 gconf
 libirecovery-git
 libsndio-61-compat
-libva-vdpau-driver-chromium
 ncurses5-compat-libs
 python2-twodict-git
 
@@ -34,6 +34,7 @@ ffmpegthumbnailer
 fluidsynth
 handbrake
 kdenlive
+kodi
 krita
 mpv
 nemo
@@ -48,7 +49,9 @@ gparted
 gsmartcontrol
 ifuse
 jre8-openjdk
+kodi-addon-inputstream-adaptive
 krdc
+libreoffice-still
 libressl
 love
 freerdp
@@ -97,8 +100,8 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R appimagelauncher firefox gwenview kget vlc yakuake
-[ -e $HOME/Documents/packages/ ] && sudo pacman -U $HOME/Documents/packages/* #for veikk drivers and fonts
+sudo pacman -R --noconfirm appimagelauncher firefox gwenview kget vlc yakuake
+[ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER
 echo "[Input] Create 2nd user account? (with no wheel/sudo) (y/n)"
@@ -147,10 +150,10 @@ echo '--ignore-gpu-blacklist
 sudo timedatectl set-ntp true
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
 echo '[archlinuxcn]
-Server = https://repo.archlinuxcn.org/$arch' | sudo tee /etc/pacman.conf
+Server = https://repo.archlinuxcn.org/$arch' | sudo tee -a /etc/pacman.conf
 sudo pacman -Syy
 sudo pacman -S --noconfirm archlinuxcn-keyring
-sudo pacman -S --noconfirm chromium-vaapi
+sudo pacman -S --noconfirm chromium-vaapi libva-vdpau-driver-vp9
 }
 
 function autocreate {
@@ -174,7 +177,7 @@ Hidden=false" | tee $HOME/.config/autostart/$1.desktop
 
 function vbox {
   sudo pacman -S --noconfirm virtualbox virtualbox-host-dkms virtualbox-guest-iso
-  sudo pacman -U --noconfirm $paccache/virtualbox-ext-oracle*.xz
+  pamac install virtualbox-ext-oracle
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
@@ -184,6 +187,8 @@ function laptop {
   #sudo pacman -U --noconfirm $paccache/optimus-manager*.xz $paccache/optimus-manager-qt*.xz
   #sudo systemctl enable tlp
   pamac install optimus-manager optimus-manager-qt
+  sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
+  sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
 }
 
 function 390xx {
@@ -191,15 +196,16 @@ function 390xx {
 }
 
 function emulatorsinstall {
-  sudo pacman -S --noconfirm desmume dolphin-emu fceux pcsx2 mgba-qt mupen64plus ppsspp snes9x-gtk 
-  pamac install cemu rpcs3-bin
+  sudo pacman -S --noconfirm desmume dolphin-emu fceux mgba-qt mupen64plus ppsspp snes9x-gtk
+  installpac pcsx2-git
+  pamac install citra-qt-bin cemu rpcs3-bin
 }
 
 function osu {
   sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
   sudo pacman -Sy
   
-  sudo cp -R /etc/security/limits.conf /etc/security/limits.conf.bak
+  sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
   echo "@audio - nice -20
   @audio - rtprio 99" | sudo tee /etc/security/limits.conf
 
