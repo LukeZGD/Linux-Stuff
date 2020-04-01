@@ -70,6 +70,7 @@ okteta
 pinta
 viewnior
 
+firefox
 gnome-keyring
 gsmartcontrol
 htop

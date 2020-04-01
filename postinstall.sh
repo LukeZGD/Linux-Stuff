@@ -100,7 +100,7 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R --noconfirm appimagelauncher firefox gwenview kget vlc yakuake
+sudo pacman -R --noconfirm appimagelauncher gwenview kget vlc yakuake
 [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER
@@ -149,11 +149,6 @@ echo '--ignore-gpu-blacklist
 --disable-gpu-driver-bug-workarounds' | tee $HOME/.config/chromium-flags.conf
 sudo timedatectl set-ntp true
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
-echo '[archlinuxcn]
-Server = https://repo.archlinuxcn.org/$arch' | sudo tee -a /etc/pacman.conf
-sudo pacman -Syy
-sudo pacman -S --noconfirm archlinuxcn-keyring
-sudo pacman -S --noconfirm chromium-vaapi libva-vdpau-driver-vp9
 }
 
 function autocreate {
@@ -197,8 +192,7 @@ function 390xx {
 
 function emulatorsinstall {
   sudo pacman -S --noconfirm desmume dolphin-emu fceux mgba-qt mupen64plus ppsspp snes9x-gtk
-  installpac pcsx2-git
-  pamac install citra-qt-bin cemu rpcs3-bin
+  pamac install citra-qt-bin cemu pcsx2-git rpcs3-bin
 }
 
 function osu {
