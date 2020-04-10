@@ -32,15 +32,13 @@ audacity
 breeze-gtk
 ffmpegthumbnailer
 fluidsynth
+gimp
 handbrake
 kdenlive
-kodi
-krita
 mpv
 nemo
 obs-studio
 okteta
-pinta
 viewnior
 
 gnome-disk-utility
@@ -49,7 +47,6 @@ gparted
 gsmartcontrol
 ifuse
 jre8-openjdk
-kodi-addon-inputstream-adaptive
 krdc
 libreoffice-still
 libressl
@@ -100,7 +97,7 @@ function postinstallpamac {
 function postinstallcomm {
 echo "[Log] Install packages"
 sudo pacman -S --noconfirm ${pacman[*]}
-sudo pacman -R --noconfirm appimagelauncher gwenview kget vlc yakuake
+sudo pacman -R --noconfirm appimagelauncher gwenview kget okular vlc yakuake
 [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm $HOME/Documents/packages/* #for veikk drivers and fonts
 echo "[Log] set fish as default shell"
 sudo usermod -aG audio -s /usr/bin/fish $USER

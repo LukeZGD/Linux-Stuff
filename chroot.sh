@@ -59,15 +59,14 @@ ffmpeg
 ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
+gimp
 handbrake
 kate
 kdenlive
-krita
 lame
 mpv
 obs-studio
 okteta
-pinta
 viewnior
 
 firefox
