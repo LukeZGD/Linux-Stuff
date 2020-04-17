@@ -16,6 +16,7 @@ etcher-bin
 gallery-dl
 github-desktop-bin
 qdirstat
+qsynth
 woeusb
 wps-office
 youtube-dl-gui-git
@@ -146,6 +147,7 @@ echo '--ignore-gpu-blacklist
 --disable-gpu-driver-bug-workarounds' | tee $HOME/.config/chromium-flags.conf
 sudo timedatectl set-ntp true
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
+sudo systemctl --global disable pipewire pipewire.socket
 }
 
 function autocreate {
@@ -189,7 +191,7 @@ function 390xx {
 
 function emulatorsinstall {
   sudo pacman -S --noconfirm desmume dolphin-emu fceux mgba-qt mupen64plus ppsspp snes9x-gtk
-  pamac install citra-qt-bin cemu pcsx2-git rpcs3-bin
+  pamac install citra-canary-git cemu pcsx2-git rpcs3-bin
 }
 
 function osu {
