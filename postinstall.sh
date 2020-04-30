@@ -135,19 +135,19 @@ function vbox {
 }
 
 function laptop {
-  yay -S --noconfirm --answerclean All bbswitch-dkms nvidia-lts nvidia-settings tlp optimus-manager optimus-manager-qt
+  yay -S --noconfirm --answerclean All bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
 }
 
 function 390xx {
-  sudo pacman -S --noconfirm nvidia-390xx-lts nvidia-390xx-settings
+  sudo pacman -S --noconfirm nvidia-390xx-lts lib32-nvidia-390xx-utils nvidia-390xx-settings
 }
 
 function emulatorsinstall {
   pacman -S --noconfirm --needed desmume dolphin-emu fceux mgba-qt ppsspp
-  yay -S --noconfirm $(yay -Qi citra-canary-git cemu mupen64plus-qt pcsx2-git rpcs3-bin yuzu-mainline-git-bin 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  yay -S --noconfirm $(yay -Qi citra-canary-git cemu pcsx2-git rpcs3-bin yuzu-mainline-git-bin 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
 }
 
 function osu {
@@ -179,17 +179,7 @@ function osu {
   mkdir $HOME/.config/pulse 2>/dev/null
   cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
   sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
-
-  echo "390xx or nah (y/N)"
-  read sel
-  if [[ $sel == y ]]; then
-    sudo pacman -S --noconfirm lib32-nvidia-390xx-utils
-  fi
-  echo "nvidia or nah (y/N)"
-  read nvidia
-  if [[ $nvidia == y ]]; then
-    sudo pacman -S --noconfirm lib32-nvidia-utils
-  fi
+  
   sudo pacman -S --noconfirm lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
 
   #sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ $HOME/.cache/winetricks/
@@ -284,7 +274,8 @@ function RSYNCuser {
 }
 
 function RSYNC {
-  sudo rsync -vrltD --update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+  # -vrltD
+  sudo rsync -va --update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
 }
 
 function Backupuser {
