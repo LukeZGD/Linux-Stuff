@@ -13,6 +13,7 @@ nano
 nano-syntax-highlighting
 neofetch
 pacman-contrib
+reflector
 rsync
 usbutils
 wget
@@ -107,14 +108,13 @@ xfburn
 pacmankde=(
 plasma
 ark
-breeze-gtk
 dolphin
 dolphin-plugins
-filelight
+k3b
 kate
 kcalc
-kdemultimedia-meta
 kdialog
+kmix
 konsole
 kwalletmanager
 nemo
@@ -170,7 +170,7 @@ function systemdinstall {
 linux /vmlinuz-linux-lts
 initrd /intel-ucode.img
 initrd /initramfs-linux-lts.img
-options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw quiet" > /boot/loader/entries/arch.conf
+options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw loglevel=3" > /boot/loader/entries/arch.conf
 	echo "timeout 0
 default arch
 editor 0" > /boot/loader/loader.conf
@@ -180,9 +180,9 @@ editor 0" > /boot/loader/loader.conf
 
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacman[*]}
-echo "[Input] (Y) KDE | (n) XFCE"
-read desktopenv
-if [ $desktopenv == n ] || [ $desktopenv == N ]; then
+#echo "[Input] (Y) KDE | (n) XFCE"
+#read desktopenv
+if [[ $desktopenv == n ]] || [[ $desktopenv == N ]]; then
   pacman -S --noconfirm ${pacmanxfce4[*]}
 else
   pacman -S --noconfirm ${pacmankde[*]}
@@ -233,7 +233,7 @@ echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable NetworkManager bluetooth org.cups.cupsd
-systemctl enable lightdm
+#systemctl enable lightdm
 systemctl enable sddm
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
@@ -267,20 +267,45 @@ do
 done
 EOF
 chmod +x /usr/bin/unmountonlogout
-sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
+#sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 echo "[Log] Configure power management and lock"
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
-echo "[Log] LightDM GTK config"
-echo '[greeter]
-theme-name = Adwaita-dark
-icon-theme-name = Papirus-Dark
-font-name = Cantarell 20
-background = /usr/share/backgrounds/adapta/tealized.jpg
-user-background = false
-clock-format = %a %d %b, %I:%M %p' > /etc/lightdm/lightdm-gtk-greeter.conf
+
+#echo "[Log] LightDM GTK config"
+#cat > /etc/lightdm/lightdm-gtk-greeter.conf << 'EOF'
+#[greeter]
+#theme-name = Adwaita-dark
+#icon-theme-name = Papirus-Dark
+#font-name = Cantarell 20
+#background = /usr/share/backgrounds/adapta/tealized.jpg
+#user-background = false
+#clock-format = %a %d %b, %I:%M %p
+#EOF
+
+echo "[Log] Configure stuff"
+echo 'include "/usr/share/nano/*.nanorc"
+include "/usr/share/nano-syntax-highlighting/*.nanorc"' | sudo tee /etc/nanorc
+sudo sed -i "s/#Color/Color/" /etc/pacman.conf
+sudo sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+echo "[Log] Configuring rc-local"
+echo '[Unit]
+Description=/etc/rc.local compatibility
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/rc-local.service
+echo '#!/bin/bash
+echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
+exit 0' | sudo tee /etc/rc.local
+sudo chmod +x /etc/rc.local
+sudo systemctl enable rc-local
 
 echo "[Log] chroot script done"
