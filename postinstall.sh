@@ -79,14 +79,14 @@ function postinstall {
   done
   IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat failed.txt))'
   for package in "${failed[@]}"; do
-    yay -S --noconfirm --answerclean All $package
+    yay -S --noconfirm --answerclean All --cleanafter --removemake $package
   done
   installpac libimobiledevice-git
-  yay -S --noconfirm --answerclean All idevicerestore-git
+  yay -S --noconfirm --answerclean All --cleanafter --removemake idevicerestore-git
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/packages/*.xz #for veikk drivers and fonts
+  [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/packages/*.xz $HOME/Documents/packages/*.gz #for veikk drivers and fonts
   #gsettings set org.nemo.desktop font 'Cantarell Regular 10'
   gsettings set org.nemo.preferences size-prefixes 'base-2'
   #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
@@ -129,13 +129,13 @@ function autocreate {
 }
 
 function vbox {
-  yay -S --noconfirm --answerclean All virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
+  yay -S --noconfirm --answerclean All --cleanafter --removemake virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
-  yay -S --noconfirm --answerclean All bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel
+  yay -S --noconfirm --answerclean All --cleanafter --removemake bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
