@@ -227,6 +227,8 @@ function kvmstep1 {
 
   echo "[global]
   allow insecure wide links = yes
+  workgroup = WORKGROUP
+  netbios name = $USER
 
   [LinuxHost]
   comment = Host Share
@@ -238,13 +240,13 @@ function kvmstep1 {
   follow symlinks = yes
   wide links = yes" | sudo tee /etc/samba/smb.conf
 
-  sudo systemctl enable --now libvirtd smb
+  sudo systemctl enable --now libvirtd smb nmb
   sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
   sudo mkinitcpio -p linux-lts
   echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
   sudo gpasswd -a $USER kvm
   sudo smbpasswd -a $USER
-  sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1/' /boot/loader/entries/arch.conf
+  sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1 iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
   echo
   echo "Reboot and run this again to continue install"
 }
@@ -270,7 +272,7 @@ function kvmstep2 {
 }
 
 function RSYNCuser {
-  sudo rsync -va --update --delete-after --info=progress2 --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+  sudo rsync -va --update --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
 }
 
 function RSYNC {
@@ -297,7 +299,7 @@ function Restoreuser {
 
 function Restoreuserfull {
   #just a copy of RSYNCuser with --update removed
-  sudo rsync -va --delete-after --info=progress2 --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' /run/media/$USER/LukeHDD2/Backups/$USER/ /home/$USER/
+  sudo rsync -va --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' /run/media/$USER/LukeHDD2/Backups/$USER/ /home/$USER/
   sudo rsync -vrltD --info=progress2 /run/media/$USER/LukeHDD2/Backups/Data/$USER/ /mnt/Data/$USER/
   sudo rsync -vrltD --info=progress2 /run/media/$USER/LukeHDD2/Backups/Data/osu/ /home/$USER/osu/
 }
