@@ -147,7 +147,7 @@ function 390xx {
 
 function emulatorsinstall {
   pacman -S --noconfirm --needed desmume dolphin-emu fceux mgba-qt ppsspp
-  yay -S --noconfirm $(yay -Qi citra-canary-git cemu pcsx2-git rpcs3-bin yuzu-mainline-git-bin 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  yay -S --noconfirm $(yay -Qi citra-canary-git cemu pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
 }
 
 function osu {
