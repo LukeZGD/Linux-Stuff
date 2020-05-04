@@ -232,8 +232,8 @@ function kvmstep1 {
 
   [LinuxHost]
   comment = Host Share
-  path = /home/lukee
-  valid users = lukee
+  path = $HOME
+  valid users = $USER
   public = no
   writable = yes
   printable = no
@@ -276,20 +276,66 @@ function RSYNCuser {
 }
 
 function RSYNC {
-  # -vrltD
-  sudo rsync -va --update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+  # -va can be replaced with -vrltD
+  [ ! $Full ] && Update=--update
+  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
 }
 
-function Backupuser {
-  RSYNCuser /home/$USER/ /run/media/$USER/LukeHDD2/Backups/$USER/
-  RSYNC /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/Backups/Data/$USER/
-  RSYNC /home/$USER/osu/ /run/media/$USER/LukeHDD2/Backups/Data/osu/
+function BackupRestore {
+  select opt in "Backup" "Restore"; do
+    case $opt in
+      "Backup" ) Action=Backup; break;;
+      "Restore" ) Action=Restore; break;;
+      * ) exit;;
+    esac
+  done
+  select opt in "$Action home" "$Action pacman" "$Action VMs"; do
+    case $opt in
+      "$Action home" ) Mode=user; break;;
+      "$Action pacman" ) Mode=pac; break;;
+      "$Action VMs" ) Mode=vm; break;;
+      * ) exit;;
+    esac
+  if [ $Mode == user ]; then
+    Paths=(/home/$USER/ /run/media/$USER/LukeHDD2/Backups/$USER/
+           /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/Backups/Data/$USER/
+           /home/$USER/osu/ /run/media/$USER/LukeHDD2/Backups/Data/osu/)
+  elif [ $Mode == pac ]; then
+    Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
+           $HOME/.cache/yay/ /run/media/$USER/LukeHDD2/Backups/yay/)
+  elif [ $Mode == vm ]; then
+    Paths=($HOME/win10.qcow2 /run/media/$USER/LukeHDD2/Backups/Data
+           $HOME/macOS-Simple-KVM/ /run/media/$USER/LukeHDD2/Backups/Data/macOS-Simple-KVM/)
+  fi
+  if [ $Action == Backup ]; then
+    if [ $Mode == user ]; then
+      RSYNCuser ${Paths[0]} ${Paths[1]}
+      RSYNC ${Paths[2]} ${Paths[3]}
+      RSYNC ${Paths[4]} ${Paths[5]}
+    elif [ $Mode == pac ] || [ $Mode == vm ]; then
+      RSYNC ${Paths[0]} ${Paths[1]}
+      RSYNC ${Paths[2]} ${Paths[3]}
+    fi
+  elif [ $Action == Restore ]; then
+    if [ $Mode == user ]; then
+      select opt in "Update restore" "Full restore"; do
+        case $opt in
+          "Update restore" ) Restoreuser; break;;
+          "Full restore" ) Full=0; Restoreuser; break;;
+          * ) exit;;
+        esac
+      done
+    elif [ $Mode == pac ] || [ $Mode == vm ]; then
+      RSYNC ${Paths[1]} ${Paths[0]}
+      RSYNC ${Paths[3]} ${Paths[2]}
+    fi
+  fi
 }
 
 function Restoreuser {
-  RSYNCuser /run/media/$USER/LukeHDD2/Backups/$USER/ /home/$USER/
-  RSYNC /run/media/$USER/LukeHDD2/Backups/Data/$USER/ /mnt/Data/$USER/
-  RSYNC /run/media/$USER/LukeHDD2/Backups/Data/osu/ /home/$USER/osu/
+  RSYNCuser ${Paths[1]} ${Paths[0]}
+  RSYNC ${Paths[3]} ${Paths[2]}
+  RSYNC ${Paths[5]} ${Paths[4]}
   rm -rf $HOME/.cache/wine $HOME/.cache/winetricks $HOME/.cache/yay
   cd $HOME/.cache
   ln -sf /mnt/Data/$USER/cache/wine
@@ -299,61 +345,9 @@ function Restoreuser {
 
 function Restoreuserfull {
   #just a copy of RSYNCuser with --update removed
-  sudo rsync -va --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' /run/media/$USER/LukeHDD2/Backups/$USER/ /home/$USER/
-  sudo rsync -vrltD --info=progress2 /run/media/$USER/LukeHDD2/Backups/Data/$USER/ /mnt/Data/$USER/
-  sudo rsync -vrltD --info=progress2 /run/media/$USER/LukeHDD2/Backups/Data/osu/ /home/$USER/osu/
-}
-
-function Backuppac {
-  #RSYNC /var/cache/pacman/pkg/ /run/media/$USER/LukeHDD/Backups/pkg/
-  RSYNC /var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
-  RSYNC $HOME/.cache/yay/ /run/media/$USER/LukeHDD2/Backups/yay/
-}
-
-function Restorepac {
-  #RSYNC /run/media/$USER/LukeHDD/Backups/pkg/ /var/cache/pacman/pkg/
-  RSYNC /run/media/$USER/LukeHDD2/Backups/pkg/ /var/cache/pacman/pkg/
-  RSYNC /run/media/$USER/LukeHDD2/Backups/yay/ $HOME/.cache/yay/
-}
-
-function Backup {
-select opt in "Backup home" "Backup pacman"; do
-  case $opt in
-    "Backup home" ) Backupuser; break;;
-    "Backup pacman" ) Backuppac; break;;
-    * ) exit;;
-  esac
-done
-}
-
-function Restore {
-select opt in "Restore home" "Restore pacman"; do
-  case $opt in
-    "Restore home" ) Restoreuserselect; break;;
-    "Restore pacman" ) Restorepac; break;;
-    * ) exit;;
-  esac
-done
-}
-
-function Restoreuserselect {
-echo "(y) full restore / (N) update"
-read Restoreuserselection
-if [[ $Restoreuserselection == Y ]] || [[ $Restoreuserselection == y ]]; then
-  Restoreuserfull
-else
-  Restoreuser
-fi
-}
-
-function BackupRestore {
-  select opt in "Backup" "Restore"; do
-    case $opt in
-      "Backup" ) Backup; break;;
-      "Restore" ) Restore; break;;
-      * ) exit;;
-    esac
-  done
+  sudo rsync -va --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' ${Paths[1]} ${Paths[0]}
+  sudo rsync -va --info=progress2 ${Paths[3]} ${Paths[2]}
+  sudo rsync -va --info=progress2 ${Paths[5]} ${Paths[4]}
 }
 
 # ----------------------------------

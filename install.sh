@@ -8,7 +8,7 @@ echo "Press [enter] to continue, or ^C to cancel"
 read
 
 echo ""
-echo "[Log] Creating mirrorlist"
+echo "[Log] Creating mirrorlist with reflector"
 pacman -Sy reflector
 reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 echo "[Log] Enabling ntp"
