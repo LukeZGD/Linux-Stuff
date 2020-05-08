@@ -12,6 +12,7 @@ python2-twodict-git
 etcher-bin
 gallery-dl
 github-desktop-bin
+masterpdfeditor-free
 qdirstat
 qsynth
 woeusb
@@ -79,10 +80,10 @@ function postinstall {
   done
   IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat failed.txt))'
   for package in "${failed[@]}"; do
-    yay -S --noconfirm --answerclean All --cleanafter --removemake $package
+    yay -S --noconfirm --answerclean All --removemake $package
   done
   installpac libimobiledevice-git
-  yay -S --noconfirm --answerclean All --cleanafter --removemake idevicerestore-git
+  yay -S --noconfirm --answerclean All --removemake idevicerestore-git
 }
 
 function postinstallcomm {
@@ -129,13 +130,13 @@ function autocreate {
 }
 
 function vbox {
-  yay -S --noconfirm --answerclean All --cleanafter --removemake virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
+  yay -S --noconfirm --answerclean All --removemake virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
-  yay -S --noconfirm --answerclean All --cleanafter --removemake bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel
+  yay -S --noconfirm --answerclean All --removemake bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf

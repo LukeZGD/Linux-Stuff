@@ -77,7 +77,6 @@ htop
 ifuse
 jre8-openjdk
 krdc
-libreoffice-still
 libressl
 love
 openssh
