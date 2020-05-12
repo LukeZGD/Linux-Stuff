@@ -127,7 +127,7 @@ function adduser {
 }
 
 function autocreate {
-  if [ -z "$2" ]; then
+  if [ -z $2 ]; then
     a=$1
   else
     a=$2
@@ -312,6 +312,7 @@ function BackupRestore {
       "$Action VMs" ) Mode=vm; break;;
       * ) exit;;
     esac
+  done
   if [ $Mode == user ]; then
     Paths=(/home/$USER/ /run/media/$USER/LukeHDD2/Backups/$USER/
            /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/Backups/Data/$USER/
