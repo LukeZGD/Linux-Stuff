@@ -20,15 +20,30 @@ wps-office
 youtube-dl-gui-git
 )
 
-osu='
-#!/bin/sh
-export WINEPREFIX="$HOME/.wine_osu"
-cd $HOME/osu # Or wherever you installed osu! in
-wine osu!.exe "$@"
-'
+osu="
+#!/bin/bash
+export WINEPREFIX=\"\$HOME/.wine_osu\"
+
+drirc='
+<device screen=\"0\" driver=\"dri2\">
+    <application name=\"Default\">
+        <option name=\"vblank_mode\" value=\"0\"/>
+    </application>
+</device>'
+echo \"\$drirc\" > \$HOME/.drirc
+
+xrandr --output DVI-I-1 --mode 1440x900 --rate 74.98; xrandr --output VGA-1 --mode 1440x900 --rate 74.98; xrandr --output VGA-0 --mode 1440x900 --rate 74.98; xrandr --output eDP1 --mode 1400x900; xrandr --output eDP-1 --mode 1400x900; xrandr --output eDP-1-1 --mode 1400x900
+bash -c osukill
+cd \$HOME/osu
+wine osu"\!".exe \"\$@\"
+
+xrandr --output DVI-I-1 --mode 1920x1080 --rate 60; xrandr --output VGA-1 --mode 1920x1080 --rate 60; xrandr --output VGA-0 --mode 1920x1080 --rate 60; xrandr --output eDP1 --mode 1920x1080 --rate 60; xrandr --output eDP-1 --mode 1920x1080 --rate 60; xrandr --output eDP-1-1 --mode 1920x1080 --rate 60
+bash -c osukill
+rm -f \$HOME/.drirc
+"
 
 osukill='
-#!/bin/sh
+#!/bin/bash
 export WINEPREFIX="$HOME/.wine_osu"
 wineserver -k
 '
@@ -80,10 +95,10 @@ function postinstall {
   done
   IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat failed.txt))'
   for package in "${failed[@]}"; do
-    yay -S --noconfirm --answerclean All --removemake $package
+    yay -S --noconfirm --answerclean All $package
   done
   installpac libimobiledevice-git
-  yay -S --noconfirm --answerclean All --removemake idevicerestore-git
+  yay -S --noconfirm --answerclean All idevicerestore-git
 }
 
 function postinstallcomm {
@@ -130,13 +145,13 @@ function autocreate {
 }
 
 function vbox {
-  yay -S --noconfirm --answerclean All --removemake virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
+  yay -S --noconfirm --answerclean All virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
-  yay -S --noconfirm --answerclean All --removemake bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+  yay -S --noconfirm --answerclean All bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
@@ -147,7 +162,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-  pacman -S --noconfirm --needed desmume dolphin-emu fceux mgba-qt ppsspp
+  pacman -S --noconfirm --needed dolphin-emu fceux melonds-git-jit mgba-qt ppsspp
   yay -S --noconfirm $(yay -Qi citra-canary-git cemu pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
 }
 
