@@ -2,6 +2,7 @@
 
 pacman=(
 base-devel
+ccache
 dialog
 fish
 git
@@ -248,7 +249,8 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
-echo "[Log] Configuring unmountonlogout"
+echo "[Log] Configure stuff"
+# unmountonlogout
 cat > /usr/bin/unmountonlogout << 'EOF'
 #!/bin/bash
 for device in /sys/block/*
@@ -267,14 +269,15 @@ done
 EOF
 chmod +x /usr/bin/unmountonlogout
 #sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-echo "[Log] Configure power management and lock"
+
+#Power management and lock
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 
-#echo "[Log] LightDM GTK config"
+# LightDM GTK config
 #cat > /etc/lightdm/lightdm-gtk-greeter.conf << 'EOF'
 #[greeter]
 #theme-name = Adwaita-dark
@@ -285,12 +288,24 @@ IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 #clock-format = %a %d %b, %I:%M %p
 #EOF
 
-echo "[Log] Configure stuff"
+# nanorc
 echo 'include "/usr/share/nano/*.nanorc"
-include "/usr/share/nano-syntax-highlighting/*.nanorc"' | sudo tee /etc/nanorc
-sudo sed -i "s/#Color/Color/" /etc/pacman.conf
-sudo sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
-echo "[Log] Configuring rc-local"
+include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
+
+# pacman.conf
+sed -i "s/#Color/Color/" /etc/pacman.conf
+sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+
+# makepkg.conf
+sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
+sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
+sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
+
+# environment
+echo "mesa_glthread=true" | tee /etc/environment
+
+# rc-local
 echo '[Unit]
 Description=/etc/rc.local compatibility
 

@@ -88,7 +88,7 @@ function installpac {
 
 function postinstall {
   for package in "${packages[@]}"; do
-    sudo pacman -U --noconfirm --needed $paccache/$package/$package*.xz 2>/dev/null
+    sudo pacman -U --noconfirm --needed $paccache/$package/$package*.zst 2>/dev/null
     if [ $? == 1 ]; then
       echo $package | tee -a failed.txt
     fi
@@ -99,10 +99,14 @@ function postinstall {
   done
   installpac libimobiledevice-git
   yay -S --noconfirm --answerclean All idevicerestore-git
+  echo 'export PATH="/usr/lib/ccache/bin/:$PATH"
+  export DEVKITPRO=/opt/devkitpro
+  export DEVKITARM=/opt/devkitpro/devkitARM
+  export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/packages/*.xz $HOME/Documents/packages/*.gz #for veikk drivers and fonts
+  [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/packages/*.xz $HOME/Documents/packages/*.gz $HOME/Documents/packages/*.zst #for veikk drivers and fonts
   #gsettings set org.nemo.desktop font 'Cantarell Regular 10'
   gsettings set org.nemo.preferences size-prefixes 'base-2'
   #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
@@ -115,6 +119,8 @@ function postinstallcomm {
   sudo systemctl --global disable pipewire pipewire.socket
   setxkbmap -layout us
   xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
+  sudo pac.sh /usr/bin/pac
+  sudo chmod +x /usr/bin/pac
 }
 
 function adduser {
@@ -127,11 +133,8 @@ function adduser {
 }
 
 function autocreate {
-  if [ -z $2 ]; then
-    a=$1
-  else
-    a=$2
-  fi
+  a=$1
+  [ ! -z $2 ] && a=$2
   echo "[Desktop Entry]
   Encoding=UTF-8
   Version=0.9.4
@@ -163,63 +166,16 @@ function 390xx {
 
 function emulatorsinstall {
   pacman -S --noconfirm --needed dolphin-emu fceux melonds-git-jit mgba-qt ppsspp
-  yay -S --noconfirm $(yay -Qi citra-canary-git cemu pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  yay -S --noconfirm $(yay -Qi cemu pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  cd PKGBUILDs/citra-qt-canary-bin
+  makepkg -sic
 }
 
 function osu {
-  sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-  sudo pacman -Sy
-  
-  sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
-  echo "@audio - nice -20
-  @audio - rtprio 99" | sudo tee /etc/security/limits.conf
-
-  sudo mkdir /etc/pulse/daemon.conf.d
-  echo "high-priority = yes
-  nice-level = -15
-
-  realtime-scheduling = yes
-  realtime-priority = 50
-
-  resample-method = speex-float-0
-
-  default-fragments = 2 # Minimum is 2
-  default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
-
-  echo "$osu" | sudo tee /usr/bin/osu
-  echo "$osukill" | sudo tee /usr/bin/osukill
-  sudo chmod +x /usr/bin/osu /usr/bin/osukill
-
-  sink="$(pacmd info |grep 'Default sink name' |cut -c 20-)"
-
-  mkdir $HOME/.config/pulse 2>/dev/null
-  cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
-  sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
-  
-  sudo pacman -S --noconfirm lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
-
-  #sudo rsync -va --update --delete-after /run/media/$USER/LukeHDD2/Backups/winetricks/ $HOME/.cache/winetricks/
-  rm -rf $HOME/.wine_osu
-  
-  export WINEPREFIX="$HOME/.wine_osu"
-  export WINEARCH=win32
-
-  winetricks dotnet40
-  winetricks gdiplus
-  
-  #echo "Preparations complete. Download and install osu! now? (y/N)"
-  #read installoss
-  if [ $installoss == y ] || [ $installoss == Y ]; then
-    curl -L -# 'https://m1.ppy.sh/r/osu!install.exe'
-    wine 'osu!install.exe'
-  fi
-  echo "Script done"
+  $(dirname $(type -p $0))/osu.sh install
 }
 
 function devkitPro {
-  echo 'export DEVKITPRO=/opt/devkitpro
-  export DEVKITARM=/opt/devkitpro/devkitARM
-  export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
   sudo pacman-key --recv F7FD5492264BB9D0
   sudo pacman-key --lsign F7FD5492264BB9D0
   sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
