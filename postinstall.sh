@@ -20,34 +20,6 @@ wps-office
 youtube-dl-gui-git
 )
 
-osu="
-#!/bin/bash
-export WINEPREFIX=\"\$HOME/.wine_osu\"
-
-drirc='
-<device screen=\"0\" driver=\"dri2\">
-    <application name=\"Default\">
-        <option name=\"vblank_mode\" value=\"0\"/>
-    </application>
-</device>'
-echo \"\$drirc\" > \$HOME/.drirc
-
-xrandr --output DVI-I-1 --mode 1440x900 --rate 74.98; xrandr --output VGA-1 --mode 1440x900 --rate 74.98; xrandr --output VGA-0 --mode 1440x900 --rate 74.98; xrandr --output eDP1 --mode 1400x900; xrandr --output eDP-1 --mode 1400x900; xrandr --output eDP-1-1 --mode 1400x900
-bash -c osukill
-cd \$HOME/osu
-wine osu"\!".exe \"\$@\"
-
-xrandr --output DVI-I-1 --mode 1920x1080 --rate 60; xrandr --output VGA-1 --mode 1920x1080 --rate 60; xrandr --output VGA-0 --mode 1920x1080 --rate 60; xrandr --output eDP1 --mode 1920x1080 --rate 60; xrandr --output eDP-1 --mode 1920x1080 --rate 60; xrandr --output eDP-1-1 --mode 1920x1080 --rate 60
-bash -c osukill
-rm -f \$HOME/.drirc
-"
-
-osukill='
-#!/bin/bash
-export WINEPREFIX="$HOME/.wine_osu"
-wineserver -k
-'
-
 paccache=$HOME/.cache/yay
 
 function MainMenu {

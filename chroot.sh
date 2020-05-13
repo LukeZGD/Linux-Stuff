@@ -315,11 +315,11 @@ ExecStart=/etc/rc.local
 RemainAfterExit=yes
 
 [Install]
-WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/rc-local.service
+WantedBy=multi-user.target' | tee /usr/lib/systemd/system/rc-local.service
 echo '#!/bin/bash
-echo 0,0,345,345 | sudo tee /sys/module/veikk/parameters/bounds_map
-exit 0' | sudo tee /etc/rc.local
-sudo chmod +x /etc/rc.local
-sudo systemctl enable rc-local
+echo 0,0,345,345 |  tee /sys/module/veikk/parameters/bounds_map
+exit 0' | tee /etc/rc.local
+chmod +x /etc/rc.local
+systemctl enable rc-local
 
 echo "[Log] chroot script done"

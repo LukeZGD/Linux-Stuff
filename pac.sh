@@ -8,7 +8,15 @@ elif [[ $1 == clean ]]; then
 elif [[ $1 == update ]]; then
   yay -Syu --noconfirm --answerclean All
 elif [[ $1 == install ]]; then
-  yay -S --noconfirm --answerclean All ${@:2}
+  if [ -f $2 ]; then
+    install=($2)
+    for package in ${@:3}; do
+      [ -f $package ] && install+=" $package"
+    done
+    yay -U --noconfirm ${install[@]}
+  else
+    yay -S --noconfirm --answerclean All ${@:2}
+  fi
 elif [[ $1 == remove ]]; then
   yay -R --noconfirm ${@:2}
 elif [[ $1 == purge ]]; then
