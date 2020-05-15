@@ -108,8 +108,6 @@ xfburn
 pacmankde=(
 plasma
 ark
-dolphin
-dolphin-plugins
 k3b
 kate
 kcalc
@@ -117,7 +115,7 @@ kdialog
 kmix
 konsole
 kwalletmanager
-nemo
+pcmanfm-qt
 spectacle
 )
 
@@ -249,8 +247,7 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
-echo "[Log] Configure stuff"
-# unmountonlogout
+echo "[Log] unmountonlogout"
 cat > /usr/bin/unmountonlogout << 'EOF'
 #!/bin/bash
 for device in /sys/block/*
@@ -270,14 +267,14 @@ EOF
 chmod +x /usr/bin/unmountonlogout
 #sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
 
-#Power management and lock
+echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 
-# LightDM GTK config
+echo "[Log] LightDM GTK config"
 #cat > /etc/lightdm/lightdm-gtk-greeter.conf << 'EOF'
 #[greeter]
 #theme-name = Adwaita-dark
@@ -288,24 +285,24 @@ IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 #clock-format = %a %d %b, %I:%M %p
 #EOF
 
-# nanorc
+echo "[Log] nanorc"
 echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
 
-# pacman.conf
+echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 
-# makepkg.conf
+echo "[Log] makepkg.conf"
 sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
 sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
 sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
 sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
 
-# environment
+echo "[Log] /etc/environment"
 echo "mesa_glthread=true" | tee /etc/environment
 
-# rc-local
+echo "[Log] rc-local"
 echo '[Unit]
 Description=/etc/rc.local compatibility
 
@@ -321,5 +318,8 @@ echo 0,0,345,345 |  tee /sys/module/veikk/parameters/bounds_map
 exit 0' | tee /etc/rc.local
 chmod +x /etc/rc.local
 systemctl enable rc-local
+
+echo "[Log] modprobe ohci_hcd"
+modprobe ohci_hcd
 
 echo "[Log] chroot script done"

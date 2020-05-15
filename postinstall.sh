@@ -93,6 +93,31 @@ function postinstallcomm {
   xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
   sudo pac.sh /usr/bin/pac
   sudo chmod +x /usr/bin/pac
+  # home symlinks
+  cd $HOME/.config
+  ln -sf /mnt/Data/$USER/config/citra-emu
+  ln -sf /mnt/Data/$USER/config/desmume
+  ln -sf /mnt/Data/$USER/config/dolphin-emu
+  ln -sf /mnt/Data/$USER/config/mgba
+  ln -sf /mnt/Data/$USER/config/PCSX2
+  ln -sf /mnt/Data/$USER/config/ppsspp
+  ln -sf /mnt/Data/$USER/config/snes9x
+  ln -sf /mnt/Data/$USER/config/yuzu
+  cd $HOME/.local/share
+  ln -sf /mnt/Data/$USER/share/citra-emu/
+  ln -sf /mnt/Data/$USER/share/dolphin-emu/
+  ln -sf /mnt/Data/$USER/share/osu/
+  ln -sf /mnt/Data/$USER/share/rpcs3/
+  ln -sf /mnt/Data/$USER/share/yuzu/
+  cd $HOME/.cemu
+  ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
+  ln -sf /mnt/Data/$USER/cemu/graphicPacks/
+  ln -sf /mnt/Data/$USER/cemu/mlc01/
+  ln -sf /mnt/Data/$USER/cemu/shaderCache/
+  cd $HOME/.cache
+  ln -sf /mnt/Data/$USER/cache/wine
+  ln -sf /mnt/Data/$USER/cache/winetricks
+  ln -sf /mnt/Data/$USER/cache/yay
 }
 
 function adduser {
@@ -216,7 +241,8 @@ function kvmstep2 {
 }
 
 function RSYNCuser {
-  sudo rsync -va --update --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+  [ ! $Full ] && Update=--update
+  sudo rsync -va $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
 }
 
 function RSYNC {
@@ -286,13 +312,6 @@ function Restoreuser {
   ln -sf /mnt/Data/$USER/cache/wine
   ln -sf /mnt/Data/$USER/cache/winetricks
   ln -sf /mnt/Data/$USER/cache/yay
-}
-
-function Restoreuserfull {
-  #just a copy of RSYNCuser with --update removed
-  sudo rsync -va --delete-after --info=progress2 --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' ${Paths[1]} ${Paths[0]}
-  sudo rsync -va --info=progress2 ${Paths[3]} ${Paths[2]}
-  sudo rsync -va --info=progress2 ${Paths[5]} ${Paths[4]}
 }
 
 # ----------------------------------

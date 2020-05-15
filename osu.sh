@@ -106,12 +106,11 @@ function osuinstall {
   cd osu
   echo "Preparations complete. Download and install osu! now? (y/N)"
   read osudl
-  if [ $osudl == y ] || [ $osudl == Y ]; then
+  if [[ $osudl == y ]] || [[ $osudl == Y ]]; then
     curl -L -# 'https://m1.ppy.sh/r/osu!install.exe'
     wine 'osu!install.exe'
   fi
   echo "Script done"
-  echo "You may now run osu"
 }
 
 if [[ $1 == "random" ]]; then
