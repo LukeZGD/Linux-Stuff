@@ -86,7 +86,8 @@ fi
 
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
-mkdir -p /mnt/var/cache/pacman
+mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
+cp pac.sh /mnt/usr/bin/pac
 cp -R Backups/pkg /mnt/var/cache/pacman
 echo "[Log] Installing base"
 pacstrap /mnt base

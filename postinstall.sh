@@ -67,10 +67,10 @@ function postinstall {
   done
   IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat failed.txt))'
   for package in "${failed[@]}"; do
-    yay -S --noconfirm --answerclean All $package
+    pac install $package
   done
   installpac libimobiledevice-git
-  yay -S --noconfirm --answerclean All idevicerestore-git
+  pac install idevicerestore-git
   echo 'export PATH="/usr/lib/ccache/bin/:$PATH"
   export DEVKITPRO=/opt/devkitpro
   export DEVKITARM=/opt/devkitpro/devkitARM
@@ -145,20 +145,20 @@ function autocreate {
 }
 
 function vbox {
-  yay -S --noconfirm --answerclean All virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
+  pac install virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
   sudo usermod -aG vboxusers $USER
   sudo modprobe vboxdrv
 }
 
 function laptop {
-  yay -S --noconfirm --answerclean All bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+  pac install bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
 }
 
 function 390xx {
-  sudo pacman -S --noconfirm nvidia-390xx-lts lib32-nvidia-390xx-utils nvidia-390xx-settings
+  pac install nvidia-390xx-lts lib32-nvidia-390xx-utils nvidia-390xx-settings
 }
 
 function emulatorsinstall {
@@ -248,7 +248,7 @@ function RSYNCuser {
 function RSYNC {
   # -va can be replaced with -vrltD
   [ ! $Full ] && Update=--update
-  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'legendary' --exclude 'VirtualBox VMs' $1 $2
 }
 
 function BackupRestore {

@@ -18,6 +18,8 @@ function osu {
     xrandr --output eDP1 --mode 1400x900 2>/dev/null
     xrandr --output eDP-1 --mode 1400x900 2>/dev/null
     xrandr --output eDP-1-1 --mode 1400x900 2>/dev/null
+    xrandr --output HDMI-1 --mode 1440x900 --rate 74.98 2>/dev/null
+    xrandr --output HDMI-1-1 --mode 1440x900 --rate 74.98 2>/dev/null
   fi
   
   if [[ $1 == "lazer" ]]; then
@@ -32,12 +34,14 @@ function osu {
   fi
   
   if [ $USER == lukee ]; then
-    xrandr --output DVI-I-1 --mode 1920x1080 --rate 60 2>/dev/null
-    xrandr --output VGA-1 --mode 1920x1080 --rate 60 2>/dev/null
-    xrandr --output VGA-0 --mode 1920x1080 --rate 60 2>/dev/null
+    xrandr --output DVI-I-1 --mode 1920x1080 2>/dev/null
+    xrandr --output VGA-1 --mode 1920x1080 2>/dev/null
+    xrandr --output VGA-0 --mode 1920x1080 2>/dev/null
     xrandr --output eDP1 --mode 1920x1080 2>/dev/null
     xrandr --output eDP-1 --mode 1920x1080 2>/dev/null
     xrandr --output eDP-1-1 --mode 1920x1080 2>/dev/null
+    xrandr --output HDMI-1 --mode 1920x1080 2>/dev/null
+    xrandr --output HDMI-1-1 --mode 1920x1080 2>/dev/null
   fi
 }
 
@@ -124,15 +128,15 @@ elif [[ $1 == "lazer" ]]; then
 elif [[ $1 == "kill" ]]; then
   exit
 elif [[ $1 == "help" ]]; then
-  echo "Usage: $0 <command>"
-  echo "List of commands:
-  random
-  remove
-  update
-  lazer
-  kill
-  help
-  install"
+  echo "Usage: $0 <operation> [...]"
+  echo "Operations:
+    osu {help}
+    osu {install}
+    osu {kill}
+    osu {lazer}
+    osu {random}
+    osu {remove}
+    osu {update}"
 elif [[ $1 == "install" ]]; then
   osuinstall
 else

@@ -27,8 +27,8 @@ elif [[ $1 == purge ]]; then
 elif [[ $1 == update ]]; then
   yay -Syu --noconfirm --answerclean All
 else
-  echo "usage:  pac <operation> [...]"
-  echo "operations:
+  echo "Usage:  pac <operation> [...]"
+  echo "Operations:
     pac {autoremove}
     pac {clean}
     pac {install}

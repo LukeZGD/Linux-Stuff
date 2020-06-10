@@ -230,9 +230,13 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth org.cups.cupsd
-#systemctl enable lightdm
-systemctl enable sddm
+systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer
+if [[ $desktopenv == n ]] || [[ $desktopenv == N ]]; then
+  systemctl enable lightdm
+else
+  systemctl enable sddm
+fi
+
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
 read touchpad
