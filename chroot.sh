@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pacman=(
+pacmanpkgs=(
 base-devel
 ccache
 dialog
@@ -75,7 +75,6 @@ firefox
 gnome-keyring
 gsmartcontrol
 htop
-ifuse
 jre8-openjdk
 krdc
 libressl
@@ -177,7 +176,7 @@ editor 0" > /boot/loader/loader.conf
 # ----------------
 
 echo "[Log] Installing packages"
-pacman -S --noconfirm ${pacman[*]}
+pacman -S --noconfirm ${pacmanpkgs[*]}
 #echo "[Input] (Y) KDE | (n) XFCE"
 #read desktopenv
 if [[ $desktopenv == n ]] || [[ $desktopenv == N ]]; then

@@ -8,8 +8,11 @@ echo "Press [enter] to continue, or ^C to cancel"
 read
 
 echo ""
+echo "[Log] Installing reflector"
+sed -i "s/#Color/Color/" /etc/pacman.conf
+sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+pacman -Sy --noconfirm --needed python reflector
 echo "[Log] Creating mirrorlist with reflector"
-pacman -Sy reflector
 reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
@@ -29,7 +32,7 @@ echo "[Input] Please enter device to be used (/dev/sdX)"
 read disk
 echo "[Log] Will now enter $diskprog with device $disk"
 echo "Commands: (f) fdisk (g) gdisk
-# Erase: o, y
+# Erase: o, (g) y
 # Create boot: n, defaults, last sector +200M, (g) type EF00
 # Create partition: n, defaults, (g) type 8E00
 # Check and write: p, w"
@@ -49,7 +52,7 @@ if [[ -z $swappart ]]; then
   read formatboot
 fi
 
-echo "[Log] Formatting/mounting stuff..."
+echo "[Log] Formatting/mounting stuff... (please enter NEW password when prompted)"
 if [[ ! -z $swappart ]]; then
   mkfs.ext4 $rootpart
   mount $rootpart /mnt
