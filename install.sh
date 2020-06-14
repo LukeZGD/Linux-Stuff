@@ -86,7 +86,6 @@ if [[ -z $swappart ]]; then
   mount $bootpart /mnt/boot
   swapon /dev/mapper/vg0-swap
 fi
-
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
 mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
@@ -94,9 +93,8 @@ cp pac.sh /mnt/usr/bin/pac
 cp -R Backups/pkg /mnt/var/cache/pacman
 echo "[Log] Installing base"
 pacstrap /mnt base
-if [[ ! -z $swappart ]]; then
-  touch /mnt/ia32
-fi
+[[ ! -z $swappart ]] && touch /mnt/ia32
+[[ $diskprog == y ]] || [[ $diskprog == Y ]] && touch /mnt/fdisk
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
 echo 'tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0' | tee -a /mnt/etc/fstab

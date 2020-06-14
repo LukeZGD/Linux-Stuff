@@ -131,7 +131,7 @@ function grubinstall {
   grub-install $part --target=i386-pc
   echo "[Log] Edit /etc/default/grub"
   sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
+  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
   sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
   echo "[Log] Run grub-mkconfig"
   grub-mkconfig -o /boot/grub/grub.cfg
@@ -148,7 +148,7 @@ function grubinstallia32 {
   echo "[Log] Got UUID of $swappart: $swapuuid"
   echo "[Log] Run grub-install"
   grub-install $part --target=i386-efi
-  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet resume=UUID=$swapuuid\"|g" /etc/default/grub
+  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
   sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
   grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -201,13 +201,13 @@ if [ -f /ia32 ]; then
   grubinstallia32
   rm /ia32
 else
-  echo "[Input] Select boot manager (grub for legacy, systemd-boot for UEFI)"
-  select opt in "grub" "systemd-boot"; do
-  case $opt in
-    "grub" ) grubinstall; break;;
-    "systemd-boot" ) systemdinstall; break;;
-  esac
-  done
+  if [ -f /fdisk ]; then
+    echo "[Log] Setup grub"
+    grubinstall
+  else
+    echo "[Log] Setup systemd-boot"
+    systemdinstall
+  fi
 fi
 
 echo "[Log] Edit mkinitcpio.conf"

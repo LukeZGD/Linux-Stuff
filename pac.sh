@@ -14,7 +14,7 @@ elif [[ $1 == install ]]; then
     done
     yay -U --noconfirm ${install[@]}
   else
-    yay -S --noconfirm --answerclean All ${@:2}
+    yay -S --noconfirm --answerclean All --sudoloop ${@:2}
   fi
 elif [[ $1 == reflector ]]; then
   sudo reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
@@ -25,7 +25,7 @@ elif [[ $1 == remove ]]; then
 elif [[ $1 == purge ]]; then
   yay -Rsn --noconfirm ${@:2}
 elif [[ $1 == update ]]; then
-  yay -Syu --noconfirm --answerclean All
+  yay -Syu --noconfirm --answerclean All --sudoloop
 else
   echo "Usage:  pac <operation> [...]"
   echo "Operations:
