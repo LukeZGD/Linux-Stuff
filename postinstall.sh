@@ -53,7 +53,7 @@ function installstuff {
 function installpac {
   git clone https://aur.archlinux.org/$1.git
   cd $1
-  makepkg -si
+  makepkg -sic
   cd ..
   rm -rf $1
 }
@@ -95,19 +95,13 @@ function postinstallcomm {
   sudo chmod +x /usr/bin/pac
   # home symlinks
   cd $HOME/.config
-  ln -sf /mnt/Data/$USER/config/citra-emu
-  ln -sf /mnt/Data/$USER/config/desmume
-  ln -sf /mnt/Data/$USER/config/dolphin-emu
-  ln -sf /mnt/Data/$USER/config/mgba
-  ln -sf /mnt/Data/$USER/config/PCSX2
-  ln -sf /mnt/Data/$USER/config/ppsspp
-  ln -sf /mnt/Data/$USER/config/snes9x
-  ln -sf /mnt/Data/$USER/config/yuzu
+  ln -sf /mnt/Data/$USER/config/PCSX2/
+  ln -sf /mnt/Data/$USER/config/ppsspp/
+  ln -sf /mnt/Data/$USER/config/rpcs3/
   cd $HOME/.local/share
   ln -sf /mnt/Data/$USER/share/citra-emu/
   ln -sf /mnt/Data/$USER/share/dolphin-emu/
   ln -sf /mnt/Data/$USER/share/osu/
-  ln -sf /mnt/Data/$USER/share/rpcs3/
   ln -sf /mnt/Data/$USER/share/yuzu/
   cd $HOME/.cemu
   ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
@@ -163,9 +157,7 @@ function 390xx {
 
 function emulatorsinstall {
   pacman -S --noconfirm --needed dolphin-emu fceux melonds-git-jit mgba-qt ppsspp
-  yay -S --noconfirm $(yay -Qi cemu pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
-  cd PKGBUILDs/citra-qt-canary-bin
-  makepkg -sic
+  yay -S --noconfirm $(yay -Qi cemu citra-canary-git pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
 }
 
 function osu {
@@ -213,7 +205,7 @@ function kvmstep1 {
   sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
   sudo mkinitcpio -p linux-lts
   echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-  sudo gpasswd -a $USER kvm
+  sudo usermod -aG kvm,libvirt $USER 
   sudo smbpasswd -a $USER
   sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1 iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
   echo
@@ -242,13 +234,13 @@ function kvmstep2 {
 
 function RSYNCuser {
   [ ! $Full ] && Update=--update
-  sudo rsync -va $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wineoffice' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+  sudo rsync -va $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
 }
 
 function RSYNC {
   # -va can be replaced with -vrltD
   [ ! $Full ] && Update=--update
-  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'legendary' --exclude 'VirtualBox VMs' $1 $2
+  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
 }
 
 function BackupRestore {

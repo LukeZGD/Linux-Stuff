@@ -88,6 +88,8 @@ freerdp
 samba
 seahorse
 testdisk
+xdg-desktop-portal
+xdg-desktop-portal-kde
 )
 
 pacmanxfce4=(
@@ -223,7 +225,7 @@ echo $hostname > /etc/hostname
 echo "[Input] Enter username"
 read username
 echo "[Log] Creating user $username"
-useradd -m -g users -G wheel,audio -s /usr/bin/fish $username
+useradd -m -g users -G audio,optical,wheel -s /usr/bin/fish $username
 echo "[Log] Running passwd $username"
 passwd $username
 echo "[Log] Running visudo"

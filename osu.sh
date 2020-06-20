@@ -90,7 +90,12 @@ function osuinstall {
 
   resample-method = speex-float-0
 
-  default-fragments = 2 # Minimum is 2
+  default-sample-format = s32le
+  default-sample-rate = 48000
+  alternate-sample-rate = 48000
+  default-sample-channels = 2
+
+  default-fragments = 2
   default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
 
   sudo cp $(dirname $(type -p $0))/osu.sh /usr/bin/osu
