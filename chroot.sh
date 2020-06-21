@@ -35,7 +35,6 @@ bluez-utils
 networkmanager
 network-manager-applet
 
-exfat-utils
 gnome-disk-utility
 gparted
 gvfs
@@ -54,6 +53,18 @@ gutenprint
 hplip
 simple-scan
 system-config-printer
+
+plasma
+ark
+k3b
+kate
+kcalc
+kdialog
+kmix
+konsole
+kwalletmanager
+pcmanfm-qt
+spectacle
 
 audacious
 audacity
@@ -90,34 +101,6 @@ seahorse
 testdisk
 xdg-desktop-portal
 xdg-desktop-portal-kde
-)
-
-pacmanxfce4=(
-lightdm
-lightdm-gtk-greeter
-lightdm-gtk-greeter-settings
-blueman
-catfish
-engrampa
-xfce4
-xfce4-goodies
-galculator
-light-locker
-xfburn
-)
-
-pacmankde=(
-plasma
-ark
-k3b
-kate
-kcalc
-kdialog
-kmix
-konsole
-kwalletmanager
-pcmanfm-qt
-spectacle
 )
 
 function grubinstall {
@@ -179,13 +162,6 @@ editor 0" > /boot/loader/loader.conf
 
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacmanpkgs[*]}
-#echo "[Input] (Y) KDE | (n) XFCE"
-#read desktopenv
-if [[ $desktopenv == n ]] || [[ $desktopenv == N ]]; then
-  pacman -S --noconfirm ${pacmanxfce4[*]}
-else
-  pacman -S --noconfirm ${pacmankde[*]}
-fi
 echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
@@ -231,12 +207,7 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer
-if [[ $desktopenv == n ]] || [[ $desktopenv == N ]]; then
-  systemctl enable lightdm
-else
-  systemctl enable sddm
-fi
+systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer sddm
 
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
@@ -279,17 +250,6 @@ HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 
-echo "[Log] LightDM GTK config"
-#cat > /etc/lightdm/lightdm-gtk-greeter.conf << 'EOF'
-#[greeter]
-#theme-name = Adwaita-dark
-#icon-theme-name = Papirus-Dark
-#font-name = Cantarell 20
-#background = /usr/share/backgrounds/adapta/tealized.jpg
-#user-background = false
-#clock-format = %a %d %b, %I:%M %p
-#EOF
-
 echo "[Log] nanorc"
 echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
@@ -319,12 +279,9 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target' | tee /usr/lib/systemd/system/rc-local.service
 echo '#!/bin/bash
-echo 0,0,345,345 |  tee /sys/module/veikk/parameters/bounds_map
+echo 0,0,345,345 | tee /sys/module/veikk/parameters/bounds_map
 exit 0' | tee /etc/rc.local
 chmod +x /etc/rc.local
 systemctl enable rc-local
-
-echo "[Log] modprobe ohci_hcd"
-modprobe ohci_hcd
 
 echo "[Log] chroot script done"

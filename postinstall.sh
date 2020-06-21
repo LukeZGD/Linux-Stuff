@@ -6,16 +6,17 @@ packages=(
 checkra1n-cli
 gconf
 libirecovery-git
-libsndio-61-compat
+exfat-utils-nofuse
+futurerestore-s0uthwest-git
+idevicerestore-git
 ncurses5-compat-libs
 python2-twodict-git
-etcher-bin
 gallery-dl
 github-desktop-bin
 masterpdfeditor-free
 qdirstat
 qsynth
-woeusb
+ventoy-bin
 wps-office
 youtube-dl-gui-git
 )
@@ -69,8 +70,6 @@ function postinstall {
   for package in "${failed[@]}"; do
     pac install $package
   done
-  installpac libimobiledevice-git
-  pac install idevicerestore-git
   echo 'export PATH="/usr/lib/ccache/bin/:$PATH"
   export DEVKITPRO=/opt/devkitpro
   export DEVKITARM=/opt/devkitpro/devkitARM
@@ -78,17 +77,10 @@ function postinstall {
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/packages/*.xz $HOME/Documents/packages/*.gz $HOME/Documents/packages/*.zst #for veikk drivers and fonts
-  #gsettings set org.nemo.desktop font 'Cantarell Regular 10'
-  gsettings set org.nemo.preferences size-prefixes 'base-2'
-  #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
-  #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
-  #autocreate "light-locker"
-  #autocreate "xfce4-clipman"
-  #echo 'export QT_STYLE_OVERRIDE=adwaita-dark' | tee -a $HOME/.xprofile
+  [ -e $HOME/Documents/Packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/Packages/*.xz $HOME/Documents/Packages/*.gz $HOME/Documents/Packages/*.zst #for veikk drivers and fonts
   sudo timedatectl set-ntp true
-  #sudo timedatectl set-local-rtc 1 --adjust-system-clock
   sudo systemctl --global disable pipewire pipewire.socket
+  sudo modprobe ohci_hcd
   setxkbmap -layout us
   xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
   sudo pac.sh /usr/bin/pac
@@ -145,7 +137,7 @@ function vbox {
 }
 
 function laptop {
-  pac install bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+  pac install bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
   sudo systemctl enable tlp
   sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
   sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf

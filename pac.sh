@@ -16,6 +16,8 @@ elif [[ $1 == install ]]; then
   else
     yay -S --noconfirm --answerclean All --sudoloop ${@:2}
   fi
+elif [[ $1 == list ]]; then
+  pacman -Qe
 elif [[ $1 == reflector ]]; then
   sudo reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 elif [[ $1 == query ]]; then
@@ -32,6 +34,7 @@ else
     pac {autoremove}
     pac {clean}
     pac {install}
+    pac {list}
     pac {purge}
     pac {query}
     pac {reflector}
