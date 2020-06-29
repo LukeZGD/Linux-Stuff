@@ -1,5 +1,11 @@
 #!/bin/bash
 
+mirrorlist='Server = http://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = rsync://mirror.0x.sg/archlinux/$repo/os/$arch
+Server = rsync://download.nus.edu.sg/archlinux/$repo/os/$arch
+Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch'
+
 clear
 
 echo "LukeZGD Arch Install Script"
@@ -8,6 +14,8 @@ echo "Press [enter] to continue, or ^C to cancel"
 read
 
 echo ""
+echo "[Log] Creating mirrorlist"
+echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 echo "[Log] Installing reflector"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
