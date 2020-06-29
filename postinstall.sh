@@ -9,6 +9,7 @@ libirecovery-git
 exfat-utils-nofuse
 futurerestore-s0uthwest-git
 idevicerestore-git
+informant
 ncurses5-compat-libs
 python2-twodict-git
 gallery-dl
@@ -224,15 +225,14 @@ function kvmstep2 {
   echo "Done! Reboot before continuing"
 }
 
-function RSYNCuser {
-  [ ! $Full ] && Update=--update
-  sudo rsync -va $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'macOS-Simple-KVM' --exclude 'win10.qcow2' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
-}
-
 function RSYNC {
-  # -va can be replaced with -vrltD
-  [ ! $Full ] && Update=--update
-  sudo rsync -va $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+  [[ $ArgR == sparse ]] && ArgR=--sparse
+  [[ $ArgR != full ]] && Update=--update
+  if [[ $3 == user ]]; then
+    sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+  else
+    sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+  fi
 }
 
 function BackupRestore {
@@ -247,7 +247,7 @@ function BackupRestore {
     case $opt in
       "$Action home" ) Mode=user; break;;
       "$Action pacman" ) Mode=pac; break;;
-      "$Action VMs" ) Mode=vm; break;;
+      "$Action VMs" ) ArgR=sparse; Mode=vm; break;;
       * ) exit;;
     esac
   done
@@ -259,36 +259,39 @@ function BackupRestore {
     Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
            $HOME/.cache/yay/ /run/media/$USER/LukeHDD2/Backups/yay/)
   elif [ $Mode == vm ]; then
-    Paths=($HOME/win10.qcow2 /run/media/$USER/LukeHDD2/Backups/Data
-           $HOME/macOS-Simple-KVM/ /run/media/$USER/LukeHDD2/Backups/Data/macOS-Simple-KVM/)
+    Paths=($HOME/KVM/ /run/media/$USER/LukeHDD2/Backups/Data/KVM/)
   fi
   if [ $Action == Backup ]; then
     if [ $Mode == user ]; then
-      RSYNCuser ${Paths[0]} ${Paths[1]}
+      RSYNC ${Paths[0]} ${Paths[1]} user
       RSYNC ${Paths[2]} ${Paths[3]}
       RSYNC ${Paths[4]} ${Paths[5]}
-    elif [ $Mode == pac ] || [ $Mode == vm ]; then
+    elif [ $Mode == pac ]; then
       RSYNC ${Paths[0]} ${Paths[1]}
       RSYNC ${Paths[2]} ${Paths[3]}
+    elif [ $Mode == vm ]; then
+      RSYNC ${Paths[0]} ${Paths[1]}
     fi
   elif [ $Action == Restore ]; then
     if [ $Mode == user ]; then
       select opt in "Update restore" "Full restore"; do
         case $opt in
           "Update restore" ) Restoreuser; break;;
-          "Full restore" ) Full=0; Restoreuser; break;;
+          "Full restore" ) ArgR=full; Restoreuser; break;;
           * ) exit;;
         esac
       done
-    elif [ $Mode == pac ] || [ $Mode == vm ]; then
+    elif [ $Mode == pac ]; then
       RSYNC ${Paths[1]} ${Paths[0]}
       RSYNC ${Paths[3]} ${Paths[2]}
+    elif [ $Mode == vm ]; then
+      RSYNC ${Paths[1]} ${Paths[0]}
     fi
   fi
 }
 
 function Restoreuser {
-  RSYNCuser ${Paths[1]} ${Paths[0]}
+  RSYNC ${Paths[1]} ${Paths[0]} user
   RSYNC ${Paths[3]} ${Paths[2]}
   RSYNC ${Paths[5]} ${Paths[4]}
   rm -rf $HOME/.cache/wine $HOME/.cache/winetricks $HOME/.cache/yay

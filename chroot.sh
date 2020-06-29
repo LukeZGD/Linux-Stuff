@@ -13,7 +13,6 @@ linux-lts-headers
 nano
 nano-syntax-highlighting
 neofetch
-pacman-contrib
 reflector
 rsync
 usbutils

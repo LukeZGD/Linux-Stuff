@@ -27,6 +27,8 @@ elif [[ $1 == remove ]]; then
 elif [[ $1 == purge ]]; then
   yay -Rsn --noconfirm ${@:2}
 elif [[ $1 == update ]]; then
+  yay -Sy
+elif [[ $1 == upgrade ]]; then
   yay -Syu --noconfirm --answerclean All --sudoloop
 else
   echo "Usage:  pac <operation> [...]"
@@ -39,5 +41,6 @@ else
     pac {query}
     pac {reflector}
     pac {remove}
-    pac {update}"
+    pac {update}
+    pac {upgrade}"
 fi
