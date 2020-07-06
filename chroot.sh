@@ -159,6 +159,9 @@ editor 0" > /boot/loader/loader.conf
 
 # ----------------
 
+echo "[Log] pacman.conf"
+sed -i "s/#Color/Color/" /etc/pacman.conf
+sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacmanpkgs[*]}
 echo "[Log] Setting locale"
@@ -174,13 +177,14 @@ echo "[Log] Running passwd"
 passwd
 
 if [ -f /ia32 ]; then
-  echo "[Log] Installing grub"
+  echo "[Log] Setup grub ia32"
   grubinstallia32
   rm /ia32
 else
   if [ -f /fdisk ]; then
     echo "[Log] Setup grub"
     grubinstall
+    rm /fdisk
   else
     echo "[Log] Setup systemd-boot"
     systemdinstall
@@ -207,7 +211,6 @@ echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer sddm
-
 
 echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
 read touchpad
@@ -253,10 +256,6 @@ echo "[Log] nanorc"
 echo 'include "/usr/share/nano/*.nanorc"
 include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
 
-echo "[Log] pacman.conf"
-sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
-
 echo "[Log] makepkg.conf"
 sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
 sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
@@ -266,21 +265,28 @@ sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
 echo "[Log] /etc/environment"
 echo "mesa_glthread=true" | tee /etc/environment
 
-echo "[Log] rc-local"
+echo "[Log] reflector service"
 echo '[Unit]
-Description=/etc/rc.local compatibility
+Description=Pacman mirrorlist update
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
 Type=oneshot
-ExecStart=/etc/rc.local
-RemainAfterExit=yes
+ExecStart=/usr/bin/reflector --verbose --country "Singapore" -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 
 [Install]
-WantedBy=multi-user.target' | tee /usr/lib/systemd/system/rc-local.service
-echo '#!/bin/bash
-echo 0,0,345,345 | tee /sys/module/veikk/parameters/bounds_map
-exit 0' | tee /etc/rc.local
-chmod +x /etc/rc.local
-systemctl enable rc-local
+WantedBy=multi-user.target' | tee /etc/systemd/system/reflector.service
+echo '[Unit]
+Description=Run reflector weekly
+
+[Timer]
+OnCalendar=Mon *-*-* 7:00:00
+RandomizedDelaySec=15h
+Persistent=true
+
+[Install]
+WantedBy=timers.target' | tee /etc/systemd/system/reflector.timer
+systemctl enable reflector.timer
 
 echo "[Log] chroot script done"

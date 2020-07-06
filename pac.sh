@@ -5,7 +5,11 @@ if [[ $1 == autoremove ]]; then
   sudo pacman -Rsn --noconfirm 2>/dev/null
   [ $? == 1 ] && echo ' there is nothing to do'
 elif [[ $1 == clean ]]; then
-  sudo pacman -Sc --noconfirm
+  if [[ $2 == all ]]; then 
+    yay -Sc --noconfirm
+  else
+    sudo pacman -Sc --noconfirm
+  fi
 elif [[ $1 == install ]]; then
   if [ -f $2 ]; then
     install=($2)
@@ -17,9 +21,13 @@ elif [[ $1 == install ]]; then
     yay -S --noconfirm --answerclean All --sudoloop ${@:2}
   fi
 elif [[ $1 == list ]]; then
-  pacman -Qe
-elif [[ $1 == reflector ]]; then
-  sudo reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
+  if [[ $2 == all ]]; then 
+    yay -Q
+  elif [[ $2 == upgrade ]]; then
+    yay -Qu
+  else
+    yay -Qe
+  fi
 elif [[ $1 == query ]]; then
   yay -Q ${@:2}
 elif [[ $1 == remove ]]; then
@@ -28,19 +36,19 @@ elif [[ $1 == purge ]]; then
   yay -Rsn --noconfirm ${@:2}
 elif [[ $1 == update ]]; then
   yay -Sy
+  yay -Qu
 elif [[ $1 == upgrade ]]; then
   yay -Syu --noconfirm --answerclean All --sudoloop
 else
   echo "Usage:  pac <operation> [...]"
   echo "Operations:
     pac {autoremove}
-    pac {clean}
-    pac {install}
-    pac {list}
-    pac {purge}
-    pac {query}
-    pac {reflector}
-    pac {remove}
-    pac {update}
+    pac {clean} [all]
+    pac {install} [package(s)]
+    pac {list} [all,upgrade]
+    pac {purge} [package(s)]
+    pac {query} [package(s)]
+    pac {remove} [package(s)]
+    pac {update} [package(s)]
     pac {upgrade}"
 fi

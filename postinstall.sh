@@ -78,7 +78,7 @@ function postinstall {
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/Packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/Packages/*.xz $HOME/Documents/Packages/*.gz $HOME/Documents/Packages/*.zst #for veikk drivers and fonts
+  [ -e $HOME/Documents/Packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/Packages/*.xz $HOME/Documents/Packages/*.gz $HOME/Documents/Packages/*.zst #for veikk driver and fonts
   sudo timedatectl set-ntp true
   sudo systemctl --global disable pipewire pipewire.socket
   sudo modprobe ohci_hcd
@@ -105,6 +105,22 @@ function postinstallcomm {
   ln -sf /mnt/Data/$USER/cache/wine
   ln -sf /mnt/Data/$USER/cache/winetricks
   ln -sf /mnt/Data/$USER/cache/yay
+  echo "[Log] input-veikk-startup service"
+  echo '[Unit]
+Description=input-veikk-startup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/input-veikk-startup
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/input-veikk-startup.service
+  echo '#!/bin/bash
+echo 0,0,345,345 | tee /sys/module/veikk/parameters/bounds_map
+exit 0' | sudo tee /usr/bin/input-veikk-startup
+  sudo chmod +x /usr/bin/input-veikk-startup
+  sudo systemctl enable input-veikk-startup
 }
 
 function adduser {
