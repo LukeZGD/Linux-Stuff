@@ -1,6 +1,7 @@
 #!/bin/bash
 
 trap 'rm failed.txt 2>/dev/null; exit' INT TERM EXIT
+BASEDIR=$(dirname $(type -p $0))
 
 packages=(
 checkra1n-cli
@@ -15,6 +16,7 @@ python2-twodict-git
 gallery-dl
 github-desktop-bin
 masterpdfeditor-free
+mpv-git
 qdirstat
 qsynth
 ventoy-bin
@@ -71,10 +73,10 @@ function postinstall {
   for package in "${failed[@]}"; do
     pac install $package
   done
-  echo 'export PATH="/usr/lib/ccache/bin/:$PATH"
-  export DEVKITPRO=/opt/devkitpro
+  echo 'export DEVKITPRO=/opt/devkitpro
   export DEVKITARM=/opt/devkitpro/devkitARM
   export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
+  set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin
 }
 
 function postinstallcomm {
@@ -84,8 +86,12 @@ function postinstallcomm {
   sudo modprobe ohci_hcd
   setxkbmap -layout us
   xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
-  sudo pac.sh /usr/bin/pac
-  sudo chmod +x /usr/bin/pac
+  sudo cp $BASEDIR/postinst.sh /usr/bin/postinst
+  cd $BASEDIR/scripts
+  sudo cp deedee.sh /usr/bin/deedee
+  sudo cp pac.sh /usr/bin/pac
+  sudo cp touhou.sh /usr/bin/touhou
+  sudo chmod +x /usr/bin/deedee /usr/bin/pac /usr/bin/postinst
   # home symlinks
   cd $HOME/.config
   ln -sf /mnt/Data/$USER/config/PCSX2/
@@ -170,7 +176,7 @@ function emulatorsinstall {
 }
 
 function osu {
-  $(dirname $(type -p $0))/osu.sh install
+  $BASEDIR/scripts/osu.sh install
 }
 
 function devkitPro {

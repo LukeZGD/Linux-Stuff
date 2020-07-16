@@ -58,6 +58,7 @@ ark
 k3b
 kate
 kcalc
+kdegraphics-thumbnailers
 kdialog
 kmix
 konsole
@@ -76,7 +77,6 @@ handbrake
 kate
 kdenlive
 lame
-mpv
 obs-studio
 okteta
 viewnior
@@ -98,6 +98,8 @@ freerdp
 samba
 seahorse
 testdisk
+vapoursynth
+vapoursynth-plugin-mvtools
 xdg-desktop-portal
 xdg-desktop-portal-kde
 )
