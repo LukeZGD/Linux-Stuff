@@ -55,6 +55,7 @@ system-config-printer
 
 plasma
 ark
+dolphin
 k3b
 kate
 kcalc
