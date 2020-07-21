@@ -6,17 +6,12 @@ BASEDIR=$(dirname $(type -p $0))
 packages=(
 checkra1n-cli
 gconf
-libirecovery-git
 exfat-utils-nofuse
-futurerestore-s0uthwest-git
-idevicerestore-git
-informant
 ncurses5-compat-libs
 python2-twodict-git
 gallery-dl
 github-desktop-bin
 masterpdfeditor-free
-mpv-git
 qdirstat
 qsynth
 ventoy-bin
@@ -73,19 +68,14 @@ function postinstall {
   for package in "${failed[@]}"; do
     pac install $package
   done
-  echo 'export DEVKITPRO=/opt/devkitpro
-  export DEVKITARM=/opt/devkitpro/devkitARM
-  export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
-  set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin
 }
 
 function postinstallcomm {
   [ -e $HOME/Documents/Packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/Packages/*.xz $HOME/Documents/Packages/*.gz $HOME/Documents/Packages/*.zst #for veikk driver and fonts
   sudo timedatectl set-ntp true
-  sudo systemctl --global disable pipewire pipewire.socket
   sudo modprobe ohci_hcd
   setxkbmap -layout us
-  xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
+  #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
   sudo cp $BASEDIR/postinst.sh /usr/bin/postinst
   cd $BASEDIR/scripts
   sudo cp deedee.sh /usr/bin/deedee
@@ -127,6 +117,13 @@ echo 0,0,345,345 | tee /sys/module/veikk/parameters/bounds_map
 exit 0' | sudo tee /usr/bin/input-veikk-startup
   sudo chmod +x /usr/bin/input-veikk-startup
   sudo systemctl enable input-veikk-startup
+  echo 'export DEVKITPRO=/opt/devkitpro
+  export DEVKITARM=/opt/devkitpro/devkitARM
+  export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
+  
+  sudo pacman -S --needed fish nano-syntax-highlighting
+  fish -c 'set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin'
+  [ $(which pacman-mirrors) ] && sudo $BASEDIR/chroot.sh
 }
 
 function adduser {
@@ -274,9 +271,9 @@ function BackupRestore {
     esac
   done
   if [ $Mode == user ]; then
-    Paths=(/home/$USER/ /run/media/$USER/LukeHDD2/Backups/$USER/
+    Paths=($HOME/ /run/media/$USER/LukeHDD2/Backups/$USER/
            /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/Backups/Data/$USER/
-           /home/$USER/osu/ /run/media/$USER/LukeHDD2/Backups/Data/osu/)
+           $HOME/osu/ /run/media/$USER/LukeHDD2/Backups/Data/osu/)
   elif [ $Mode == pac ]; then
     Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
            $HOME/.cache/yay/ /run/media/$USER/LukeHDD2/Backups/yay/)

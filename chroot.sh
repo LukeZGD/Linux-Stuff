@@ -11,8 +11,6 @@ linux-firmware
 linux-lts
 linux-lts-headers
 nano
-nano-syntax-highlighting
-neofetch
 reflector
 rsync
 usbutils
@@ -34,8 +32,6 @@ bluez-utils
 networkmanager
 network-manager-applet
 
-gnome-disk-utility
-gparted
 gvfs
 gvfs-afc
 gvfs-gphoto2
@@ -50,8 +46,6 @@ cups-pdf
 foomatic-db-gutenprint-ppds
 gutenprint
 hplip
-simple-scan
-system-config-printer
 
 plasma
 ark
@@ -64,8 +58,17 @@ kdialog
 kmix
 konsole
 kwalletmanager
-pcmanfm-qt
 spectacle
+)
+
+pacmanpkgs2=(
+gnome-disk-utility
+gparted
+nano-syntax-highlighting
+neofetch
+pcmanfm-qt
+simple-scan
+system-config-printer
 
 audacious
 audacity
@@ -78,6 +81,7 @@ handbrake
 kate
 kdenlive
 lame
+mpv
 obs-studio
 okteta
 viewnior
@@ -160,13 +164,40 @@ default arch
 editor 0" > /boot/loader/loader.conf
 }
 
+function setupstuff {
+  echo "[Log] nanorc"
+  echo 'include "/usr/share/nano/*.nanorc"
+  include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
+
+  echo "[Log] makepkg.conf"
+  sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
+  sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+  sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
+  sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
+
+  echo "[Log] /etc/environment"
+  echo "mesa_glthread=true" | tee /etc/environment
+}
+
 # ----------------
+
+if [ $(which pacman-mirrors) ]; then
+  echo "[Log] Manjaro post-install"
+  pac remove appimagelauncher gwenview kget manjaro-application-utility pamac-gtk pamac-cli pamac-common vlc yakuake
+  systemctl --global disable pipewire pipewire.socket
+  pacman-mirrors --api --set-branch testing --country Philippines
+  echo "[Log] Installing packages"
+  pacman -Syy --noconfirm ${pacmanpkgs2[*]}
+  setupstuff
+  exit
+fi
 
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm ${pacmanpkgs[*]}
+pacman -S --noconfirm ${pacmanpkgs2[*]}
 echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
@@ -255,19 +286,6 @@ HandleLidSwitchExternalPower=suspend
 IdleAction=suspend
 IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
 
-echo "[Log] nanorc"
-echo 'include "/usr/share/nano/*.nanorc"
-include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
-
-echo "[Log] makepkg.conf"
-sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
-sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
-sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
-sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
-
-echo "[Log] /etc/environment"
-echo "mesa_glthread=true" | tee /etc/environment
-
 echo "[Log] reflector service"
 echo '[Unit]
 Description=Pacman mirrorlist update
@@ -292,4 +310,5 @@ Persistent=true
 WantedBy=timers.target' | tee /etc/systemd/system/reflector.timer
 systemctl enable reflector.timer
 
+setupstuff
 echo "[Log] chroot script done"

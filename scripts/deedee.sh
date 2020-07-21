@@ -12,6 +12,8 @@ else
     lsblk
     read -p "[Input] Disk output? (/dev/sdX): " Output
 fi
+Input="${Input%\'}"
+Input="${Input#\'}"
 echo "Input: $Input"
 echo "Output: $Output"
 echo "Starting in 5 seconds..."
