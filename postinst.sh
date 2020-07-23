@@ -1,7 +1,7 @@
 #!/bin/bash
 
 trap 'rm failed.txt 2>/dev/null; exit' INT TERM EXIT
-BASEDIR=$(dirname $(type -p $0))
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 packages=(
 checkra1n-cli
@@ -58,6 +58,7 @@ function installpac {
 }
 
 function postinstall {
+  gpg --keyserver keys.gnupg.net --recv-keys 702353E0F7E48EDB
   for package in "${packages[@]}"; do
     sudo pacman -U --noconfirm --needed $paccache/$package/$package*.zst 2>/dev/null
     if [ $? == 1 ]; then
@@ -121,9 +122,22 @@ exit 0' | sudo tee /usr/bin/input-veikk-startup
   export DEVKITARM=/opt/devkitpro/devkitARM
   export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
   
-  sudo pacman -S --needed fish nano-syntax-highlighting
+  if [ $(which pacman-mirrors) ]; then
+    echo "[Log] Manjaro post-install"
+    sudo pacman-mirrors --api --set-branch testing --continent
+    pac purge appimagelauncher gwenview kget lib32-fluidsynth manjaro-application-utility manjaro-pulse pamac-cli pamac-common pamac-flatpak-plugin pamac-gtk pamac-snap-plugin pamac-tray-appindicator vlc yakuake
+    systemctl --global disable pipewire pipewire.socket
+    sudo $BASEDIR/chroot.sh
+  fi
+  
+  sudo pacman -Sy --needed --noconfirm fish nano-syntax-highlighting wine wine-gecko wine-mono winetricks
+  winecfg
+  cd $HOME/.wine/drive_c/users/$USER
+  rm -rf AppData 'Application Data'
+  ln -sf $HOME/AppData
+  ln -sf $HOME/AppData 'Application Data'
   fish -c 'set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin'
-  [ $(which pacman-mirrors) ] && sudo $BASEDIR/chroot.sh
+  sudo usermod -s /usr/bin/fish $USER
 }
 
 function adduser {
@@ -168,8 +182,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-  pacman -S --noconfirm --needed dolphin-emu fceux melonds-git-jit mgba-qt ppsspp
-  yay -S --noconfirm $(yay -Qi cemu citra-canary-git pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  pac install dolphin-emu fceux melonds-git-jit mgba-qt ppsspp $(yay -Qi cemu citra-canary-git pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
 }
 
 function osu {
@@ -214,14 +227,19 @@ function kvmstep1 {
   wide links = yes" | sudo tee /etc/samba/smb.conf
 
   sudo systemctl enable --now libvirtd smb nmb
-  sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-  sudo mkinitcpio -p linux-lts
-  echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-  sudo usermod -aG kvm,libvirt $USER 
-  sudo smbpasswd -a $USER
-  sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1 iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
-  echo
-  echo "Reboot and run this again to continue install"
+  read "IOMMU? (y/N) " EnableIOMMU
+  if [ $EnableIOMMU == y ] || [ $EnableIOMMU == Y ]; then
+    sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
+    sudo mkinitcpio -p linux-lts
+    echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
+    sudo usermod -aG kvm,libvirt $USER 
+    sudo smbpasswd -a $USER
+    sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1 iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
+    echo
+    echo "Reboot and run this again to continue install"
+  else
+    echo "Done!"
+  fi
 }
 
 function kvmstep2 {
@@ -248,7 +266,7 @@ function RSYNC {
   [[ $ArgR == sparse ]] && ArgR=--sparse
   [[ $ArgR != full ]] && Update=--update
   if [[ $3 == user ]]; then
-    sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+    sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
   else
     sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
   fi

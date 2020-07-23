@@ -1,7 +1,6 @@
 #!/bin/bash
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-trap 'wineserver -k; exit' INT TERM EXIT
 
 drirc='
 <device screen="0" driver="dri2">
@@ -131,6 +130,7 @@ elif [[ $1 == "update" ]]; then
 elif [[ $1 == "lazer" ]]; then
   osu lazer
 elif [[ $1 == "kill" ]]; then
+  wineserver -k
   exit
 elif [[ $1 == "help" ]]; then
   echo "Usage: $0 <operation> [...]"

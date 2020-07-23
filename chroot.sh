@@ -2,7 +2,6 @@
 
 pacmanpkgs=(
 base-devel
-ccache
 dialog
 fish
 git
@@ -54,7 +53,6 @@ k3b
 kate
 kcalc
 kdegraphics-thumbnailers
-kdialog
 kmix
 konsole
 kwalletmanager
@@ -62,10 +60,14 @@ spectacle
 )
 
 pacmanpkgs2=(
+breeze-gtk
+ccache
 gnome-disk-utility
 gparted
+kdialog
 nano-syntax-highlighting
 neofetch
+plasma-browser-integration
 pcmanfm-qt
 simple-scan
 system-config-printer
@@ -182,12 +184,14 @@ function setupstuff {
 # ----------------
 
 if [ $(which pacman-mirrors) ]; then
-  echo "[Log] Manjaro post-install"
-  pac remove appimagelauncher gwenview kget manjaro-application-utility pamac-gtk pamac-cli pamac-common vlc yakuake
-  systemctl --global disable pipewire pipewire.socket
-  pacman-mirrors --api --set-branch testing --country Philippines
+  echo "[Log] pacman.conf"
+  sed -i "s/#Color/Color/" /etc/pacman.conf
+  sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+  pacman -Q linux
+  pacman -Syy linux-headers
+  pacman -Su --noconfirm
   echo "[Log] Installing packages"
-  pacman -Syy --noconfirm ${pacmanpkgs2[*]}
+  pacman -S --noconfirm ${pacmanpkgs2[*]}
   setupstuff
   exit
 fi
