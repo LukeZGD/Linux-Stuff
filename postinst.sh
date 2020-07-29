@@ -7,10 +7,13 @@ packages=(
 checkra1n-cli
 gconf
 exfat-utils-nofuse
+libirecovery-git
 ncurses5-compat-libs
 python2-twodict-git
+futurerestore-s0uthwest-git
 gallery-dl
 github-desktop-bin
+idevicerestore-git
 masterpdfeditor-free
 qdirstat
 qsynth
@@ -36,14 +39,14 @@ function MainMenu {
 }
 
 function installstuff {
-  select opt in "Install AUR pkgs yay" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM with GVT-g"; do
+  select opt in "Install AUR pkgs yay" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)"; do
     case $opt in
       "Install AUR pkgs yay" ) postinstall; break;;
       "VirtualBox" ) vbox; break;;
       "osu!" ) osu; break;;
       "Emulators" ) emulatorsinstall; break;;
       "devkitPro" ) devkitPro; break;;
-      "KVM with GVT-g" ) kvm; break;;
+      "KVM (with GVT-g)" ) kvm; break;;
       * ) exit;;
     esac
   done
@@ -52,7 +55,7 @@ function installstuff {
 function installpac {
   git clone https://aur.archlinux.org/$1.git
   cd $1
-  makepkg -sic
+  makepkg -sic --noconfirm
   cd ..
   rm -rf $1
 }
@@ -141,8 +144,7 @@ exit 0' | sudo tee /usr/bin/input-veikk-startup
 }
 
 function adduser {
-  echo "[Input] Enter username"
-  read username2
+  read -p "[Input] Enter username" username2
   echo "[Log] Creating user $username2"
   sudo useradd -m -g users -G audio -s /usr/bin/fish $username2
   echo "[Log] Running passwd $username2"
@@ -171,10 +173,13 @@ function vbox {
 }
 
 function laptop {
-  pac install bbswitch-dkms nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+  pac install nvidia-lts lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
   sudo systemctl enable tlp
-  sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
-  sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
+  if [ $(which pacman-mirrors) ]; then
+    sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
+    sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
+    sudo systemctl disable bumblebeed
+  fi
 }
 
 function 390xx {
@@ -182,7 +187,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-  pac install dolphin-emu fceux melonds-git-jit mgba-qt ppsspp $(yay -Qi cemu citra-canary-git pcsx2-git rpcs3-bin yuzu-mainline-git 2>&1 >/dev/null | grep "error: package" | grep "was not found" | cut -d"'" -f2 | tr "\n" " ")
+  pac install cemu citra-canary-git dolphin-emu fceux melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin yuzu-mainline-bin
 }
 
 function osu {
@@ -209,7 +214,7 @@ function kvm {
 }
 
 function kvmstep1 {
-  sudo pacman -S --noconfirm --needed virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
+  pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
 
   echo "[global]
   allow insecure wide links = yes
@@ -227,8 +232,8 @@ function kvmstep1 {
   wide links = yes" | sudo tee /etc/samba/smb.conf
 
   sudo systemctl enable --now libvirtd smb nmb
-  read "IOMMU? (y/N) " EnableIOMMU
-  if [ $EnableIOMMU == y ] || [ $EnableIOMMU == Y ]; then
+  read -p "IOMMU? (y/N) " EnableIOMMU
+  if [[ $EnableIOMMU == y ]] || [[ $EnableIOMMU == Y ]]; then
     sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux-lts
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
@@ -348,6 +353,7 @@ echo
 if [ ! $(which yay) ]; then
   echo "No yay detected, installing yay"
   installpac yay-bin
+  sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 fi
 
 MainMenu

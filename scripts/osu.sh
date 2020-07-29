@@ -17,6 +17,7 @@ function osu {
     xrandr --output eDP1 --mode 1400x900 2>/dev/null
     xrandr --output eDP-1 --mode 1400x900 2>/dev/null
     xrandr --output eDP-1-1 --mode 1400x900 2>/dev/null
+    xrandr --output HDMI1 --mode 1440x900 --rate 74.98 2>/dev/null
     xrandr --output HDMI-1 --mode 1440x900 --rate 74.98 2>/dev/null
     xrandr --output HDMI-1-1 --mode 1440x900 --rate 74.98 2>/dev/null
   fi
@@ -39,6 +40,7 @@ function osu {
     xrandr --output eDP1 --mode 1920x1080 2>/dev/null
     xrandr --output eDP-1 --mode 1920x1080 2>/dev/null
     xrandr --output eDP-1-1 --mode 1920x1080 2>/dev/null
+    xrandr --output HDMI1 --mode 1920x1080 2>/dev/null
     xrandr --output HDMI-1 --mode 1920x1080 2>/dev/null
     xrandr --output HDMI-1-1 --mode 1920x1080 2>/dev/null
   fi
@@ -76,7 +78,6 @@ function update {
 }
 
 function osuinstall {
-  sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf  
   sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
   echo "@audio - nice -20
   @audio - rtprio 99" | sudo tee /etc/security/limits.conf
@@ -112,9 +113,8 @@ function osuinstall {
   
   mkdir $HOME/osu 2>/dev/null
   cd osu
-  echo "Preparations complete. Download and install osu! now? (y/N)"
-  read osudl
-  if [[ $osudl == y ]] || [[ $osudl == Y ]]; then
+  read -p "Preparations complete. Download and install osu! now? (y/N)" osuDL
+  if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
     curl -L -# 'https://m1.ppy.sh/r/osu!install.exe'
     wine 'osu!install.exe'
   fi

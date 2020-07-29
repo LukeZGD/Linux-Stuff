@@ -14,11 +14,11 @@ elif [[ $1 == install ]]; then
   if [ -f $2 ]; then
     install=($2)
     for package in ${@:3}; do
-      [ -f $package ] && install+=" $package"
+      [ -f $package ] && install+=($package)
     done
-    yay -U --noconfirm ${install[@]}
+    yay -U --noconfirm --needed ${install[@]}
   else
-    yay -S --noconfirm --answerclean All --sudoloop ${@:2}
+    yay -S --noconfirm --needed --answerclean None --sudoloop ${@:2}
   fi
 elif [[ $1 == list ]]; then
   if [[ $2 == all ]]; then 
@@ -38,7 +38,7 @@ elif [[ $1 == update ]]; then
   yay -Sy
   yay -Qu
 elif [[ $1 == upgrade ]]; then
-  yay -Syu --noconfirm --answerclean All --sudoloop
+  yay -Syu --noconfirm --answerclean None --sudoloop
 else
   echo "Usage:  pac <operation> [...]"
   echo "Operations:
