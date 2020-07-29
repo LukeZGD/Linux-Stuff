@@ -75,7 +75,11 @@ function postinstall {
 }
 
 function postinstallcomm {
-  [ -e $HOME/Documents/Packages/ ] && sudo pacman -U --noconfirm --needed $HOME/Documents/Packages/*.xz $HOME/Documents/Packages/*.gz $HOME/Documents/Packages/*.zst #for veikk driver and fonts
+  PackagesDir=$HOME/Documents/Packages
+  [ ! -e $PackagesDir/ttf-packages.zip ] && curl -L https://github.com/LukeZGD/Arch-Stuff/releases/download/stuff/ttf-packages.zip -o $PackagesDir/ttf-packages.zip
+  unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
+  sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
+  rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
   sudo timedatectl set-ntp true
   sudo modprobe ohci_hcd
   setxkbmap -layout us
