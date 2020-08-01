@@ -25,19 +25,17 @@ reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
-echo "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT"
-read diskprog
+read -p "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT: " diskprog
 if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
-  diskprog=fdisk
+    diskprog=fdisk
 else
-  diskprog=gdisk
+    diskprog=gdisk
 fi
 
 echo ""
 lsblk
 echo ""
-echo "[Input] Please enter device to be used (/dev/sdX)"
-read disk
+read -p "[Input] Please enter device to be used (/dev/sdX) " disk
 echo "[Log] Will now enter $diskprog with device $disk"
 echo "Commands: (f) fdisk (g) gdisk
 # Erase: o, (g) y
@@ -49,50 +47,44 @@ $diskprog $disk
 clear
 lsblk
 echo ""
-echo "[Input] Please enter encrypted/root partition (/dev/sdaX)"
-read rootpart
-echo "[Input] Please enter boot partition (/dev/sdaX)"
-read bootpart
-echo "[Input] Please enter swap partition (ia32 ONLY) (/dev/sdaX)"
-read swappart
-if [[ -z $swappart ]]; then
-  echo "[Input] Format boot partition? (Y/n)"
-  read formatboot
-fi
+read -p "[Input] Please enter encrypted/root partition (/dev/sdaX) " rootpart
+read -p "[Input] Please enter boot partition (/dev/sdaX) " bootpart
+read -p "[Input] Please enter swap partition (ia32 ONLY) (/dev/sdaX) " swappart
+[[ -z $swappart ]] && read -p "[Input] Format boot partition? (Y/n)" formatboot
 
 echo "[Log] Formatting/mounting stuff... (please enter NEW password when prompted)"
 if [[ ! -z $swappart ]]; then
-  mkfs.ext4 $rootpart
-  mount $rootpart /mnt
-  mkswap $swappart
-  swapon $swappart
-  mkfs.fat -F32 $bootpart
-  mkdir -p /mnt/boot/EFI
-  mount $bootpart /mnt/boot/EFI
+    mkfs.ext4 $rootpart
+    mount $rootpart /mnt
+    mkswap $swappart
+    swapon $swappart
+    mkfs.fat -F32 $bootpart
+    mkdir -p /mnt/boot/EFI
+    mount $bootpart /mnt/boot/EFI
 else
-  cryptsetup luksFormat $rootpart
-  cryptsetup luksOpen $rootpart lvm
-  pvcreate /dev/mapper/lvm
-  vgcreate vg0 /dev/mapper/lvm
-  lvcreate -L 6G vg0 -n swap
-  lvcreate -l 100%FREE vg0 -n root
+    cryptsetup luksFormat $rootpart
+    cryptsetup luksOpen $rootpart lvm
+    pvcreate /dev/mapper/lvm
+    vgcreate vg0 /dev/mapper/lvm
+    lvcreate -L 6G vg0 -n swap
+    lvcreate -l 100%FREE vg0 -n root
 fi
 if [[ $formatboot != n ]] && [[ $formatboot != N ]]; then
-  echo "[Log] Formatting boot partition"
-  if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
-    mkfs.ext2 $bootpart
-  else
-    mkfs.vfat -F32 $bootpart
-  fi
+    echo "[Log] Formatting boot partition"
+    if [[ $diskprog == y ]] || [[ $diskprog == Y ]]; then
+        mkfs.ext2 $bootpart
+    else
+        mkfs.vfat -F32 $bootpart
+    fi
 fi
 if [[ -z $swappart ]]; then
-  echo "[Log] Formatting and mounting volumes"
-  mkfs.ext4 /dev/mapper/vg0-root
-  mkswap /dev/mapper/vg0-swap
-  mount /dev/mapper/vg0-root /mnt
-  mkdir /mnt/boot
-  mount $bootpart /mnt/boot
-  swapon /dev/mapper/vg0-swap
+    echo "[Log] Formatting and mounting volumes"
+    mkfs.ext4 /dev/mapper/vg0-root
+    mkswap /dev/mapper/vg0-swap
+    mount /dev/mapper/vg0-root /mnt
+    mkdir /mnt/boot
+    mount $bootpart /mnt/boot
+    swapon /dev/mapper/vg0-swap
 fi
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt

@@ -71,6 +71,7 @@ plasma-browser-integration
 pcmanfm-qt
 simple-scan
 system-config-printer
+ttf-dejavu
 
 audacious
 audacity
@@ -112,88 +113,87 @@ xdg-desktop-portal-kde
 )
 
 function grubinstall {
-  pacman -S --noconfirm grub
-  lsblk
-  echo "[Input] Disk? (/dev/sdX)"
-  read part
-  echo "[Input] Please enter encrypted partition (/dev/sdaX)"
-  read rootpart
-  rootuuid=$(blkid -o value -s UUID $rootpart)
-  echo "[Log] Got UUID of $rootpart: $rootuuid"
-  echo "[Log] Run grub-install"
-  grub-install $part --target=i386-pc
-  echo "[Log] Edit /etc/default/grub"
-  sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
-  sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
-  echo "[Log] Run grub-mkconfig"
-  grub-mkconfig -o /boot/grub/grub.cfg
+    pacman -S --noconfirm grub
+    lsblk
+    read -p "[Input] Disk? (/dev/sdX) " part
+    read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
+    rootuuid=$(blkid -o value -s UUID $rootpart)
+    echo "[Log] Got UUID of $rootpart: $rootuuid"
+    echo "[Log] Run grub-install"
+    grub-install $part --target=i386-pc
+    echo "[Log] Edit /etc/default/grub"
+    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
+    sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
+    echo "[Log] Run grub-mkconfig"
+    grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function grubinstallia32 {
-  pacman -S --noconfirm grub efibootmgr
-  lsblk
-  echo "[Input] Disk? (/dev/sdX)"
-  read part
-  echo "[Input] Please enter swap partition (/dev/sdaX)"
-  read swappart
-  swapuuid=$(blkid -o value -s UUID $swappart)
-  echo "[Log] Got UUID of $swappart: $swapuuid"
-  echo "[Log] Run grub-install"
-  grub-install $part --target=i386-efi
-  sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
-  sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-  grub-mkconfig -o /boot/grub/grub.cfg
+    pacman -S --noconfirm grub efibootmgr
+    lsblk
+    read -p "[Input] Disk? (/dev/sdX) " read part
+    read -p "[Input] Please enter swap partition (/dev/sdaX) " swappart
+    swapuuid=$(blkid -o value -s UUID $swappart)
+    echo "[Log] Got UUID of $swappart: $swapuuid"
+    echo "[Log] Run grub-install"
+    grub-install $part --target=i386-efi
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
+    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function systemdinstall {
-  pacman -S --noconfirm efibootmgr
-  echo "[Log] run bootctl install"
-  bootctl install
-  lsblk
-  echo "[Input] Please enter encrypted partition (/dev/sdaX)"
-  read rootpart
-  rootuuid=$(blkid -o value -s UUID $rootpart)
-  echo "[Log] Got UUID of $rootpart: $rootuuid"
-  echo "[Log] Creating arch.conf entry"
-  echo "title Arch Linux
-linux /vmlinuz-linux-lts
-initrd /intel-ucode.img
-initrd /initramfs-linux-lts.img
-options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw loglevel=3" > /boot/loader/entries/arch.conf
+    pacman -S --noconfirm efibootmgr
+    echo "[Log] run bootctl install"
+    bootctl install
+    lsblk
+    read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
+    rootuuid=$(blkid -o value -s UUID $rootpart)
+    echo "[Log] Got UUID of $rootpart: $rootuuid"
+    echo "[Log] Creating arch.conf entry"
+    echo "title Arch Linux
+    linux /vmlinuz-linux-lts
+    initrd /intel-ucode.img
+    initrd /initramfs-linux-lts.img
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
 	echo "timeout 0
-default arch
-editor 0" > /boot/loader/loader.conf
+    default arch
+    editor 0" > /boot/loader/loader.conf
 }
 
 function setupstuff {
-  echo "[Log] nanorc"
-  echo 'include "/usr/share/nano/*.nanorc"
-  include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
+    echo "[Log] nanorc"
+    echo 'include "/usr/share/nano/*.nanorc"
+    include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
 
-  echo "[Log] makepkg.conf"
-  sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
-  sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
-  sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
-  sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
+    echo "[Log] makepkg.conf"
+    sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
+    sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+    sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
+    sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
 
-  echo "[Log] /etc/environment"
-  echo "mesa_glthread=true" | tee /etc/environment
+    echo "[Log] /etc/environment"
+    echo "mesa_glthread=true" | tee /etc/environment
+    
+    echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
+    ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
 }
 
 # ----------------
 
 if [ $(which pacman-mirrors) ]; then
-  echo "[Log] pacman.conf"
-  sed -i "s/#Color/Color/" /etc/pacman.conf
-  sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
-  pacman -Q linux
-  pacman -Syy linux-headers
-  pacman -Su --noconfirm
-  echo "[Log] Installing packages"
-  pacman -S --noconfirm ${pacmanpkgs2[*]}
-  setupstuff
-  exit
+    echo "[Log] pacman.conf"
+    sed -i "s/#Color/Color/" /etc/pacman.conf
+    sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+    pacman -Q linux
+    pacman -Syy linux-headers
+    pacman -Su --noconfirm
+    echo "[Log] Installing packages"
+    pacman -S --noconfirm ${pacmanpkgs2[*]}
+    setupstuff
+    exit
 fi
 
 echo "[Log] pacman.conf"
@@ -215,18 +215,18 @@ echo "[Log] Running passwd"
 passwd
 
 if [ -f /ia32 ]; then
-  echo "[Log] Setup grub ia32"
-  grubinstallia32
-  rm /ia32
+    echo "[Log] Setup grub ia32"
+    grubinstallia32
+    rm /ia32
 else
-  if [ -f /fdisk ]; then
-    echo "[Log] Setup grub"
-    grubinstall
-    rm /fdisk
-  else
-    echo "[Log] Setup systemd-boot"
-    systemdinstall
-  fi
+    if [ -f /fdisk ]; then
+        echo "[Log] Setup grub"
+        grubinstall
+        rm /fdisk
+    else
+        echo "[Log] Setup systemd-boot"
+        systemdinstall
+    fi
 fi
 
 echo "[Log] Edit mkinitcpio.conf"
@@ -235,12 +235,10 @@ sed -i "s/MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
 echo "[Log] Run mkinitcpio"
 mkinitcpio -p linux-lts
 
-echo "[Input] Enter hostname"
-read hostname
+read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
 echo $hostname > /etc/hostname
-echo "[Input] Enter username"
-read username
+read -p "[Input] Enter username: " username
 echo "[Log] Creating user $username"
 useradd -m -g users -G audio,optical,wheel -s /usr/bin/fish $username
 echo "[Log] Running passwd $username"
@@ -250,17 +248,16 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
 systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer sddm
 
-echo "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N)"
-read touchpad
+read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N) " touchpad
 if [ $touchpad == y ] || [ $touchpad == Y ]; then
-  echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
-  echo 'Section "InputClass"
-  Identifier "touchpad"
-  Driver "libinput"
-  MatchIsTouchpad "on"
-  Option "Tapping" "on"
-  Option "TappingButtonMap" "lmr"
-EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
+    echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
+    echo 'Section "InputClass"
+        Identifier "touchpad"
+        Driver "libinput"
+        MatchIsTouchpad "on"
+        Option "Tapping" "on"
+        Option "TappingButtonMap" "lmr"
+    EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 echo "[Log] unmountonlogout"
@@ -268,16 +265,16 @@ cat > /usr/bin/unmountonlogout << 'EOF'
 #!/bin/bash
 for device in /sys/block/*
 do
-  if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
-  then
-    echo Found $device to unmount
-    DEVTO=`echo $device|awk -F"/" 'NF>1{print $NF}'`
-    echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'` is the exact device
-    UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'`
-    if sudo umount $UM
-      then echo Done umounting
+    if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
+    then
+        echo Found $device to unmount
+        DEVTO=`echo $device|awk -F"/" 'NF>1{print $NF}'`
+        echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'` is the exact device
+        UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'`
+        if sudo umount $UM
+        then echo Done umounting
+        fi
     fi
-  fi
 done
 EOF
 chmod +x /usr/bin/unmountonlogout
