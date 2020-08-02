@@ -349,8 +349,8 @@ function Restoreuser {
 }
 
 function Plymouth {
-    sudo sed -i "s/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
-    sudo sed -i "s/MODULES=(ext4)/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
+    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume filesystems fsck)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|MODULES=(ext4)|MODULES=(i915 ext4)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemtcl enable sddm-plymouth
