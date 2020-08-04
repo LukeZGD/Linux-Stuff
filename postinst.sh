@@ -85,10 +85,10 @@ function postinstallcomm {
     #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
     sudo cp $BASEDIR/postinst.sh /usr/bin/postinst
     cd $BASEDIR/scripts
-    sudo cp deedee.sh /usr/bin/deedee
+    sudo cp lgdutil.sh /usr/bin/lgdutil
     sudo cp pac.sh /usr/bin/pac
     sudo cp touhou.sh /usr/bin/touhou
-    sudo chmod +x /usr/bin/deedee /usr/bin/pac /usr/bin/postinst
+    sudo chmod +x /usr/bin/lgdutil /usr/bin/pac /usr/bin/postinst
     # home symlinks
     cd $HOME/.config
     ln -sf /mnt/Data/$USER/config/PCSX2/
@@ -275,6 +275,7 @@ function kvmstep2 {
 
 function RSYNC {
     [[ $ArgR == sparse ]] && ArgR=--sparse
+    [[ $ArgR == full ]] && ArgR=--full
     [[ $ArgR != full ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
