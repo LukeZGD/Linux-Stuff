@@ -274,9 +274,11 @@ function kvmstep2 {
 }
 
 function RSYNC {
-    [[ $ArgR == sparse ]] && ArgR=--sparse
+    if [[ $ArgR == sparse ]]; then
+        [[ ! -d $2 ]] && ArgR=--sparse || ArgR=--inplace
+    fi
     [[ $ArgR == full ]] && ArgR=--full
-    [[ $ArgR != full ]] && Update=--update
+    [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
     else

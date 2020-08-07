@@ -64,9 +64,14 @@ function update {
     echo "* Current version: $current"
     echo "* Latest version: $latest"
     if [[ $latest != $current ]]; then
-        rm osu.AppImage* 2>/dev/null
+        mkdir tmp 2>/dev/null
+        cd tmp
         echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
         [ ! -e osu.AppImage ] && echo "Update failed" && exit
+        rm -f ../osu.AppImage*
+        mv osu.AppImage* ..
+        cd ..
+        rm -rf tmp
         chmod +x osu.AppImage
         echo "$latest" > osu.AppImage.version
         echo "Updated osu!lazer to $latest"
