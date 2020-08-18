@@ -18,7 +18,7 @@ elif [[ $1 == install ]]; then
         done
         yay -U --noconfirm --needed ${install[@]}
     else
-        yay -S --noconfirm --needed --answerclean None --sudoloop ${@:2}
+        yay -S --noconfirm --needed --answerclean All --sudoloop ${@:2}
     fi
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
@@ -38,7 +38,7 @@ elif [[ $1 == update ]]; then
     yay -Sy
     yay -Qu
 elif [[ $1 == upgrade ]]; then
-    yay -Syu --noconfirm --answerclean None --sudoloop
+    yay -Syu --noconfirm --answerclean All --sudoloop
 else
     echo "Usage:  pac <operation> [...]"
     echo "Operations:

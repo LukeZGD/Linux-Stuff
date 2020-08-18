@@ -15,6 +15,7 @@ gallery-dl
 github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
+mystiq
 qdirstat
 qsynth
 ventoy-bin

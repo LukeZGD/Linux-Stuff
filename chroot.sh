@@ -68,7 +68,6 @@ kdialog
 nano-syntax-highlighting
 neofetch
 plasma-browser-integration
-pcmanfm-qt
 simple-scan
 system-config-printer
 ttf-dejavu
@@ -80,7 +79,7 @@ ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
 gimp
-handbrake
+guvcview-qt
 kate
 kdenlive
 lame
