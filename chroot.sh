@@ -10,9 +10,11 @@ linux-firmware
 linux-lts
 linux-lts-headers
 nano
+pacman-contrib
 reflector
 rsync
 usbutils
+vim
 wget
 
 alsa-utils
@@ -79,7 +81,6 @@ ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
 gimp
-guvcview-qt
 kate
 kdenlive
 lame
@@ -88,6 +89,7 @@ obs-studio
 okteta
 viewnior
 
+calibre
 firefox
 gnome-keyring
 gsmartcontrol
@@ -178,6 +180,7 @@ function setupstuff {
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
+    echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
 }
 
 # ----------------

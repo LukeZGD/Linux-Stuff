@@ -10,17 +10,22 @@ exfat-utils-nofuse
 libirecovery-git
 ncurses5-compat-libs
 python2-twodict-git
+caprine
+cobang
 futurerestore-s0uthwest-git
 gallery-dl
 github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
 mystiq
+partialzipbrowser-git
 qdirstat
 qsynth
+teams
 ventoy-bin
 wps-office
 youtube-dl-gui-git
+zoom
 )
 
 function MainMenu {
