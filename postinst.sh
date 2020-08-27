@@ -22,6 +22,7 @@ partialzipbrowser-git
 qdirstat
 qsynth
 teams
+ttf-wps-fonts
 ventoy-bin
 wps-office
 youtube-dl-gui-git

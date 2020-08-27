@@ -31,7 +31,10 @@ bluez
 bluez-plugins
 bluez-utils
 networkmanager
+networkmanager-openvpn
 network-manager-applet
+openvpn
+systemd-resolvconf
 
 gvfs
 gvfs-afc
@@ -174,8 +177,8 @@ function setupstuff {
     sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
     sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
 
-    echo "[Log] /etc/environment"
-    echo "mesa_glthread=true" | tee /etc/environment
+    #echo "[Log] /etc/environment"
+    #echo "mesa_glthread=true" | tee /etc/environment
     
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
