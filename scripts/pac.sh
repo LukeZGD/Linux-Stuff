@@ -32,6 +32,9 @@ elif [[ $1 == query ]]; then
     yay -Q ${@:2}
 elif [[ $1 == remove ]]; then
     yay -R --noconfirm ${@:2}
+elif [[ $1 == reflector ]]; then
+    sudo systemctl start reflector
+    systemctl status reflector
 elif [[ $1 == purge ]]; then
     yay -Rsn --noconfirm ${@:2}
 elif [[ $1 == update ]]; then
@@ -49,6 +52,7 @@ else
     pac {purge} [package(s)]
     pac {query} [package(s)]
     pac {remove} [package(s)]
+    pac {reflector}
     pac {update} [package(s)]
     pac {upgrade}"
 fi

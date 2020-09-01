@@ -26,7 +26,7 @@ function rsyncee {
     else
         read -p "[Input] Input directory (drag folder to terminal window): " Input
         read -p "[Input] Output directory (drag folder to terminal window): " Output
-        read -p "[Input] Type? {type1(va,default)|type2(vrltD}" Type
+        read -p "[Input] Type? {type1(va,default)|type2(vrltD)}" Type
     fi
     [[ "${str:$((${#Input}-1)):1}" != '/' ]] && Input="$Input/"
     [[ "${str:$((${#Output}-1)):1}" != '/' ]] && Output="$Output/"

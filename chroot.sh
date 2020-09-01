@@ -73,6 +73,7 @@ kdialog
 nano-syntax-highlighting
 neofetch
 plasma-browser-integration
+print-manager
 simple-scan
 system-config-printer
 ttf-dejavu
@@ -101,6 +102,7 @@ jre8-openjdk
 krdc
 libressl
 love
+okular
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
