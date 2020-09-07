@@ -7,8 +7,8 @@ fish
 git
 intel-ucode
 linux-firmware
-linux-lts
-linux-lts-headers
+linux-zen
+linux-zen-headers
 nano
 pacman-contrib
 reflector
@@ -93,7 +93,6 @@ obs-studio
 okteta
 viewnior
 
-calibre
 firefox
 gnome-keyring
 gsmartcontrol
@@ -159,9 +158,9 @@ function systemdinstall {
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux-lts
+    linux /vmlinuz-linux-zen
     initrd /intel-ucode.img
-    initrd /initramfs-linux-lts.img
+    initrd /initramfs-linux-zen.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
 	echo "timeout 0
     default arch
@@ -240,7 +239,7 @@ echo "[Log] Edit mkinitcpio.conf"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
 sed -i "s/MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
 echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux-lts
+mkinitcpio -p linux-zen
 
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"

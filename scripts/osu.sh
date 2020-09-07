@@ -9,16 +9,14 @@ drirc='
     </application>
 </device>
 '
-outputs=(DVI-I-1 VGA-1 VGA-0 eDP1 eDP-1 eDP-1-1 HDMI1 HDMI-1 HDMI-1-1)
+[[ $USER == lukee ]] && outputs=(DVI-I-1 VGA-1 VGA-0 eDP1 eDP-1 eDP-1-1 HDMI1 HDMI-1 HDMI-1-1)
 
 function changeres {
-    if [ $USER == lukee ]; then
-        [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
-        for output in "${outputs[@]}"; do
-            xrandr --output $output --mode $res --rate 74.98 2>/dev/null
-            [ $? == 1 ] && xrandr --output $output --mode $res 2>/dev/null
-        done
-    fi
+    [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
+    for output in "${outputs[@]}"; do
+        xrandr --output $output --mode $res --rate 74.98 2>/dev/null
+        [ $? == 1 ] && xrandr --output $output --mode $res 2>/dev/null
+    done
 }
 
 function oss {
@@ -64,6 +62,8 @@ function update {
     echo "* Current version: $current"
     echo "* Latest version: $latest"
     if [[ $latest != $current ]]; then
+        read -p "Continue to update? (y/N) " continue
+        [[ $Continue != y ]] && [[ $Continue != Y ]] && exit
         mkdir tmp 2>/dev/null
         cd tmp
         echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
@@ -78,6 +78,7 @@ function update {
     else
         echo "Currently updated, nothing to do"
     fi
+    read -s
 }
 
 function install {
@@ -117,15 +118,15 @@ function install {
     fi
     rm -rf $HOME/.wine_osu
     
-    winetricks dotnet40
-    winetricks gdiplus
+    winetricks -q dotnet40
+    winetricks -q gdiplus
     
     mkdir $HOME/osu 2>/dev/null
     cd osu
     read -p "Preparations complete. Download and install osu! now? (y/N) " osuDL
     if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
-        curl -L -# 'https://m1.ppy.sh/r/osu!install.exe'
-        wine 'osu!install.exe'
+        curl -L -# "https://m1.ppy.sh/r/osu!install.exe"
+        wine "osu!install.exe"
     fi
     echo "Script done"
 }
