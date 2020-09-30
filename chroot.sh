@@ -123,12 +123,15 @@ function grubinstall {
     read -p "[Input] Disk? (/dev/sdX) " part
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
+    swapuuid=$(findmnt -no UUID -T /swapfile)
+    swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Run grub-install"
     grub-install $part --target=i386-pc
     echo "[Log] Edit /etc/default/grub"
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=/dev/mapper/vg0-swap\"|g" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
     sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     grub-mkconfig -o /boot/grub/grub.cfg
@@ -156,13 +159,15 @@ function systemdinstall {
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
     swapuuid=$(findmnt -no UUID -T /swapfile)
+    swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-linux-zen
     initrd /intel-ucode.img
     initrd /initramfs-linux-zen.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
 	echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf

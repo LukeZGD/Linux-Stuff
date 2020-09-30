@@ -83,7 +83,7 @@ function postinstallcomm {
     PackagesDir=$HOME/Documents/Packages
     [ ! -e $PackagesDir/ttf-packages.zip ] && curl -L https://github.com/LukeZGD/Arch-Stuff/releases/download/stuff/ttf-packages.zip -o $PackagesDir/ttf-packages.zip
     unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
-    sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
+    sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz #for veikk driver and fonts
     rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
@@ -283,7 +283,7 @@ function RSYNC {
     if [[ $ArgR == sparse ]]; then
         [[ ! -d $2 ]] && ArgR=--sparse || ArgR=--inplace
     fi
-    [[ $ArgR == full ]] && ArgR=--full
+    [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
@@ -369,7 +369,7 @@ function Plymouth {
     sudo sed -i "s|MODULES=(ext4)|MODULES=(i915 ext4)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
-    sudo systemtcl enable sddm-plymouth
+    sudo systemctl enable sddm-plymouth
 }
 
 # ----------------------------------
