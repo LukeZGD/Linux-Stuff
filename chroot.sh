@@ -155,13 +155,14 @@ function systemdinstall {
     lsblk
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
+    swapuuid=$(findmnt -no UUID -T /swapfile)
     echo "[Log] Got UUID of $rootpart: $rootuuid"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-linux-zen
     initrd /intel-ucode.img
     initrd /initramfs-linux-zen.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=/dev/mapper/vg0-swap root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
 	echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
