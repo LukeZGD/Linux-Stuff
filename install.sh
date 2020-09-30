@@ -66,7 +66,6 @@ else
     cryptsetup luksOpen $rootpart lvm
     pvcreate /dev/mapper/lvm
     vgcreate vg0 /dev/mapper/lvm
-    lvcreate -L 6G vg0 -n swap
     lvcreate -l 100%FREE vg0 -n root
 fi
 if [[ $formatboot != n ]] && [[ $formatboot != N ]]; then
@@ -80,11 +79,14 @@ fi
 if [[ -z $swappart ]]; then
     echo "[Log] Formatting and mounting volumes"
     mkfs.ext4 /dev/mapper/vg0-root
-    mkswap /dev/mapper/vg0-swap
     mount /dev/mapper/vg0-root /mnt
     mkdir /mnt/boot
     mount $bootpart /mnt/boot
-    swapon /dev/mapper/vg0-swap
+    echo "[Log] Creating swap"
+    dd if=/dev/zero of=/mnt/swapfile bs=1M count=4096 status=progress
+    chmod 600 /mnt/swapfile
+    mkswap /mnt/swapfile
+    swapon /mnt/swapfile
 fi
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt

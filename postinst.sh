@@ -126,7 +126,7 @@ function postinstallcomm {
     [Install]
     WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/input-veikk-startup.service
     echo '#!/bin/bash
-    echo 0,0,345,345 | tee /sys/module/veikk/parameters/bounds_map
+    echo 0,0,320,320 | tee /sys/module/veikk/parameters/bounds_map
     exit 0' | sudo tee /usr/bin/input-veikk-startup
     sudo chmod +x /usr/bin/input-veikk-startup
     sudo systemctl enable input-veikk-startup
@@ -286,7 +286,14 @@ function RSYNC {
     [[ $ArgR == full ]] && ArgR=--full
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude '.ccache' --exclude '.local/share/lutris' --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.local/share/baloo' --exclude '.local/share/Trash' --exclude '.config/chromium/Default/Service Worker/CacheStorage' --exclude '.config/chromium/Default/File System' --exclude '.local/share/gvfs-metadata' --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' --exclude '.cemu/wine' $1 $2
+        sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
+          --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.ccache' \
+          --exclude '.cemu/wine' --exclude '.config/Caprine' \
+          --exclude '.config/chromium/Default/File System' \
+          --exclude '.config/chromium/Default/Service Worker/CacheStorage' \
+          --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
+          --exclude '.local/share/baloo' --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
+          --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' $1 $2
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
     fi
