@@ -208,13 +208,13 @@ function osu {
 }
 
 function devkitPro {
-    sudo pacman-key --recv F7FD5492264BB9D0
-    sudo pacman-key --lsign F7FD5492264BB9D0
-    sudo pacman -U https://downloads.devkitpro.org/devkitpro-keyring-r1.787e015-2-any.pkg.tar.xz
+    sudo pacman-key --recv BC26F752D25B92CE272E0F44F7FD5492264BB9D0 --keyserver keyserver.ubuntu.com
+    sudo pacman-key --lsign BC26F752D25B92CE272E0F44F7FD5492264BB9D0
+    sudo pacman -U --noconfirm https://downloads.devkitpro.org/devkitpro-keyring.pkg.tar.xz
     echo '[dkp-libs]
     Server = https://downloads.devkitpro.org/packages
     [dkp-linux]
-    Server = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf
+    Server = https://downloads.devkitpro.org/packages/linux/$arch/' | sudo tee -a /etc/pacman.conf
     sudo pacman -Sy --noconfirm 3ds-dev switch-dev
 }
 
