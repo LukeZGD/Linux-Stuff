@@ -66,7 +66,7 @@ function installpac {
 }
 
 function postinstall {
-    gpg --keyserver keys.gnupg.net --recv-keys 702353E0F7E48EDB
+    echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     for package in "${packages[@]}"; do
         sudo pacman -U --noconfirm --needed /var/cache/pacman/aur/$package*.zst 2>/dev/null
         if [ $? == 1 ]; then
@@ -83,7 +83,7 @@ function postinstallcomm {
     PackagesDir=$HOME/Documents/Packages
     [ ! -e $PackagesDir/ttf-packages.zip ] && curl -L https://github.com/LukeZGD/Arch-Stuff/releases/download/stuff/ttf-packages.zip -o $PackagesDir/ttf-packages.zip
     unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
-    sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz #for veikk driver and fonts
+    sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
     rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
@@ -126,7 +126,7 @@ function postinstallcomm {
     [Install]
     WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/input-veikk-startup.service
     echo '#!/bin/bash
-    echo 0,0,320,320 | tee /sys/module/veikk/parameters/bounds_map
+    echo 0,0,325,325 | tee /sys/module/veikk/parameters/bounds_map
     exit 0' | sudo tee /usr/bin/input-veikk-startup
     sudo chmod +x /usr/bin/input-veikk-startup
     sudo systemctl enable input-veikk-startup
@@ -200,7 +200,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-    pac install cemu citra-canary-git dolphin-emu fceux melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin yuzu-mainline-bin
+    pac install cemu citra-canary-git dolphin-emu fceux melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin
 }
 
 function osu {
@@ -227,7 +227,7 @@ function kvm {
 }
 
 function kvmstep1 {
-    pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
+    pac install qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
 
     echo "[global]
     allow insecure wide links = yes
@@ -257,9 +257,7 @@ function kvmstep1 {
 
 function kvmstep2 {
     read -p "GVT-g? (y/N) " gvtg 
-    if [[ $gvtg != y ]] && [[ $gvtg != Y ]]; then
-        exit
-    fi
+    [[ $gvtg != y ]] && [[ $gvtg != Y ]] && exit
     UUID=029a88f0-6c3e-4673-8b3c-097fe77d7c97
     sudo /bin/sh -c "echo $UUID > /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types/i915-GVTg_V5_4/create"
     echo "[Unit]

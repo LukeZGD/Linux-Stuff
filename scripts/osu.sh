@@ -109,7 +109,7 @@ function install {
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
     
-    sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libxcomposite winetricks
+    sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
     if [ -d $HOME/.wine_osu ]; then
         read -p "wine_osu folder detected! Delete and reinstall? (y/N) " Confirm
         if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
