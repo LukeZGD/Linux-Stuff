@@ -2,8 +2,8 @@
 trap exit INT TERM EXIT
 
 if [[ $1 == autoremove ]]; then
-    sudo pacman -Rsn --noconfirm 2>/dev/null
-    [ $? == 1 ] && echo ' there is nothing to do'
+    sudo pacman -Rsn --noconfirm $(pacman -Qdtq) 2>/dev/null
+    [ $? == 1 ] && echo ' there is nothing to do' || exit $?
 elif [[ $1 == clean ]]; then
     if [[ $2 == all ]]; then 
         yay -Sc --noconfirm
