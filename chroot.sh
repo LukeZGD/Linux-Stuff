@@ -126,7 +126,9 @@ function grubinstall {
     swapuuid=$(findmnt -no UUID -T /swapfile)
     swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
     swapoffset=$(echo ${swapoffset//./})
-    echo "[Log] Got UUID of $rootpart: $rootuuid"
+    echo "[Log] Got UUID of root $rootpart: $rootuuid"
+    echo "[Log] Got UUID of swap $swappart: $swapuuid"
+    echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Run grub-install"
     grub-install $part --target=i386-pc
     echo "[Log] Edit /etc/default/grub"
@@ -161,7 +163,9 @@ function systemdinstall {
     swapuuid=$(findmnt -no UUID -T /swapfile)
     swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
     swapoffset=$(echo ${swapoffset//./})
-    echo "[Log] Got UUID of $rootpart: $rootuuid"
+    echo "[Log] Got UUID of root $rootpart: $rootuuid"
+    echo "[Log] Got UUID of swap $swappart: $swapuuid"
+    echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-linux-zen

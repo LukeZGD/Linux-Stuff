@@ -63,7 +63,7 @@ function update {
     echo "* Latest version: $latest"
     if [[ $latest != $current ]]; then
         read -p "Continue to update? (y/N) " continue
-        [[ $Continue != y ]] && [[ $Continue != Y ]] && exit
+        [[ $continue != y ]] && [[ $continue != Y ]] && exit
         mkdir tmp 2>/dev/null
         cd tmp
         echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
@@ -78,6 +78,7 @@ function update {
     else
         echo "Currently updated, nothing to do"
     fi
+    echo "Press ENTER to exit."
     read -s
 }
 

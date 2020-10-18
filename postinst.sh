@@ -43,7 +43,7 @@ function MainMenu {
 }
 
 function installstuff {
-    select opt in "Install AUR pkgs yay" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)" "Plymouth"; do
+    select opt in "Install AUR pkgs yay" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)" "Plymouth" "VMware Player install" "VMware Player update"; do
         case $opt in
             "Install AUR pkgs yay" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
@@ -52,6 +52,8 @@ function installstuff {
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
+            "VMware Player install" vmwarei; break;;
+            "VMware Player update" vmwareu; break;;
             * ) exit;;
         esac
     done
@@ -154,6 +156,8 @@ function postinstallcomm {
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
     sudo sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
+    
+    sudo systemctl enable --now smb nmb
 }
 
 function adduser {
@@ -186,7 +190,7 @@ function vbox {
 }
 
 function laptop {
-    pac install nvidia-dkms lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+    pac install nvidia-dkms lib32-nvidia-utils bumblebee bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
@@ -227,7 +231,7 @@ function kvm {
 }
 
 function kvmstep1 {
-    pac install qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
+    pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
 
     echo "[global]
     allow insecure wide links = yes
@@ -368,6 +372,18 @@ function Plymouth {
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth
+}
+
+function vmwarei {
+    sudo sh $HOME/Documents/VMware-Player-16.0.0-16894299.x86_64.bundle --eulas-agreed --console --required
+    vmwareu
+}
+
+function vmwareu {
+    pac install vmware-systemd-services
+    sudo vmware-modconfig --console --install-all
+    sudo modprobe -a vmw_vmci vmmon
+    sudo systemctl enable --now vmware vmware-usbarbitrator
 }
 
 # ----------------------------------
