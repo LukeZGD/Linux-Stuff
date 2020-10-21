@@ -256,7 +256,7 @@ echo "[Log] Creating /etc/hostname"
 echo $hostname > /etc/hostname
 read -p "[Input] Enter username: " username
 echo "[Log] Creating user $username"
-useradd -m -g users -G audio,optical,wheel -s /usr/bin/fish $username
+useradd -m -g users -G audio,optical,storage,wheel -s /usr/bin/fish $username
 echo "[Log] Running passwd $username"
 passwd $username
 echo "[Log] Running visudo"

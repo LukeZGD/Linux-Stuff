@@ -119,8 +119,7 @@ function install {
     fi
     rm -rf $HOME/.wine_osu
     
-    winetricks -q dotnet40
-    winetricks -q gdiplus
+    winetricks -q dotnet40 gdiplus
     
     mkdir $HOME/osu 2>/dev/null
     cd osu

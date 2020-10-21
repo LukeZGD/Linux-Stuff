@@ -87,6 +87,7 @@ function postinstallcomm {
     unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
     sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
     rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
+    sudo systemctl enable --now input-veikk-startup nmb smb
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
     setxkbmap -layout us
@@ -116,25 +117,7 @@ function postinstallcomm {
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
     ln -sf /mnt/Data/$USER/cache/yay
-    echo "[Log] input-veikk-startup service"
-    echo '[Unit]
-    Description=input-veikk-startup
-
-    [Service]
-    Type=oneshot
-    ExecStart=/usr/bin/input-veikk-startup
-    RemainAfterExit=yes
-
-    [Install]
-    WantedBy=multi-user.target' | sudo tee /usr/lib/systemd/system/input-veikk-startup.service
-    echo '#!/bin/bash
-    echo 0,0,325,325 | tee /sys/module/veikk/parameters/bounds_map
-    exit 0' | sudo tee /usr/bin/input-veikk-startup
-    sudo chmod +x /usr/bin/input-veikk-startup
-    sudo systemctl enable input-veikk-startup
-    echo 'export DEVKITPRO=/opt/devkitpro
-    export DEVKITARM=/opt/devkitpro/devkitARM
-    export DEVKITPPC=/opt/devkitpro/devkitPPC' | tee $HOME/.profile
+    cd $BASEDIR
     
     if [ $(which pacman-mirrors) ]; then
         echo "[Log] Manjaro post-install"
@@ -145,7 +128,7 @@ function postinstallcomm {
     fi
     
     sudo pacman -Sy --needed --noconfirm fish nano-syntax-highlighting wine wine-gecko wine-mono winetricks
-    winecfg
+    winetricks -q gdiplus
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -156,14 +139,12 @@ function postinstallcomm {
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
     sudo sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
-    
-    sudo systemctl enable --now smb nmb
 }
 
 function adduser {
     read -p "[Input] Enter username: " username2
     echo "[Log] Creating user $username2"
-    sudo useradd -m -g users -G audio -s /usr/bin/fish $username2
+    sudo useradd -m -g users -G audio,optical,storage -s /usr/bin/fish $username2
     echo "[Log] Running passwd $username2"
     sudo passwd $username2
 }
