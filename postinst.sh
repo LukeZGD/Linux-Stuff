@@ -87,7 +87,6 @@ function postinstallcomm {
     unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
     sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
     rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
-    sudo systemctl enable --now input-veikk-startup nmb smb
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
     setxkbmap -layout us
@@ -139,6 +138,22 @@ function postinstallcomm {
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
     sudo sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
+    
+    echo "[global]
+    allow insecure wide links = yes
+    workgroup = WORKGROUP
+    netbios name = $(hostname)
+
+    [LinuxHost]
+    comment = Host Share
+    path = $HOME
+    valid users = $USER
+    public = no
+    writable = yes
+    printable = no
+    follow symlinks = yes
+    wide links = yes" | sudo tee /etc/samba/smb.conf
+    sudo systemctl enable --now input-veikk-startup nmb smb
 }
 
 function adduser {
@@ -213,23 +228,8 @@ function kvm {
 
 function kvmstep1 {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
-
-    echo "[global]
-    allow insecure wide links = yes
-    workgroup = WORKGROUP
-    netbios name = $USER
-
-    [LinuxHost]
-    comment = Host Share
-    path = $HOME
-    valid users = $USER
-    public = no
-    writable = yes
-    printable = no
-    follow symlinks = yes
-    wide links = yes" | sudo tee /etc/samba/smb.conf
-
-    sudo systemctl enable --now libvirtd smb nmb
+    
+    sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux-zen
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
