@@ -61,7 +61,6 @@ kdegraphics-thumbnailers
 kmix
 konsole
 kwalletmanager
-spectacle
 )
 
 pacmanpkgs2=(
@@ -94,6 +93,7 @@ okteta
 viewnior
 
 firefox
+flameshot
 gnome-keyring
 gsmartcontrol
 htop
@@ -115,6 +115,10 @@ vapoursynth
 vapoursynth-plugin-mvtools
 xdg-desktop-portal
 xdg-desktop-portal-kde
+
+lutris
+wine-staging
+winetricks
 )
 
 function grubinstall {

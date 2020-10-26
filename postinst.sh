@@ -1,6 +1,4 @@
 #!/bin/bash
-
-trap 'rm failed.txt 2>/dev/null; exit' INT TERM EXIT
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 packages=(
@@ -10,7 +8,7 @@ exfat-utils-nofuse
 libirecovery-git
 ncurses5-compat-libs
 python2-twodict-git
-caprine
+etcher-cli-bin
 futurerestore-s0uthwest-git
 gallery-dl
 github-desktop-bin
@@ -72,10 +70,10 @@ function postinstall {
     for package in "${packages[@]}"; do
         sudo pacman -U --noconfirm --needed /var/cache/pacman/aur/$package*.zst 2>/dev/null
         if [ $? == 1 ]; then
-        echo $package | tee -a failed.txt
+        echo $package | tee -a /tmp/failed.txt
         fi
     done
-    IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat failed.txt))'
+    IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat /tmp/failed.txt))'
     for package in "${failed[@]}"; do
         pac install $package
     done
@@ -126,12 +124,20 @@ function postinstallcomm {
         sudo $BASEDIR/chroot.sh
     fi
     
-    sudo pacman -Sy --needed --noconfirm fish nano-syntax-highlighting wine wine-gecko wine-mono winetricks
-    winetricks -q gdiplus
+    pac install dxvk-bin fish lutris nano-syntax-highlighting wine-staging wine-gecko-bin wine-mono-bin winetricks
+    
+    winetricks -q corefonts gdiplus vcrun2013 vcrun2015
+    setup_dxvk install
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
+    WINEPREFIX="$HOME/.wine_lutris" winetricks -q gdiplus
+    cd $HOME/.wine_lutris/drive_c/users/$USER
+    rm -rf AppData 'Application Data'
+    ln -sf $HOME/AppData
+    ln -sf $HOME/AppData 'Application Data'
+    
     fish -c 'set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin'
     sudo usermod -s /usr/bin/fish $USER
     
@@ -270,7 +276,8 @@ function RSYNC {
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
-          --exclude 'KVM' --exclude 'osu' --exclude '.cache' --exclude '.ccache' \
+          --exclude 'KVM' --exclude 'VirtualBox VMs' --exclude 'Windows7' --exclude 'Windows10' \
+          --exclude 'osu' --exclude '.cache' --exclude '.ccache' \
           --exclude '.cemu/wine' --exclude '.config/Caprine' \
           --exclude '.config/chromium/Default/File System' \
           --exclude '.config/chromium/Default/Service Worker/CacheStorage' \
