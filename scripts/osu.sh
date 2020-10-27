@@ -35,8 +35,10 @@ function oss {
 }
 
 function random {
+    mapno=$1
+    [[ ! $1 ]] && mapno=4
     cd $HOME/osu
-    for i in {1..4}; do
+    for i in $(seq 1 $mapno); do
         wine osu!.exe "$HOME/osu/oss/$(ls $HOME/osu/oss/ | shuf -n 1)"
     done
 }
@@ -125,14 +127,14 @@ function install {
     cd osu
     read -p "Preparations complete. Download and install osu! now? (y/N) " osuDL
     if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
-        curl -L -# "https://m1.ppy.sh/r/osu!install.exe"
-        wine "osu!install.exe"
+        curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
+        wine "osuinstall.exe"
     fi
     echo "Script done"
 }
 
 if [[ $1 == "random" ]]; then
-    random
+    random $2
 elif [[ $1 == "remove" ]]; then
     remove
 elif [[ $1 == "update" ]]; then
@@ -150,7 +152,7 @@ elif [[ $1 == "help" ]]; then
     osu {install}
     osu {kill}
     osu {lazer}
-    osu {random}
+    osu {random} [no. of maps] (default=4)
     osu {remove}
     osu {update}"
 elif [[ $1 == "install" ]]; then

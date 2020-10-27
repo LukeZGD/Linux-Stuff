@@ -79,6 +79,7 @@ ttf-dejavu
 
 audacious
 audacity
+digikam
 ffmpeg
 ffmpegthumbs
 ffmpegthumbnailer
@@ -141,6 +142,7 @@ function grubinstall {
     sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     grub-mkconfig -o /boot/grub/grub.cfg
+    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /lib/systemd/system/bluetooth.service
 }
 
 function grubinstallia32 {

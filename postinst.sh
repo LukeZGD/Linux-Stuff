@@ -67,6 +67,7 @@ function installpac {
 
 function postinstall {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
+    rm /tmp/failed.txt
     for package in "${packages[@]}"; do
         sudo pacman -U --noconfirm --needed /var/cache/pacman/aur/$package*.zst 2>/dev/null
         if [ $? == 1 ]; then
