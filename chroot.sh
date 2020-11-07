@@ -36,6 +36,7 @@ network-manager-applet
 openvpn
 systemd-resolvconf
 
+exfatprogs
 gvfs
 gvfs-afc
 gvfs-gphoto2
@@ -89,7 +90,6 @@ kate
 kdenlive
 lame
 mpv
-obs-studio
 okteta
 viewnior
 
@@ -100,22 +100,19 @@ gsmartcontrol
 htop
 jre8-openjdk
 krdc
-libressl
 love
 okular
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
-papirus-icon-theme
 qbittorrent
 freerdp
 samba
 seahorse
 testdisk
-vapoursynth
-vapoursynth-plugin-mvtools
 xdg-desktop-portal
 xdg-desktop-portal-kde
+youtube-dl
 
 lutris
 wine-staging

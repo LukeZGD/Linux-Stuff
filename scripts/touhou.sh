@@ -9,10 +9,6 @@ else
     launch=$(kdialog --inputbox "Enter number (1-17)" --title "Touhou Launcher")
 fi
 
-echo 'REGEDIT4
-[HKEY_CURRENT_USER\Software\Wine\DllOverrides]
-"dsound"="native,builtin"' > /tmp/wine_setup_dsound.reg
-regedit /tmp/wine_setup_dsound.reg
 if [ $launch == 6 ]; then
     cd "$BASEDIR/Touhou 6 - The Embodiment of Scarlet Devil"
     wine "$BASEDIR/Touhou 6 - The Embodiment of Scarlet Devil/Touhou06.exe"

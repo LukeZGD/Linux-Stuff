@@ -4,10 +4,8 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 packages=(
 checkra1n-cli
 gconf
-exfat-utils-nofuse
 libirecovery-git
 ncurses5-compat-libs
-python2-twodict-git
 etcher-cli-bin
 futurerestore-s0uthwest-git
 gallery-dl
@@ -15,14 +13,15 @@ github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
 mystiq
+obs-studio-git
 partialzipbrowser-git
 qdirstat
 qsynth
+tartube
 teams
 ttf-wps-fonts
 ventoy-bin
 wps-office
-youtube-dl-gui-git
 zoom
 )
 
@@ -50,8 +49,8 @@ function installstuff {
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
-            "VMware Player install" vmwarei; break;;
-            "VMware Player update" vmwareu; break;;
+            "VMware Player install" ) vmwarei; break;;
+            "VMware Player update" ) vmwareu; break;;
             * ) exit;;
         esac
     done
@@ -90,12 +89,10 @@ function postinstallcomm {
     sudo modprobe ohci_hcd
     setxkbmap -layout us
     #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
-    sudo cp $BASEDIR/postinst.sh /usr/bin/postinst
-    cd $BASEDIR/scripts
-    sudo cp lgdutil.sh /usr/bin/lgdutil
-    sudo cp pac.sh /usr/bin/pac
-    sudo cp touhou.sh /usr/bin/touhou
-    sudo chmod +x /usr/bin/lgdutil /usr/bin/pac /usr/bin/postinst
+    sudo ln -sf $BASEDIR/postinst.sh /usr/local/bin/postinst
+    sudo ln -sf $BASEDIR/scripts/lgdutil.sh /usr/local/bin/lgdutil
+    sudo ln -sf $BASEDIR/scripts/pac.sh /usr/local/bin/pac
+    sudo ln -sf $BASEDIR/scripts/touhou.sh /usr/local/bin/touhou
     # home symlinks
     cd $HOME/.config
     ln -sf /mnt/Data/$USER/config/PCSX2/
@@ -129,13 +126,15 @@ function postinstallcomm {
     
     winetricks -q corefonts gdiplus vcrun2013 vcrun2015
     setup_dxvk install
+    echo 'REGEDIT4
+    [HKEY_CURRENT_USER\Software\Wine\DllOverrides]
+    "dsound"="native,builtin"' > /tmp/wine_setup_dsound.reg
+    regedit /tmp/wine_setup_dsound.reg
     cd $HOME/.wine/drive_c/users/$USER
-    rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
     WINEPREFIX="$HOME/.wine_lutris" winetricks -q gdiplus
     cd $HOME/.wine_lutris/drive_c/users/$USER
-    rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
     
@@ -277,7 +276,10 @@ function RSYNC {
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
-          --exclude 'KVM' --exclude 'VirtualBox VMs' --exclude 'Windows7' --exclude 'Windows10' \
+          --exclude 'KVM' --exclude 'VirtualBox VMs' \
+          --exclude '.Genymobile/Genymotion/deployed' \
+          --exclude '.config/GitHub Desktop/Cache' \
+          --exclude 'Windows7' --exclude 'Windows10' \
           --exclude 'osu' --exclude '.cache' --exclude '.ccache' \
           --exclude '.cemu/wine' --exclude '.config/Caprine' \
           --exclude '.config/chromium/Default/File System' \
