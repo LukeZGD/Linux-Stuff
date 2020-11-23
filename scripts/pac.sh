@@ -25,11 +25,22 @@ elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
     else
         yay -S $noconfirm $needed --answerclean None --sudoloop ${@:2}
     fi
+    kernelI=$(pacman -Q linux-zen | awk '{print $2}' | cut -c -6 | tr -d .)
+    kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
+    if [[ $kernelR != $kernelI ]]; then
+        echo
+        echo "                   *******************************"
+        echo "[WARNING] A kernel update has been detected. It is recommended to reboot!"
+        echo "                   *******************************"
+        echo
+    fi
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
         yay -Q
     elif [[ $2 == upgrade ]]; then
         yay -Qu
+    elif [[ ! -z $2 ]]; then
+        yay -Ql $2
     else
         yay -Qe
     fi
@@ -55,7 +66,7 @@ else
     pac {autoremove}
     pac {clean} [all]
     pac {install} [package(s)]
-    pac {list} [all,upgrade]
+    pac {list} [all,upgrade]/[package]
     pac {purge} [package(s)]
     pac {query} [package(s)]
     pac {reinstall} [package(s)]

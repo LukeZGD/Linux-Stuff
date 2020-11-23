@@ -7,7 +7,7 @@ gconf
 libirecovery-git
 ncurses5-compat-libs
 etcher-cli-bin
-futurerestore-s0uthwest-git
+f3-qt-git
 gallery-dl
 github-desktop-bin
 idevicerestore-git

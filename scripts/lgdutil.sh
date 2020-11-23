@@ -26,21 +26,19 @@ function rsyncee {
     else
         read -p "[Input] Input directory (drag folder to terminal window): " Input
         read -p "[Input] Output directory (drag folder to terminal window): " Output
-        read -p "[Input] Type? {type1(va,default)|type2(vrltD)}" Type
+        read -p "[Input] Type? {type1(va,default)|type2(vrltD)} " Type
     fi
-    [[ "${str:$((${#Input}-1)):1}" != '/' ]] && Input="$Input/"
-    [[ "${str:$((${#Output}-1)):1}" != '/' ]] && Output="$Output/"
-    if [[ $Type == 2 ]] || [[ $Type == type2 ]]; then
-        Type="-vrltD"
+    if [[ $Type == 2 ]]; then
+        Type=-vrltD
     else
-        Type="-va"
+        Type=-va
     fi
     echo "Input: $Input"
     echo "Output: $Output"
     echo "Type: $Type"
     echo "Starting in 5 seconds..."
     sleep 5
-    rsync $Type --update --delete-after --info=progress2 "$1" "$2"
+    rsync $Type --update --delete-after --info=progress2 "$Input" "$Output"
 }
 
 if [[ $1 == dd ]]; then
@@ -50,5 +48,5 @@ elif [[ $1 == rsync ]]; then
 else
     echo "Usage:  lgdutil {dd|rsync} [options]
     dd usage:    lgdutil dd [input] [output]
-    rsync usage: lgdutil rsync [input] [output] {type1(va,default)|type2(vrltD}"
+    rsync usage: lgdutil rsync [input] [output] {type1(va,default)|type2(vrltD)}"
 fi

@@ -85,6 +85,7 @@ ffmpeg
 ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
+fuseiso
 gimp
 kate
 kdenlive
@@ -103,9 +104,11 @@ krdc
 love
 okular
 openssh
+maxcso
 noto-fonts-cjk
 noto-fonts-emoji
 qbittorrent
+qjoypad
 freerdp
 samba
 seahorse
