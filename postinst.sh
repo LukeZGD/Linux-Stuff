@@ -124,17 +124,10 @@ function postinstallcomm {
     
     pac install dxvk-bin fish lutris nano-syntax-highlighting wine-staging wine-gecko-bin wine-mono-bin winetricks
     
-    winetricks -q corefonts gdiplus vcrun2013 vcrun2015
-    setup_dxvk install
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Software\Wine\DllOverrides]
-    "dsound"="native,builtin"' > /tmp/wine_setup_dsound.reg
-    regedit /tmp/wine_setup_dsound.reg
+    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
+    #setup_dxvk install
     cd $HOME/.wine/drive_c/users/$USER
-    ln -sf $HOME/AppData
-    ln -sf $HOME/AppData 'Application Data'
-    WINEPREFIX="$HOME/.wine_lutris" winetricks -q gdiplus
-    cd $HOME/.wine_lutris/drive_c/users/$USER
+    rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
     
@@ -309,9 +302,9 @@ function BackupRestore {
         esac
     done
     if [ $Mode == user ]; then
-        Paths=($HOME/ /run/media/$USER/LukeHDD2/Backups/$USER/
-            /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/Backups/Data/$USER/
-            $HOME/osu/ /run/media/$USER/LukeHDD2/Backups/Data/osu/)
+        Paths=($HOME/ /run/media/$USER/LukeHDD2/BackupsP/$USER/
+            /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/BackupsP/Data/$USER/
+            $HOME/osu/ /run/media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
         Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
                /var/cache/pacman/aur/ /run/media/$USER/LukeHDD2/Backups/aur/)

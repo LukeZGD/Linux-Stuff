@@ -28,9 +28,11 @@ elif [ $launch == 10 ]; then
 elif [ $launch == 10.5 ]; then
     wine "$BASEDIR/Touhou 10.5 Hisouten ~ Scarlet Weather Rhapsody/th105e.exe"
 elif [ $launch == 11 ]; then
-    wine "$BASEDIR/Touhou 11 - Subterranean Animism/vpatch.exe"
+    cd "$BASEDIR/Touhou 11 - Subterranean Animism"
+    wine "$BASEDIR/Touhou 11 - Subterranean Animism/th11e.exe"
 elif [ $launch == 12 ]; then
-    wine "$BASEDIR/Touhou 12 - Undefined Fantastic Object/vpatch.exe"
+    cd "$BASEDIR/Touhou 12 - Undefined Fantastic Object"
+    wine "$BASEDIR/Touhou 12 - Undefined Fantastic Object/th12e.exe"
 elif [ $launch == 12.3 ]; then
     wine "$BASEDIR/Touhou 12.3 Hisoutensoku/th123e.exe"
 elif [ $launch == 12.5 ]; then
