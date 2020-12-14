@@ -40,9 +40,9 @@ function MainMenu {
 }
 
 function installstuff {
-    select opt in "Install AUR pkgs yay" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)" "Plymouth" "VMware Player install" "VMware Player update"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)" "Plymouth" "VMware Player install" "VMware Player update"; do
         case $opt in
-            "Install AUR pkgs yay" ) postinstall; break;;
+            "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) osu; break;;
             "Emulators" ) emulatorsinstall; break;;
@@ -111,7 +111,7 @@ function postinstallcomm {
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
-    ln -sf /mnt/Data/$USER/cache/yay
+    ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
     
     if [ $(which pacman-mirrors) ]; then
@@ -347,7 +347,7 @@ function Restoreuser {
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
-    ln -sf /mnt/Data/$USER/cache/yay
+    ln -sf /mnt/Data/$USER/cache/paru
 }
 
 function Plymouth {
@@ -377,9 +377,9 @@ echo "LukeZGD Arch Post-Install Script"
 echo "This script will assume that you have a working Internet connection"
 echo
 
-if [ ! $(which yay) ]; then
-    echo "No yay detected, installing yay"
-    installpac yay-bin
+if [ ! $(which paru) ]; then
+    echo "No paru detected, installing paru"
+    installpac paru-bin
     sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 fi
 

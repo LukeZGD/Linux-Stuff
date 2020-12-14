@@ -8,7 +8,7 @@ if [[ $1 == autoremove ]] || [[ $1 == autoremovec ]]; then
 elif [[ $1 == clean ]] || [[ $1 == cleanc ]]; then
     [[ $1 != cleanc ]] && noconfirm=--noconfirm
     if [[ $2 == all ]]; then 
-        yay -Sc $noconfirm
+        paru -Sc $noconfirm
     else
         sudo pacman -Sc $noconfirm
     fi
@@ -21,9 +21,9 @@ elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
         for package in ${@:3}; do
         [ -f $package ] && install+=($package)
         done
-        yay -U $noconfirm $needed ${install[@]}
+        paru -U $noconfirm $needed ${install[@]}
     else
-        yay -S $noconfirm $needed --answerclean None --sudoloop ${@:2}
+        paru -S $noconfirm $needed --sudoloop ${@:2}
     fi
     kernelI=$(pacman -Q linux-zen | awk '{print $2}' | cut -c -6 | tr -d .)
     kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
@@ -36,30 +36,30 @@ elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
     fi
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
-        yay -Q
+        paru -Q
     elif [[ $2 == upgrade ]]; then
-        yay -Qu
+        paru -Qu
     elif [[ ! -z $2 ]]; then
-        yay -Ql $2
+        paru -Ql $2
     else
-        yay -Qe
+        paru -Qe
     fi
 elif [[ $1 == query ]]; then
-    yay -Q ${@:2}
+    paru -Q ${@:2}
 elif [[ $1 == remove ]] || [[ $1 == removec ]]; then
     [[ $1 != removec ]] && noconfirm=--noconfirm
-    yay -R $noconfirm ${@:2}
+    paru -R $noconfirm ${@:2}
 elif [[ $1 == reflector ]]; then
     sudo systemctl start reflector
     systemctl status reflector
 elif [[ $1 == purge ]] || [[ $1 == purgec ]]; then
     [[ $1 != purgec ]] && noconfirm=--noconfirm
-    yay -Rsn $noconfirm ${@:2}
+    paru -Rsn $noconfirm ${@:2}
 elif [[ $1 == update ]]; then
-    yay -Sy
+    paru -Sy
 elif [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
     [[ $1 != upgradec ]] && noconfirm=--noconfirm
-    yay -Syu $noconfirm --answerclean None --sudoloop
+    paru -Syu $noconfirm --sudoloop
 else
     echo "Usage:  pac <operation>(c) [...]"
     echo "Operations:
