@@ -9,14 +9,20 @@ drirc='
     </application>
 </device>
 '
-[[ $USER == lukee ]] && outputs=(DVI-I-1 VGA-1 VGA-0 eDP1 eDP-1 eDP-1-1 HDMI1 HDMI-1 HDMI-1-1)
 
 function changeres {
-    [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
-    for output in "${outputs[@]}"; do
-        xrandr --output $output --mode $res --rate 74.98 2>/dev/null
-        [ $? == 1 ] && xrandr --output $output --mode $res 2>/dev/null
-    done
+    if [[ $USER == lukee ]]; then
+        outputs=(DVI-I-1 VGA-1 VGA-0 eDP1 eDP-1 eDP-1-1 HDMI1 HDMI-1 HDMI-1-1 HDMI-0)
+        [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
+        for output in "${outputs[@]}"; do
+            if [[ $res == 1440x900 ]]; then
+                xrandr --output $output --mode $res --rate 74.98 2>/dev/null
+                [ $? == 1 ] && xrandr --output $output --mode 1400x900 2>/dev/null
+            elif [[ $res == 1920x1080 ]]; then
+                xrandr --output $output --mode $res 2>/dev/null
+            fi
+        done
+    fi
 }
 
 function oss {
@@ -105,32 +111,29 @@ function install {
     default-fragments = 2
     default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
 
-    [ ! -e /usr/bin/osu ] && sudo cp $(dirname $(type -p $0))/osu.sh /usr/bin/osu
-    sudo chmod +x /usr/bin/osu
-
     mkdir $HOME/.config/pulse 2>/dev/null
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
     
-    sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
+    . /etc/os-release
+    [[ $ID == arch ]] && sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
     if [ -d $HOME/.wine_osu ]; then
         read -p "wine_osu folder detected! Delete and reinstall? (y/N) " Confirm
-        if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
-            exit
+        if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
+            rm -rf $HOME/.wine_osu
+            winetricks -q dotnet40 gdiplus
         fi
+        Confirm=
     fi
-    rm -rf $HOME/.wine_osu
-    
-    winetricks -q dotnet40 gdiplus
     
     mkdir $HOME/osu 2>/dev/null
     cd osu
-    read -p "Preparations complete. Download and install osu! now? (y/N) " osuDL
-    if [[ $osuDL == y ]] || [[ $osuDL == Y ]]; then
+    read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
+    if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
         wine "osuinstall.exe"
     fi
-    echo "Script done"
+    echo "Install script done"
 }
 
 if [[ $1 == "random" ]]; then

@@ -59,6 +59,7 @@ k3b
 kate
 kcalc
 kdegraphics-thumbnailers
+kfind
 kmix
 konsole
 kwalletmanager
@@ -102,6 +103,7 @@ htop
 jre8-openjdk
 krdc
 love
+obs-studio
 okular
 openssh
 maxcso

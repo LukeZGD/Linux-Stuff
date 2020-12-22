@@ -13,7 +13,6 @@ github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
 mystiq
-obs-studio-git
 partialzipbrowser-git
 qdirstat
 qsynth
@@ -306,10 +305,10 @@ function BackupRestore {
             /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/BackupsP/Data/$USER/
             $HOME/osu/ /run/media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
-        Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/Backups/pkg/
-               /var/cache/pacman/aur/ /run/media/$USER/LukeHDD2/Backups/aur/)
+        Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/BackupsP/pkg/
+               /var/cache/pacman/aur/ /run/media/$USER/LukeHDD2/BackupsP/aur/)
     elif [ $Mode == vm ]; then
-        Paths=($HOME/KVM/ /run/media/$USER/LukeHDD2/Backups/Data/KVM/)
+        Paths=($HOME/KVM/ /run/media/$USER/LukeHDD2/BackupsP/Data/KVM/)
     fi
     if [ $Action == Backup ]; then
         if [ $Mode == user ]; then
