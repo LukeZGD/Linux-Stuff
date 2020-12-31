@@ -1,1 +1,3 @@
 *.txt
+build/
+ltmain.sh

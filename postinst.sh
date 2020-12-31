@@ -13,13 +13,10 @@ github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
 mystiq
-partialzipbrowser-git
 qdirstat
 qsynth
 tartube
-teams
 ttf-wps-fonts
-ventoy-bin
 wps-office
 zoom
 )
@@ -43,7 +40,7 @@ function installstuff {
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
-            "osu!" ) osu; break;;
+            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) emulatorsinstall; break;;
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
@@ -88,6 +85,8 @@ function postinstallcomm {
     sudo modprobe ohci_hcd
     setxkbmap -layout us
     #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
+    sudo rm -rf /media
+    sudo ln -sf /run/media /media
     sudo ln -sf $BASEDIR/postinst.sh /usr/local/bin/postinst
     sudo ln -sf $BASEDIR/scripts/lgdutil.sh /usr/local/bin/lgdutil
     sudo ln -sf $BASEDIR/scripts/pac.sh /usr/local/bin/pac
@@ -198,11 +197,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-    pac install cemu citra-canary-git dolphin-emu fceux melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin
-}
-
-function osu {
-    $BASEDIR/scripts/osu.sh install
+    pac install cemu citra-canary-git dolphin-emu mednafen mednaffe melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin
 }
 
 function devkitPro {
@@ -301,20 +296,20 @@ function BackupRestore {
         esac
     done
     if [ $Mode == user ]; then
-        Paths=($HOME/ /run/media/$USER/LukeHDD2/BackupsP/$USER/
-            /mnt/Data/$USER/ /run/media/$USER/LukeHDD2/BackupsP/Data/$USER/
-            $HOME/osu/ /run/media/$USER/LukeHDD2/BackupsP/Data/osu/)
+        Paths=($HOME/ /media/$USER/LukeHDD2/BackupsP/$USER/
+            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/)
+            #$HOME/osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
-        Paths=(/var/cache/pacman/pkg/ /run/media/$USER/LukeHDD2/BackupsP/pkg/
-               /var/cache/pacman/aur/ /run/media/$USER/LukeHDD2/BackupsP/aur/)
+        Paths=(/var/cache/pacman/pkg/ /media/$USER/LukeHDD2/BackupsP/pkg/
+               /var/cache/pacman/aur/ /media/$USER/LukeHDD2/BackupsP/aur/)
     elif [ $Mode == vm ]; then
-        Paths=($HOME/KVM/ /run/media/$USER/LukeHDD2/BackupsP/Data/KVM/)
+        Paths=($HOME/KVM/ /media/$USER/LukeHDD2/BackupsP/Data/KVM/)
     fi
     if [ $Action == Backup ]; then
         if [ $Mode == user ]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
         RSYNC ${Paths[2]} ${Paths[3]}
-        RSYNC ${Paths[4]} ${Paths[5]}
+        #RSYNC ${Paths[4]} ${Paths[5]}
         elif [ $Mode == pac ]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         RSYNC ${Paths[2]} ${Paths[3]}
@@ -344,9 +339,9 @@ function Restoreuser {
     RSYNC ${Paths[3]} ${Paths[2]}
     RSYNC ${Paths[5]} ${Paths[4]}
     cd $HOME/.cache
-    ln -sf /mnt/Data/$USER/cache/wine
-    ln -sf /mnt/Data/$USER/cache/winetricks
-    ln -sf /mnt/Data/$USER/cache/paru
+    #ln -sf /mnt/Data/$USER/cache/wine
+    #ln -sf /mnt/Data/$USER/cache/winetricks
+    #ln -sf /mnt/Data/$USER/cache/paru
 }
 
 function Plymouth {
@@ -371,15 +366,23 @@ function vmwareu {
 
 # ----------------------------------
 
-clear
-echo "LukeZGD Arch Post-Install Script"
-echo "This script will assume that you have a working Internet connection"
-echo
-
-if [ ! $(which paru) ]; then
-    echo "No paru detected, installing paru"
-    installpac paru-bin
-    sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+. /etc/os-release
+if [ -z $UBUNTU_CODENAME ]; then
+    clear
+    echo "LukeZGD Arch Post-Install Script"
+    echo "This script will assume that you have a working Internet connection"
+    echo
+    if [ ! $(which paru) ]; then
+        echo "No paru detected, installing paru"
+        installpac paru-bin
+        sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+    fi
+elif [[ $1 != BackupRestore ]]; then
+    echo "Warning: Not an Arch system!"
 fi
 
-MainMenu
+if [[ $1 == BackupRestore ]]; then
+    BackupRestore
+else
+    MainMenu
+fi

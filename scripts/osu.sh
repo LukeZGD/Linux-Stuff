@@ -110,7 +110,10 @@ function install {
 
     default-fragments = 2
     default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
-
+    
+    [ ! -e /usr/local/bin/osu ] && sudo cp $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
+    sudo chmod +x /usr/local/bin/osu
+    
     mkdir $HOME/.config/pulse 2>/dev/null
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa

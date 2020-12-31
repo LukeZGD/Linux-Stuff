@@ -63,6 +63,7 @@ kfind
 kmix
 konsole
 kwalletmanager
+spectacle
 )
 
 pacmanpkgs2=(
@@ -92,18 +93,17 @@ kate
 kdenlive
 lame
 mpv
+obs-studio
 okteta
 viewnior
 
 firefox
-flameshot
 gnome-keyring
 gsmartcontrol
 htop
 jre8-openjdk
 krdc
 love
-obs-studio
 okular
 openssh
 maxcso
@@ -120,7 +120,7 @@ xdg-desktop-portal-kde
 youtube-dl
 
 lutris
-wine-staging
+wine
 winetricks
 )
 
@@ -131,7 +131,7 @@ function grubinstall {
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
     swapuuid=$(findmnt -no UUID -T /swapfile)
-    swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    swapoffset=$(filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
     swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of root $rootpart: $rootuuid"
     echo "[Log] Got UUID of swap $swappart: $swapuuid"
