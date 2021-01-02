@@ -30,16 +30,5 @@ cd img4tool && ./autogen.sh --enable-static --disable-shared && make && sudo mak
 cd partialZipBrowser && ./autogen.sh && make && sudo make install && cd ..
 cd tsschecker && ./autogen.sh && make && sudo make install && cd ..
 cd futurerestore  && ./autogen.sh && make && sudo make install && cd ..
-cd /usr/local/bin
-sudo mkdir bin
-sudo mv futurerestore bin/futurerestore
-sudo mv idevicerestore bin/idevicerestore
-sudo mv tsschecker bin/tsschecker
-echo '#!/bin/sh
-LD_LIBRARY_PATH=/usr/local/lib /usr/local/bin/bin/futurerestore $@; exit $?' | sudo tee futurerestore
-echo '#!/bin/sh
-LD_LIBRARY_PATH=/usr/local/lib /usr/local/bin/bin/idevicerestore $@; exit $?' | sudo tee idevicerestore
-echo '#!/bin/sh
-LD_LIBRARY_PATH=/usr/local/lib /usr/local/bin/bin/tsschecker $@; exit $?' | sudo tee tsschecker
-sudo chmod +x futurerestore idevicerestore tsschecker
+sudo ldconfig
 echo "Done" 
