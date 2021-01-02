@@ -15,6 +15,7 @@ masterpdfeditor-free
 mystiq
 qdirstat
 qsynth
+qview
 tartube
 ttf-wps-fonts
 wps-office
@@ -367,7 +368,7 @@ function vmwareu {
 # ----------------------------------
 
 . /etc/os-release
-if [ -z $UBUNTU_CODENAME ]; then
+if [[ -z $UBUNTU_CODENAME ]] && [[ $ID != fedora ]]; then
     clear
     echo "LukeZGD Arch Post-Install Script"
     echo "This script will assume that you have a working Internet connection"

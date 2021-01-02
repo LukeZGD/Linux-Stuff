@@ -42,4 +42,4 @@ _EOF_SCRIPT
 chmod +x update_winetricks
 
 # We must escalate privileges to root, as regular Linux users do not have write access to '/usr/bin'.
-sudo mv update_winetricks /usr/bin/
+sudo mv update_winetricks /usr/local/bin

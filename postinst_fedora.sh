@@ -11,7 +11,9 @@ fish
 gimp
 git
 gnome-disk-utility
+google-noto-sans-fonts
 gparted
+hplip
 kate
 kdenlive
 java-11-openjdk
@@ -86,7 +88,7 @@ function vbox {
 }
 
 function wine {
-    sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/33/winehq.repo
+    sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract winehq-stable
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks

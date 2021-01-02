@@ -26,7 +26,7 @@ function changeres {
 }
 
 function oss {
-    changeres 900
+    #changeres 900
     if [[ $1 == "lazer" ]]; then
         $HOME/osu/osu.AppImage
     else
@@ -37,7 +37,7 @@ function oss {
         wineserver -k
         rm -f $HOME/.drirc
     fi
-    changeres
+    #changeres
 }
 
 function random {
@@ -127,6 +127,8 @@ function install {
             winetricks -q dotnet40 gdiplus
         fi
         Confirm=
+    else
+        winetricks -q dotnet40 gdiplus
     fi
     
     mkdir $HOME/osu 2>/dev/null

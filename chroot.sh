@@ -95,7 +95,6 @@ lame
 mpv
 obs-studio
 okteta
-viewnior
 
 firefox
 gnome-keyring
