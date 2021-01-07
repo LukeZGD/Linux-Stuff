@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# to be put in /lib/systemd/system-sleep
+# workaround for system76-power issue #74
+case $1 in
+  post)
+    if [ $(/usr/bin/system76-power graphics) == "integrated" ]; then 
+     /usr/bin/system76-power graphics power off;
+    fi
+    ;;
+esac

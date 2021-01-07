@@ -69,6 +69,6 @@ elif [ $launch == 1 ] || [ $launch == 2 ] || [ $launch == 3 ] || [ $launch == 4 
     sed -i 's|DISK02=|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
     wine "$BASEDIR/Touhou PC-98/Next.exe"
     sed -i 's|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|DISK02=|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
-else
+elif [ ! -z $launch ]; then
     kdialog --sorry "Invalid number!" --title "Touhou Launcher"
 fi

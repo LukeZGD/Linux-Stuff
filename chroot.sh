@@ -57,7 +57,6 @@ ark
 dolphin
 k3b
 kate
-kcalc
 kdegraphics-thumbnailers
 kfind
 kmix
@@ -97,10 +96,11 @@ obs-studio
 okteta
 
 firefox
+gnome-calculator
 gnome-keyring
 gsmartcontrol
 htop
-jre8-openjdk
+jre11-openjdk
 krdc
 love
 okular
@@ -263,7 +263,7 @@ echo "[Log] Creating /etc/hostname"
 echo $hostname > /etc/hostname
 read -p "[Input] Enter username: " username
 echo "[Log] Creating user $username"
-useradd -m -g users -G audio,optical,storage,wheel -s /usr/bin/fish $username
+useradd -m -g users -G audio,optical,storage,wheel -s /bin/bash $username
 echo "[Log] Running passwd $username"
 passwd $username
 echo "[Log] Running visudo"

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 packages=(
-audacious
-audacious-plugins
+ark
 audacity
 ffmpegthumbs
 fish
@@ -11,27 +10,28 @@ git
 gnome-disk-utility
 gparted
 kate
-kcalc
+kde-spectacle
 kdenlive
 kfind
+kdialog
 neofetch
-network-manager-openvpn
-obs-studio
 okteta
-openjdk-8-jre
-openvpn
+okular
+openjdk-11-jre
+plasma-nm
 qbittorrent
 qdirstat
-resolvconf
 samba
 simple-scan
-winetricks
+unrar-free
 )
 
 flatpkgs=(
 com.interversehq.qView
+com.obsproject.Studio
 com.wps.Office
-us.zoom.Zoom
+org.atheme.audacious
+org.gtk.Gtk3theme.Breeze
 )
 
 flatemus=(
@@ -68,10 +68,10 @@ function installstuff {
 }
 
 function nvidia {
-    select opt in "NVIDIA Optimus+TLP" "NVIDIA 390xx"; do
+    select opt in "NVIDIA 455" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA Optimus+TLP" ) sudo apt install -y nvidia-driver-450 libnvidia-gl-450:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386 tlp; break;;
-            "NVIDIA 390xx" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
+            "NVIDIA 455" ) sudo apt install -y nvidia-driver-455 libnvidia-gl-455:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
+            "NVIDIA 390" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
         esac
     done
 }
@@ -82,8 +82,8 @@ function pipinstall {
 }
 
 function emulatorsinstall {
-    flatpak install -y flathub ${flatemus[*]}
-    sudo apt install -y mednafen
+    sudo flatpak install -y flathub ${flatemus[*]}
+    sudo apt install -y libqt5websockets5 libsdl2-net-2.0-0 mednafen
 }
 
 function vbox {
@@ -96,31 +96,58 @@ function wine {
     wget -nc https://dl.winehq.org/wine-builds/winehq.key
     sudo apt-key add winehq.key
     rm winehq.key
-    sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' 
+    sudo add-apt-repository -y "deb https://dl.winehq.org/wine-builds/ubuntu/ $(lsb_release -c | awk '{print $2}') main"
     sudo apt update
-    sudo apt install -y --install-recommends winehq-stable
+    sudo apt install -y --install-recommends winehq-stable winetricks
     winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
+    cd $HOME/.wine/drive_c/users/$USER
+    rm -rf AppData 'Application Data'
+    ln -sf $HOME/AppData
+    ln -sf $HOME/AppData 'Application Data'
 }
 
 function postinstall {
     sudo dpkg --add-architecture i386
-    sudo apt purge -y gwenview kdeconnect kwrite snapd vlc
+    #sudo apt purge -y gwenview kdeconnect kwrite snapd vlc
+    sudo apt purge -y eog evince file-roller geary gedit kcalc kdeconnect kwrite snapd totem
+    sudo apt-get purge -y libreoffice*
     sudo apt autoremove -y
 
-    sudo add-apt-repository -y ppa:obsproject/obs-studio
-    sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
+    #sudo add-apt-repository -y ppa:obsproject/obs-studio
+    #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo apt update
     sudo apt dist-upgrade -y
     
     sudo apt install -y ${packages[*]}
     sudo apt install -y --no-install-recommends mpv
+    flatpak remote-delete flathub
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    flatpak install -y flathub ${flatpkgs[*]}
+    sudo flatpak install -y flathub ${flatpkgs[*]}
     
     sudo dpkg -i $HOME/Documents/Packages/*.deb
     sudo apt install -yf
     
     sudo ln -sf $HOME/Arch-Stuff/postinst_ubuntu.sh /usr/local/bin/postinst
+    
+    sudo modprobe bfq
+    echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
+    ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
+    echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
+    
+    echo 'HandlePowerKey=suspend-then-hibernate
+HandleLidSwitch=suspend-then-hibernate
+HandleLidSwitchExternalPower=suspend-then-hibernate
+HandleLidSwitchDocked=suspend-then-hibernate
+IdleAction=suspend-then-hibernate
+IdleActionSec=15min
+HibernateDelaySec=10800' | sudo tee -a /etc/systemd/logind.conf
+    sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep
+    
+    echo "fish" | tee -a $HOME/.bashrc
+    
+    read -p "[Input] Enable hibernation? (y/N) " Hibernate
+    [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
     
     sudo apt install -y hibernate pm-utils
     clear
@@ -133,12 +160,6 @@ function postinstall {
     echo "[Log] Run grub-mkconfig"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
     
-    sudo modprobe bfq
-    echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
-    ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
-    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
-    echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
-    
     sudo bash -c 'cat > /etc/polkit-1/localauthority/50-local.d/com.ubuntu.enable-hibernate.pkla << EOF
 [Re-enable hibernate by default in upower]
 Identity=unix-user:*
@@ -150,6 +171,9 @@ Identity=unix-user:*
 Action=org.freedesktop.login1.hibernate;org.freedesktop.login1.handle-hibernate-key;org.freedesktop.login1;org.freedesktop.login1.hibernate-multiple-sessions;org.freedesktop.login1.hibernate-ignore-inhibit
 ResultActive=yes
 EOF'
+    #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-power-key -n -t bool -s true
+    #xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -n -t bool -s true
+    #xfconf-query -c xfwm4 -p /general/mousewheel_rollup -s false
 }
 
 # ----------------------------------

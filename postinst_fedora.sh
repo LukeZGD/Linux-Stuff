@@ -10,6 +10,7 @@ ffmpegthumbs
 fish
 gimp
 git
+gnome-calculator
 gnome-disk-utility
 google-noto-sans-fonts
 gparted
@@ -78,7 +79,7 @@ function pipinstall {
 }
 
 function emulatorsinstall {
-    flatpak install -y flathub ${flatemus[*]}
+    sudo flatpak install -y flathub ${flatemus[*]}
     sudo dnf install -y mednafen
 }
 
@@ -97,7 +98,7 @@ function wine {
 
 function postinstall {
     echo "fastestmirror=1" | sudo tee -a /etc/dnf/dnf.conf
-    sudo dnf remove -y akregator calligra-* dragon kaddressbook kamoso kdeconnect kf5-ktnef kget kmahjongg kmail kmines kmouth kolourpaint konversation korganizer kpat kruler krusader ktorrent kwrite juk
+    sudo dnf remove -y akregator calligra-* dragon kaddressbook kamoso kcalc kdeconnect kf5-ktnef kget kmahjongg kmail kmines kmouth kolourpaint konversation korganizer kpat kruler krusader ktorrent kwrite juk
     sudo dnf autoremove -y
     
     sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
@@ -105,7 +106,7 @@ function postinstall {
     
     sudo dnf install -y ${packages[*]}
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    flatpak install -y flathub ${flatpkgs[*]}
+    sudo flatpak install -y flathub ${flatpkgs[*]}
     
     sudo dnf install -y $HOME/Documents/Packages/*.rpm
     

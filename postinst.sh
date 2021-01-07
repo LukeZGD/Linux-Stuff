@@ -152,6 +152,8 @@ function postinstallcomm {
     follow symlinks = yes
     wide links = yes" | sudo tee /etc/samba/smb.conf
     sudo systemctl enable --now input-veikk-startup nmb smb
+    
+    echo "fish" | tee -a $HOME/.bashrc
 }
 
 function adduser {
@@ -264,6 +266,11 @@ function RSYNC {
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
+          --exclude '.bash_history' --exclude '.bash_logout' --exclude '.bashrc' \
+          --exclude '.gitconfig' --exclude '.gtkrc-2.0' \
+          --exclude '.nvidia-settings-rc' --exclude '.pam_environment' \
+          --exclude '.profile' --exclude '.sudo_as_admin_successful' \
+          --exclude '.Xauthority' --exclude '.xsession-errors' \
           --exclude 'KVM' --exclude 'VirtualBox VMs' \
           --exclude '.Genymobile/Genymotion/deployed' \
           --exclude '.config/GitHub Desktop/Cache' \
@@ -273,7 +280,8 @@ function RSYNC {
           --exclude '.config/chromium/Default/File System' \
           --exclude '.config/chromium/Default/Service Worker/CacheStorage' \
           --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
-          --exclude '.local/share/baloo' --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
+          --exclude '.local/share/baloo' --exclude '.local/share/flatpak' \
+          --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
           --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' $1 $2
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
