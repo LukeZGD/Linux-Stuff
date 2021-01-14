@@ -27,31 +27,33 @@ function changeres {
 
 function oss {
     #changeres 900
+    qdbus org.kde.KWin /Compositor suspend
     if [[ $1 == "lazer" ]]; then
-        $HOME/osu/osu.AppImage
+        $HOME/.osu/osu.AppImage
     else
         echo "$drirc" > $HOME/.drirc
         wineserver -k
-        cd $HOME/osu
+        cd $HOME/.osu
         wine osu!.exe "$@"
         wineserver -k
         rm -f $HOME/.drirc
     fi
+    qdbus org.kde.KWin /Compositor resume
     #changeres
 }
 
 function random {
     mapno=$1
     [[ ! $1 ]] && mapno=4
-    cd $HOME/osu
+    cd $HOME/.osu
     for i in $(seq 1 $mapno); do
-        wine osu!.exe "$HOME/osu/oss/$(ls $HOME/osu/oss/ | shuf -n 1)"
+        wine osu!.exe "$HOME/.osu/oss/$(ls $HOME/.osu/oss/ | shuf -n 1)"
     done
 }
 
 function remove {
-    ls $HOME/osu/oss/ | sed -e 's/\.osz$//' | tee osslist
-    ls $HOME/osu/Songs | tee osulist
+    ls $HOME/.osu/oss/ | sed -e 's/\.osz$//' | tee osslist
+    ls $HOME/.osu/Songs | tee osulist
     ossremoved=$(comm -12 osslist osulist)
     sed 's/$/.osz/' $ossremoved
     sed 's/^/oss\//' $ossremoved
@@ -61,7 +63,7 @@ function remove {
 }
 
 function update {
-    cd $HOME/osu
+    cd $HOME/.osu
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
     current=$(cat osu.AppImage.version 2>/dev/null)
     [ ! $current ] && current='N/A'
@@ -74,14 +76,23 @@ function update {
         [[ $continue != y ]] && [[ $continue != Y ]] && exit
         mkdir tmp 2>/dev/null
         cd tmp
-        echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
-        [ ! -e osu.AppImage ] && echo "Update failed" && exit
-        rm -f ../osu.AppImage*
-        mv osu.AppImage* ..
+        if [ ! -e osu.AppImage ]; then
+            echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
+            [ ! -e osu.AppImage ] && echo "Update failed" && exit
+            rm -f ../osu.AppImage*
+            mv osu.AppImage* ..
+        else
+            echo "$osuapi" | grep "/osu.AppImage.zsync" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
+            [ $? != 0 ] && echo "Update failed" && exit
+            rm -f ../osu.AppImage.zsync
+            mv osu.AppImage.zsync ..
+        fi
         cd ..
         rm -rf tmp
+        zsync osu.AppImage.zsync
         chmod +x osu.AppImage
         echo "$latest" > osu.AppImage.version
+        
         echo "Updated osu!lazer to $latest"
     else
         echo "Currently updated, nothing to do"
@@ -91,10 +102,12 @@ function update {
 }
 
 function install {
+    : '
     sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
     echo "@audio - nice -20
     @audio - rtprio 99" | sudo tee /etc/security/limits.conf
     sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
+    
     echo "high-priority = yes
     nice-level = -15
 
@@ -111,12 +124,13 @@ function install {
     default-fragments = 2
     default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
     
-    [ ! -e /usr/local/bin/osu ] && sudo cp $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
-    sudo chmod +x /usr/local/bin/osu
-    
     mkdir $HOME/.config/pulse 2>/dev/null
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
+    '
+    
+    [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
+    sudo chmod +x /usr/local/bin/osu
     
     . /etc/os-release
     [[ $ID == arch ]] && sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
@@ -125,14 +139,16 @@ function install {
         if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
             rm -rf $HOME/.wine_osu
             winetricks -q dotnet40 gdiplus
+            winetricks sound=alsa
         fi
         Confirm=
     else
         winetricks -q dotnet40 gdiplus
+        winetricks sound=alsa
     fi
     
-    mkdir $HOME/osu 2>/dev/null
-    cd osu
+    mkdir $HOME/.osu 2>/dev/null
+    cd $HOME/.osu
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
     if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe

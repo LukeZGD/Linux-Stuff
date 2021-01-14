@@ -117,6 +117,7 @@ testdisk
 xdg-desktop-portal
 xdg-desktop-portal-kde
 youtube-dl
+zsync
 
 lutris
 wine

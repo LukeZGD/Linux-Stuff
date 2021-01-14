@@ -77,7 +77,7 @@ function postinstall {
 }
 
 function postinstallcomm {
-    PackagesDir=$HOME/Documents/Packages
+    PackagesDir=$HOME/Programs/Packages
     [ ! -e $PackagesDir/ttf-packages.zip ] && curl -L https://github.com/LukeZGD/Arch-Stuff/releases/download/stuff/ttf-packages.zip -o $PackagesDir/ttf-packages.zip
     unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
     sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
@@ -200,7 +200,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-    pac install cemu citra-canary-git dolphin-emu mednafen mednaffe melonds-git mgba-qt pcsx2 ppsspp rpcs3-bin
+    pac install cemu dolphin-emu m64p mgba-qt nestopia pcsx2 ppsspp rpcs3-bin snes9x-gtk
 }
 
 function devkitPro {
@@ -275,7 +275,7 @@ function RSYNC {
           --exclude '.Genymobile/Genymotion/deployed' \
           --exclude '.config/GitHub Desktop/Cache' \
           --exclude 'Windows7' --exclude 'Windows10' \
-          --exclude 'osu' --exclude '.cache' --exclude '.ccache' \
+          --exclude '.osu' --exclude '.cache' --exclude '.ccache' \
           --exclude '.cemu/wine' --exclude '.config/Caprine' \
           --exclude '.config/chromium/Default/File System' \
           --exclude '.config/chromium/Default/Service Worker/CacheStorage' \
@@ -306,8 +306,8 @@ function BackupRestore {
     done
     if [ $Mode == user ]; then
         Paths=($HOME/ /media/$USER/LukeHDD2/BackupsP/$USER/
-            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/)
-            #$HOME/osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
+            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/
+            $HOME/.osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
         Paths=(/var/cache/pacman/pkg/ /media/$USER/LukeHDD2/BackupsP/pkg/
                /var/cache/pacman/aur/ /media/$USER/LukeHDD2/BackupsP/aur/)
@@ -318,7 +318,7 @@ function BackupRestore {
         if [ $Mode == user ]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
         RSYNC ${Paths[2]} ${Paths[3]}
-        #RSYNC ${Paths[4]} ${Paths[5]}
+        RSYNC ${Paths[4]} ${Paths[5]}
         elif [ $Mode == pac ]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         RSYNC ${Paths[2]} ${Paths[3]}

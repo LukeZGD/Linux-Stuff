@@ -3,38 +3,46 @@
 packages=(
 ark
 audacity
+cups-pdf
 ffmpegthumbs
 fish
 gimp
 git
 gnome-disk-utility
 gparted
+kamoso
 kate
 kde-spectacle
 kdenlive
 kfind
 kdialog
+libjsoncpp1
+libqt5websockets5
+libsdl2-net-2.0-0
 neofetch
 okteta
 okular
 openjdk-11-jre
+pavucontrol
 plasma-nm
+python-is-python3
 qbittorrent
 qdirstat
 samba
 simple-scan
 unrar-free
+zsync
 )
 
 flatpkgs=(
 com.interversehq.qView
-com.obsproject.Studio
-com.wps.Office
 org.atheme.audacious
 org.gtk.Gtk3theme.Breeze
 )
 
 flatemus=(
+ca._0ldsk00l.Nestopia
+com.snes9x.Snes9x
 io.mgba.mGBA
 net.kuribo64.melonDS
 net.pcsx2.PCSX2
@@ -50,27 +58,37 @@ function MainMenu {
             "pip install/update" ) pipinstall; break;;
             "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
             "NVIDIA" ) nvidia; break;;
-        * ) exit;;
-        esac
-    done
-}
-
-function installstuff {
-    select opt in "VirtualBox" "wine" "osu!" "Emulators"; do
-        case $opt in
-            "VirtualBox" ) vbox; break;;
-            "wine" ) wine; break;;
-            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) emulatorsinstall; break;;
             * ) exit;;
         esac
     done
 }
 
-function nvidia {
-    select opt in "NVIDIA 455" "NVIDIA 390"; do
+function installstuff {
+    select opt in "VirtualBox" "wine" "osu!" "Emulators" "system76-power"; do
         case $opt in
-            "NVIDIA 455" ) sudo apt install -y nvidia-driver-455 libnvidia-gl-455:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
+            "VirtualBox" ) vbox; break;;
+            "wine" ) wine; break;;
+            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+            "Emulators" ) emulatorsinstall; break;;
+            "system76-power" ) system76power; break;;
+            * ) exit;;
+        esac
+    done
+}
+
+function system76power {
+    sudo apt-add-repository -y ppa:system76-dev/stable
+    sudo apt update
+    sudo apt dist-upgrade -y
+    sudo apt autoremove -y
+    sudo apt install -y system76-power tlp
+    sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep/
+}
+
+function nvidia {
+    select opt in "NVIDIA 460" "NVIDIA 390"; do
+        case $opt in
+            "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
             "NVIDIA 390" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
         esac
     done
@@ -83,13 +101,20 @@ function pipinstall {
 
 function emulatorsinstall {
     sudo flatpak install -y flathub ${flatemus[*]}
-    sudo apt install -y libqt5websockets5 libsdl2-net-2.0-0 mednafen
 }
 
 function vbox {
-    sudo apt install -y virtualbox virtualbox-ext-pack virtualbox-guest-additions-iso
+    sudo apt install -y virtualbox virtualbox-guest-additions-iso
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
+    vboxversion=$(curl -L https://download.virtualbox.org/virtualbox/LATEST-STABLE.TXT)
+    vboxextpack="Oracle_VM_VirtualBox_Extension_Pack-$vboxversion.vbox-extpack"
+    wget https://www.virtualbox.org/download/hashes/$vboxversion/SHA256SUMS
+    wget https://download.virtualbox.org/virtualbox/$vboxversion/$vboxextpack
+    sha256sum -c --ignore-missing SHA256SUMS
+    [ $? != 0 ] && echo "Failed" && rm $vboxextpack SHA256SUMS && exit
+    sudo VBoxManage extpack install --replace $vboxextpack
+    rm $vboxextpack SHA256SUMS
 }
 
 function wine {
@@ -98,7 +123,9 @@ function wine {
     rm winehq.key
     sudo add-apt-repository -y "deb https://dl.winehq.org/wine-builds/ubuntu/ $(lsb_release -c | awk '{print $2}') main"
     sudo apt update
-    sudo apt install -y --install-recommends winehq-stable winetricks
+    sudo apt install -y winehq-stable cabextract fuseiso libmspack0
+    $HOME/Arch-Stuff/scripts/winetricks.sh
+    update_winetricks
     winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
@@ -108,23 +135,23 @@ function wine {
 
 function postinstall {
     sudo dpkg --add-architecture i386
-    #sudo apt purge -y gwenview kdeconnect kwrite snapd vlc
-    sudo apt purge -y eog evince file-roller geary gedit kcalc kdeconnect kwrite snapd totem
+    sudo apt purge -y eog evince file-roller geary gedit gwenview kcalc kdeconnect kwrite snapd totem vlc
     sudo apt-get purge -y libreoffice*
     sudo apt autoremove -y
 
-    #sudo add-apt-repository -y ppa:obsproject/obs-studio
+    sudo add-apt-repository -y ppa:obsproject/obs-studio
     #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo apt update
     sudo apt dist-upgrade -y
     
     sudo apt install -y ${packages[*]}
     sudo apt install -y --no-install-recommends mpv
+    sudo apt install -y obs-studio
     flatpak remote-delete flathub
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak install -y flathub ${flatpkgs[*]}
     
-    sudo dpkg -i $HOME/Documents/Packages/*.deb
+    sudo dpkg -i $HOME/Programs/Packages/*.deb
     sudo apt install -yf
     
     sudo ln -sf $HOME/Arch-Stuff/postinst_ubuntu.sh /usr/local/bin/postinst

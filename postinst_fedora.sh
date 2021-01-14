@@ -29,10 +29,13 @@ simple-scan
 
 flatpkgs=(
 com.interversehq.qView
-com.wps.Office
+org.atheme.audacious
+org.gtk.Gtk3theme.Breeze
 )
 
 flatemus=(
+ca._0ldsk00l.Nestopia
+com.snes9x.Snes9x
 io.mgba.mGBA
 net.kuribo64.melonDS
 net.pcsx2.PCSX2
@@ -48,7 +51,7 @@ function MainMenu {
             "pip install/update" ) pipinstall; break;;
             "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
             "NVIDIA" ) nvidia; break;;
-        * ) exit;;
+            * ) exit;;
         esac
     done
 }
@@ -80,7 +83,6 @@ function pipinstall {
 
 function emulatorsinstall {
     sudo flatpak install -y flathub ${flatemus[*]}
-    sudo dnf install -y mednafen
 }
 
 function vbox {
@@ -108,7 +110,7 @@ function postinstall {
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak install -y flathub ${flatpkgs[*]}
     
-    sudo dnf install -y $HOME/Documents/Packages/*.rpm
+    sudo dnf install -y $HOME/Programs/Packages/*.rpm
     
     sudo ln -sf $HOME/Arch-Stuff/postinst_fedora.sh /usr/local/bin/postinst
     sudo rm -rf /media
