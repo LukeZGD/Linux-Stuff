@@ -1,42 +1,50 @@
 #!/bin/bash
 
 packages=(
-ark
+audacious
+audacious-plugins
 audacity
-cups-pdf
-ffmpegthumbs
-fish
 gimp
-git
-gnome-disk-utility
-gparted
+mpv
+
+ark
+ffmpegthumbs
 kamoso
 kate
 kde-spectacle
 kdenlive
 kfind
 kdialog
+
+gnome-disk-utility
+gparted
+okteta
+okular
+persepolis
+qbittorrent
+qdirstat
+simple-scan
+
+cups-pdf
+fish
+git
+htop
 libjsoncpp1
 libqt5websockets5
 libsdl2-net-2.0-0
 neofetch
-okteta
-okular
 openjdk-11-jre
 pavucontrol
 plasma-nm
-python-is-python3
-qbittorrent
-qdirstat
+printer-driver-gutenprint
 samba
-simple-scan
 unrar-free
+v4l2loopback-dkms
 zsync
 )
 
 flatpkgs=(
 com.interversehq.qView
-org.atheme.audacious
 org.gtk.Gtk3theme.Breeze
 )
 
@@ -86,9 +94,9 @@ function system76power {
 }
 
 function nvidia {
-    select opt in "NVIDIA 460" "NVIDIA 390"; do
+    select opt in "NVIDIA 450" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
+            "NVIDIA 450" ) sudo apt install -y --no-install-recommends nvidia-driver-450 nvidia-settings libnvidia-gl-450:i386 libnvidia-compute-450:i386 libnvidia-decode-450:i386 libnvidia-encode-450:i386 libnvidia-ifr1-450:i386 libnvidia-fbc1-450:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
             "NVIDIA 390" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
         esac
     done
@@ -140,12 +148,13 @@ function postinstall {
     sudo apt autoremove -y
 
     sudo add-apt-repository -y ppa:obsproject/obs-studio
-    #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
+    sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
+    sudo add-apt-repository -y ppa:persepolis/ppa
     sudo apt update
     sudo apt dist-upgrade -y
     
     sudo apt install -y ${packages[*]}
-    sudo apt install -y --no-install-recommends mpv
+    sudo apt install -y --no-install-recommends gnome-calculator
     sudo apt install -y obs-studio
     flatpak remote-delete flathub
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -162,6 +171,7 @@ function postinstall {
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
     
+    : "
     echo 'HandlePowerKey=suspend-then-hibernate
 HandleLidSwitch=suspend-then-hibernate
 HandleLidSwitchExternalPower=suspend-then-hibernate
@@ -169,6 +179,13 @@ HandleLidSwitchDocked=suspend-then-hibernate
 IdleAction=suspend-then-hibernate
 IdleActionSec=15min
 HibernateDelaySec=10800' | sudo tee -a /etc/systemd/logind.conf
+    "
+    echo 'HandlePowerKey=suspend
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
+HandleLidSwitchDocked=suspend
+IdleAction=suspend
+IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep
     
     echo "fish" | tee -a $HOME/.bashrc

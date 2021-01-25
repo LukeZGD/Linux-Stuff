@@ -167,7 +167,9 @@ elif [[ $1 == "lazer" ]]; then
     oss lazer
 elif [[ $1 == "kill" ]]; then
     wineserver -k
-    changeres
+    rm -f $HOME/.drirc
+    qdbus org.kde.KWin /Compositor resume
+    #changeres
     exit
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"

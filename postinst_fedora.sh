@@ -15,6 +15,7 @@ gnome-disk-utility
 google-noto-sans-fonts
 gparted
 hplip
+htop
 kate
 kdenlive
 java-11-openjdk

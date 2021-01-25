@@ -121,7 +121,7 @@ function postinstallcomm {
         sudo $BASEDIR/chroot.sh
     fi
     
-    pac install dxvk-bin fish lutris nano-syntax-highlighting wine-staging wine-gecko-bin wine-mono-bin winetricks
+    pac install dxvk-bin fish lutris nano-syntax-highlighting wine winetricks
     
     winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
     #setup_dxvk install

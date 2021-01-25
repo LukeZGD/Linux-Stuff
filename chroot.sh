@@ -308,8 +308,9 @@ echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend
 HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
+HandleLidSwitchDocked=suspend
 IdleAction=suspend
-IdleActionSec=30min' | tee -a /etc/systemd/logind.conf
+IdleActionSec=15min' | tee -a /etc/systemd/logind.conf
 
 echo "[Log] reflector service"
 echo '[Unit]
