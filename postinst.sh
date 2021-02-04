@@ -6,13 +6,14 @@ checkra1n-cli
 gconf
 libirecovery-git
 ncurses5-compat-libs
-etcher-cli-bin
+etcher-bin
 f3-qt-git
 gallery-dl
 github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
 mystiq
+opentabletdriver-git
 qdirstat
 qsynth
 qview
@@ -77,11 +78,6 @@ function postinstall {
 }
 
 function postinstallcomm {
-    PackagesDir=$HOME/Programs/Packages
-    [ ! -e $PackagesDir/ttf-packages.zip ] && curl -L https://github.com/LukeZGD/Arch-Stuff/releases/download/stuff/ttf-packages.zip -o $PackagesDir/ttf-packages.zip
-    unzip $PackagesDir/ttf-packages.zip -d $PackagesDir
-    sudo pacman -U --noconfirm --needed $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst #for veikk driver and fonts
-    rm -f $PackagesDir/*.xz $PackagesDir/*.gz $PackagesDir/*.zst
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
     setxkbmap -layout us
@@ -376,8 +372,8 @@ function vmwareu {
 # ----------------------------------
 
 . /etc/os-release
+clear
 if [[ -z $UBUNTU_CODENAME ]] && [[ $ID != fedora ]]; then
-    clear
     echo "LukeZGD Arch Post-Install Script"
     echo "This script will assume that you have a working Internet connection"
     echo
@@ -387,7 +383,7 @@ if [[ -z $UBUNTU_CODENAME ]] && [[ $ID != fedora ]]; then
         sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
     fi
 elif [[ $1 != BackupRestore ]]; then
-    echo "Warning: Not an Arch system!"
+    echo "WARNING: Not an Arch system!"
 fi
 
 if [[ $1 == BackupRestore ]]; then

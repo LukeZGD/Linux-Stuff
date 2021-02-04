@@ -1,4 +1,5 @@
 #!/bin/bash
+export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 
@@ -12,21 +13,19 @@ drirc='
 
 function changeres {
     if [[ $USER == lukee ]]; then
-        outputs=(DVI-I-1 VGA-1 VGA-0 eDP1 eDP-1 eDP-1-1 HDMI1 HDMI-1 HDMI-1-1 HDMI-0)
+        [[ $(xrandr | grep -c 'HDMI-1 connected') == 1 ]] && output=HDMI-1 || output=eDP-1
         [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
-        for output in "${outputs[@]}"; do
-            if [[ $res == 1440x900 ]]; then
-                xrandr --output $output --mode $res --rate 74.98 2>/dev/null
-                [ $? == 1 ] && xrandr --output $output --mode 1400x900 2>/dev/null
-            elif [[ $res == 1920x1080 ]]; then
-                xrandr --output $output --mode $res 2>/dev/null
-            fi
-        done
+        if [[ $res == 1440x900 ]]; then
+            xrandr --output $output --mode $res --rate 74.98 2>/dev/null
+            [ $? == 1 ] && xrandr --output $output --mode 1440x900 2>/dev/null
+        elif [[ $res == 1920x1080 ]]; then
+            xrandr --output $output --mode $res 2>/dev/null
+        fi
     fi
 }
 
 function oss {
-    #changeres 900
+    changeres 900
     qdbus org.kde.KWin /Compositor suspend
     if [[ $1 == "lazer" ]]; then
         $HOME/.osu/osu.AppImage
@@ -39,7 +38,7 @@ function oss {
         rm -f $HOME/.drirc
     fi
     qdbus org.kde.KWin /Compositor resume
-    #changeres
+    changeres
 }
 
 function random {
@@ -147,6 +146,15 @@ function install {
         winetricks sound=alsa
     fi
     
+    cat > /tmp/dsound.reg << "EOF"
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Wine\DirectSound]
+"HelBuflen"="512"
+"SndQueueMax"="3"
+EOF
+    wine regedit /tmp/dsound.reg
+    
     mkdir $HOME/.osu 2>/dev/null
     cd $HOME/.osu
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
@@ -169,7 +177,7 @@ elif [[ $1 == "kill" ]]; then
     wineserver -k
     rm -f $HOME/.drirc
     qdbus org.kde.KWin /Compositor resume
-    #changeres
+    changeres
     exit
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"
