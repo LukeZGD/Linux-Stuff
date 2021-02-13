@@ -13,7 +13,12 @@ drirc='
 
 function changeres {
     if [[ $USER == lukee ]]; then
-        [[ $(xrandr | grep -c 'HDMI-1 connected') == 1 ]] && output=HDMI-1 || output=eDP-1
+        if [[ $(xrandr | grep -c 'HDMI-1-1') == 1 ]]; then
+            [[ $(xrandr | grep -c 'HDMI-1-1 connected') == 1 ]] && output=HDMI-1-1 || output=eDP-1-1
+        elif [[ $(xrandr | grep -c 'HDMI-1') == 1 ]]; then
+            [[ $(xrandr | grep -c 'HDMI-1 connected') == 1 ]] && output=HDMI-1 || output=eDP-1
+        fi
+        echo $output
         [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
         if [[ $res == 1440x900 ]]; then
             xrandr --output $output --mode $res --rate 74.98 2>/dev/null
@@ -101,7 +106,6 @@ function update {
 }
 
 function install {
-    : '
     sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
     echo "@audio - nice -20
     @audio - rtprio 99" | sudo tee /etc/security/limits.conf
@@ -126,7 +130,6 @@ function install {
     mkdir $HOME/.config/pulse 2>/dev/null
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
-    '
     
     [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
@@ -138,14 +141,15 @@ function install {
         if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
             rm -rf $HOME/.wine_osu
             winetricks -q dotnet40 gdiplus
-            winetricks sound=alsa
+            #winetricks sound=alsa
         fi
         Confirm=
     else
         winetricks -q dotnet40 gdiplus
-        winetricks sound=alsa
+        #winetricks sound=alsa
     fi
     
+    : '
     cat > /tmp/dsound.reg << "EOF"
 Windows Registry Editor Version 5.00
 
@@ -153,7 +157,7 @@ Windows Registry Editor Version 5.00
 "HelBuflen"="512"
 "SndQueueMax"="3"
 EOF
-    wine regedit /tmp/dsound.reg
+    wine regedit /tmp/dsound.reg'
     
     mkdir $HOME/.osu 2>/dev/null
     cd $HOME/.osu

@@ -117,10 +117,9 @@ function postinstallcomm {
         sudo $BASEDIR/chroot.sh
     fi
     
-    pac install dxvk-bin fish lutris nano-syntax-highlighting wine winetricks
+    pac install fish lutris nano-syntax-highlighting wine winetricks
     
-    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
-    #setup_dxvk install
+    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9 dxvk
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData

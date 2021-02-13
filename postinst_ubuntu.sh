@@ -35,14 +35,19 @@ libqt5websockets5
 libsdl2-net-2.0-0
 neofetch
 openjdk-11-jre
-pavucontrol
+pavucontrol-qt
 plasma-nm
 printer-driver-gutenprint
 samba
 unrar-free
 v4l2loopback-dkms
 webp
+xdelta3
 zsync
+
+network-manager-openvpn
+openvpn
+resolvconf
 
 audacious
 audacious-plugins
@@ -82,14 +87,15 @@ function MainMenu {
 }
 
 function installstuff {
-    select opt in "VirtualBox" "wine" "osu!" "Emulators" "system76-power" "OpenTabletDriver"; do
+    select opt in "VirtualBox" "wine" "osu!" "Emulators" "system76-power" "OpenTabletDriver" "Intel non-free"; do
         case $opt in
             "VirtualBox" ) vbox; break;;
             "wine" ) wine; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) emulatorsinstall; break;;
+            "Emulators" ) sudo flatpak install flathub ${flatemus[*]}; break;;
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
+            "Intel non-free" ) sudo apt install i965-va-driver-shaders intel-media-va-driver-non-free; break;;
             * ) exit;;
         esac
     done
@@ -142,10 +148,6 @@ function pipinstall {
     python3 -m pip install -U gallery-dl tartube youtube-dl
 }
 
-function emulatorsinstall {
-    sudo flatpak install -y flathub ${flatemus[*]}
-}
-
 function vbox {
     sudo apt install -y virtualbox virtualbox-guest-additions-iso
     sudo usermod -aG vboxusers $USER
@@ -169,7 +171,7 @@ function wine {
     sudo apt install -y winehq-stable cabextract fuseiso libmspack0
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks
-    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
+    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9 dxvk
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -196,15 +198,15 @@ function postinstall {
     
     echo '0.0.0.0 get.code-industry.net' | sudo tee -a /etc/hosts
     
-    xmodmap -e 'keycode 79 = Q KP_7'
-    xmodmap -e 'keycode 90 = space KP_0'
+    #echo "xmodmap -e 'keycode 79 = Q KP_7'" | tee -a $HOME/.profile
+    #echo "xmodmap -e 'keycode 90 = space KP_0'" | tee -a $HOME/.profile
     
     sudo modprobe bfq
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
-    
+    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|g" /etc/default/grub
     : "
     echo 'HandlePowerKey=suspend-then-hibernate
 HandleLidSwitch=suspend-then-hibernate
@@ -234,7 +236,7 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     swapuuid=$(blkid -o value -s UUID $swappart)
     echo "[Log] Got UUID of swap $swappart: $swapuuid"
     echo "[Log] Edit /etc/default/grub"
-    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash resume=UUID=$swapuuid\"|g" /etc/default/grub
+    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi resume=UUID=$swapuuid\"|g" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
     
