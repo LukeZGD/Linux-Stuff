@@ -106,6 +106,7 @@ function AddPPAs {
     sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo add-apt-repository -y ppa:persepolis/ppa
     sudo add-apt-repository -y ppa:jurplel/qview
+    sudo add-apt-repository -y ppa:alexlarsson/flatpak
     sudo apt update
     sudo apt dist-upgrade -y
 }

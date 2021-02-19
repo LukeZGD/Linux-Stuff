@@ -277,7 +277,9 @@ function RSYNC {
           --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
           --exclude '.local/share/baloo' --exclude '.local/share/flatpak' \
           --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
-          --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' --exclude '.wine_osu' $1 $2
+          --exclude '.npm' --exclude '.nv' --exclude '.nx' --exclude '.persepolis' \
+          --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' \
+          --exclude '.wine_osu' --exclude '.zoom' $1 $2
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
     fi
