@@ -1,10 +1,12 @@
 #!/bin/bash
 
+PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
 BASEDIR="/mnt/Data/Games/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/GI-on-Linux"
 
 function Main {
+    ln -sf "$BASEDIR" "$PROGDIR"
     clear
     echo "Genshin Impact"
     select opt in "Launch Game" "Open Launcher for Updating" "Install Patch" "Uninstall Patch"; do

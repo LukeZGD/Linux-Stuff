@@ -6,13 +6,14 @@ dialog
 fish
 git
 intel-ucode
-linux-firmware
 linux
+linux-firmware
 linux-headers
 nano
 pacman-contrib
 reflector
 rsync
+terminus-font
 usbutils
 vim
 wget
@@ -88,6 +89,7 @@ ffmpegthumbnailer
 fluidsynth
 fuseiso
 gimp
+kamoso
 kate
 kdenlive
 lame
@@ -95,12 +97,14 @@ mpv
 obs-studio
 okteta
 
+aria2
 firefox
 gnome-calculator
 gnome-keyring
 gsmartcontrol
 htop
 jre11-openjdk
+jsoncpp
 krdc
 love
 okular
@@ -108,20 +112,17 @@ openssh
 maxcso
 noto-fonts-cjk
 noto-fonts-emoji
+persepolis
 qbittorrent
-qjoypad
 freerdp
 samba
 seahorse
 testdisk
+xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-kde
 youtube-dl
 zsync
-
-lutris
-wine
-winetricks
 )
 
 function grubinstall {
@@ -179,8 +180,8 @@ function systemdinstall {
     linux /vmlinuz-linux
     initrd /intel-ucode.img
     initrd /initramfs-linux.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3 vt.global_cursor_default=0" > /boot/loader/entries/arch.conf
-	echo "timeout 0
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
 }
@@ -191,10 +192,13 @@ function setupstuff {
     include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
 
     echo "[Log] makepkg.conf"
-    sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
-    sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+    #sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
+    #sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
     sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
     sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
+    sed -i "s|          'ftp::/usr/bin/curl -gqfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u'|          'ftp::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
+    sed -i "s|          'http::/usr/bin/curl -gqb \"\" -fLC - --retry 3 --retry-delay 3 -o %o %u'|          'http::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
+    sed -i "s|          'https::/usr/bin/curl -gqb \"\" -fLC - --retry 3 --retry-delay 3 -o %o %u'|          'https::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
 
     #echo "[Log] /etc/environment"
     #echo "mesa_glthread=true" | tee /etc/environment
@@ -270,7 +274,19 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth org.cups.cupsd fstrim.timer sddm
+systemctl enable NetworkManager bluetooth cups fstrim.timer sddm
+
+echo "[Log] Power management and lock"
+echo 'HandlePowerKey=suspend
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
+HandleLidSwitchDocked=suspend
+IdleAction=suspend
+IdleActionSec=15min' | tee -a /etc/systemd/logind.conf
+
+echo "[Log] Terminus font"
+echo 'FONT=ter-p32n
+FONT_MAP=8859-2' | tee /etc/vconsole.conf
 
 read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N) " touchpad
 if [ $touchpad == y ] || [ $touchpad == Y ]; then
@@ -284,8 +300,9 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
     EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
-echo "[Log] unmountonlogout"
-cat > /usr/bin/unmountonlogout << 'EOF'
+#echo "[Log] unmountonlogout"
+#cat > /usr/bin/unmountonlogout << 'EOF'
+cat > /dev/null << 'EOF'
 #!/bin/bash
 for device in /sys/block/*
 do
@@ -301,17 +318,9 @@ do
     fi
 done
 EOF
-chmod +x /usr/bin/unmountonlogout
+#chmod +x /usr/bin/unmountonlogout
 #sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-
-echo "[Log] Power management and lock"
-echo 'HandlePowerKey=suspend
-HandleLidSwitch=suspend
-HandleLidSwitchExternalPower=suspend
-HandleLidSwitchDocked=suspend
-IdleAction=suspend
-IdleActionSec=15min' | tee -a /etc/systemd/logind.conf
-
+cat > /dev/null << 'EOF'
 echo "[Log] reflector service"
 echo '[Unit]
 Description=Pacman mirrorlist update
@@ -335,6 +344,7 @@ Persistent=true
 [Install]
 WantedBy=timers.target' | tee /etc/systemd/system/reflector.timer
 systemctl enable reflector.timer
+EOF
 
 setupstuff
 echo "[Log] chroot script done"

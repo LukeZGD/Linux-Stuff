@@ -1,27 +1,32 @@
 #!/bin/bash
 
-mirrorlist='Server = http://mirror.0x.sg/archlinux/$repo/os/$arch
-Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
-Server = rsync://mirror.0x.sg/archlinux/$repo/os/$arch
-Server = rsync://download.nus.edu.sg/archlinux/$repo/os/$arch
-Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch'
+mirrorlist='Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
+Server = https://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirror.bethselamin.de/$repo/os/$arch
+Server = http://arch.mirror.square-r00t.net/$repo/os/$arch
+Server = https://arch.mirror.constant.com/$repo/os/$arch
+Server = https://ftp.halifax.rwth-aachen.de/archlinux/$repo/os/$arch
+Server = http://archlinux.polymorf.fr/$repo/os/$arch
+Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
+Server = http://mirror.dkm.cz/archlinux/$repo/os/$arch
+Server = https://mirror.tarellia.net/distr/archlinux/$repo/os/$arch'
 
 clear
 
 echo "LukeZGD Arch Install Script"
 echo "This script will assume that you have a working Internet connection"
 echo "Press [enter] to continue, or ^C to cancel"
-read
+read -s
 
-echo ""
+echo
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
-echo "[Log] Installing reflector"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
-pacman -Sy --noconfirm --needed python reflector
-echo "[Log] Creating mirrorlist with reflector"
-reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
+#echo "[Log] Installing reflector"
+#pacman -Sy --noconfirm --needed python reflector
+#echo "[Log] Creating mirrorlist with reflector"
+#reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
@@ -32,9 +37,9 @@ else
     diskprog=gdisk
 fi
 
-echo ""
+echo
 lsblk
-echo ""
+echo
 read -p "[Input] Please enter device to be used (/dev/sdX) " disk
 echo "[Log] Will now enter $diskprog with device $disk"
 echo "Commands: (f) fdisk (g) gdisk
@@ -46,11 +51,11 @@ $diskprog $disk
 
 clear
 lsblk
-echo ""
+echo
 read -p "[Input] Please enter encrypted/root partition (/dev/sdaX) " rootpart
 read -p "[Input] Please enter boot partition (/dev/sdaX) " bootpart
 read -p "[Input] Please enter swap partition (ia32 ONLY) (/dev/sdaX) " swappart
-[[ -z $swappart ]] && read -p "[Input] Format boot partition? (Y/n)" formatboot
+[[ -z $swappart ]] && read -p "[Input] Format boot partition? (Y/n) " formatboot
 
 echo "[Log] Formatting/mounting stuff... (please enter NEW password when prompted)"
 if [[ ! -z $swappart ]]; then

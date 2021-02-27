@@ -2,23 +2,18 @@
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 packages=(
-checkra1n-cli
 gconf
 libirecovery-git
 ncurses5-compat-libs
-etcher-bin
 f3-qt-git
 gallery-dl
 github-desktop-bin
 idevicerestore-git
 masterpdfeditor-free
-mystiq
-opentabletdriver-git
 qdirstat
 qsynth
 qview
 tartube
-ttf-wps-fonts
 wps-office
 zoom
 )
@@ -38,7 +33,7 @@ function MainMenu {
 }
 
 function installstuff {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "devkitPro" "KVM (with GVT-g)" "Plymouth" "VMware Player install" "VMware Player update"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "devkitPro" "VMware Player install" "VMware Player update"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
@@ -49,6 +44,7 @@ function installstuff {
             "Plymouth" ) Plymouth; break;;
             "VMware Player install" ) vmwarei; break;;
             "VMware Player update" ) vmwareu; break;;
+            "OpenTabletDriver" ) opentabletdriver; break;;
             * ) exit;;
         esac
     done
@@ -146,7 +142,7 @@ function postinstallcomm {
     printable = no
     follow symlinks = yes
     wide links = yes" | sudo tee /etc/samba/smb.conf
-    sudo systemctl enable --now input-veikk-startup nmb smb
+    sudo systemctl enable --now nmb smb
     
     echo "fish" | tee -a $HOME/.bashrc
 }
@@ -181,7 +177,7 @@ function vbox {
 }
 
 function laptop {
-    pac install nvidia lib32-nvidia-utils bumblebee bbswitch nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver
+    pac install nvidia lib32-nvidia-utils bumblebee bbswitch nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
@@ -195,7 +191,7 @@ function 390xx {
 }
 
 function emulatorsinstall {
-    pac install cemu dolphin-emu m64p mgba-qt nestopia pcsx2 ppsspp rpcs3-bin snes9x-gtk
+    pac install dolphin-emu mgba-qt nestopia pcsx2 ppsspp snes9x-gtk
 }
 
 function devkitPro {
@@ -226,7 +222,7 @@ function kvmstep1 {
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER 
     sudo smbpasswd -a $USER
-    sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1 iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
+    sudo sed -i '/^options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
     echo
     echo "Reboot and run this again for GVT-g"
 }
@@ -234,6 +230,7 @@ function kvmstep1 {
 function kvmstep2 {
     read -p "GVT-g? (y/N) " gvtg 
     [[ $gvtg != y ]] && [[ $gvtg != Y ]] && exit
+    sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1/' /boot/loader/entries/arch.conf
     UUID=029a88f0-6c3e-4673-8b3c-097fe77d7c97
     sudo /bin/sh -c "echo $UUID > /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types/i915-GVTg_V5_4/create"
     echo "[Unit]
@@ -277,9 +274,10 @@ function RSYNC {
           --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
           --exclude '.local/share/baloo' --exclude '.local/share/flatpak' \
           --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
-          --exclude '.npm' --exclude '.nv' --exclude '.nx' --exclude '.persepolis' \
+          --exclude '.npm' --exclude '.nuget' --exclude '.nv' --exclude '.nx' \
+          --exclude '.persepolis' --exclude '.pipewire-media-session' --exclude '.xsession-errors.old' \
           --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' \
-          --exclude '.wine_osu' --exclude '.zoom' $1 $2
+          --exclude '.wine_osu' --exclude '.zoom' --exclude '.ld.so' $1 $2
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
     fi
@@ -368,6 +366,11 @@ function vmwareu {
     sudo vmware-modconfig --console --install-all
     sudo modprobe -a vmw_vmci vmmon
     sudo systemctl enable --now vmware vmware-usbarbitrator
+}
+
+function opentabletdriver {
+    pac install dotnet-host-bin dotnet-runtime-bin dotnet-sdk-bin opentabletdriver-git
+    systemctl --user enable --now opentabletdriver
 }
 
 # ----------------------------------
