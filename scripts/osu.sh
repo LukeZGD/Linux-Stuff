@@ -32,6 +32,8 @@ function changeres {
 function oss {
     changeres 900
     qdbus org.kde.KWin /Compositor suspend
+    xmodmap -e 'keycode 79 = q 7'
+    xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
         $HOME/.osu/osu.AppImage
     else
@@ -42,6 +44,7 @@ function oss {
         wineserver -k
         rm -f $HOME/.drirc
     fi
+    setxkbmap -layout us
     qdbus org.kde.KWin /Compositor resume
     changeres
 }

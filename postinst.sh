@@ -171,13 +171,13 @@ function autocreate {
 }
 
 function vbox {
-    pac install virtualbox virtualbox-host-modules-arch virtualbox-guest-iso virtualbox-ext-oracle
+    pac install virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
 
 function laptop {
-    pac install nvidia lib32-nvidia-utils bumblebee bbswitch nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools
+    pac install nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
@@ -217,8 +217,8 @@ function kvmstep1 {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     
     sudo systemctl enable --now libvirtd
-    sudo sed -i "s|MODULES=(ext4)|MODULES=(ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux
+    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
+    sudo mkinitcpio -p linux-lts
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER 
     sudo smbpasswd -a $USER
@@ -350,7 +350,6 @@ function Restoreuser {
 
 function Plymouth {
     sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume filesystems fsck)|g" /etc/mkinitcpio.conf
-    sudo sed -i "s|MODULES=(ext4)|MODULES=(i915 ext4)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth

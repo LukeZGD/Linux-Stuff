@@ -6,9 +6,9 @@ dialog
 fish
 git
 intel-ucode
-linux
 linux-firmware
-linux-headers
+linux-lts
+linux-lts-headers
 nano
 pacman-contrib
 reflector
@@ -126,7 +126,7 @@ zsync
 )
 
 function grubinstall {
-    pacman -S --noconfirm grub
+    pacman -S --noconfirm --needed grub
     lsblk
     read -p "[Input] Disk? (/dev/sdX) " part
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
@@ -149,7 +149,7 @@ function grubinstall {
 }
 
 function grubinstallia32 {
-    pacman -S --noconfirm grub efibootmgr
+    pacman -S --noconfirm --needed grub efibootmgr
     lsblk
     read -p "[Input] Disk? (/dev/sdX) " read part
     read -p "[Input] Please enter swap partition (/dev/sdaX) " swappart
@@ -163,7 +163,7 @@ function grubinstallia32 {
 }
 
 function systemdinstall {
-    pacman -S --noconfirm efibootmgr
+    pacman -S --noconfirm --needed efibootmgr
     echo "[Log] run bootctl install"
     bootctl install
     lsblk
@@ -177,9 +177,9 @@ function systemdinstall {
     echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux
+    linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
-    initrd /initramfs-linux.img
+    initrd /initramfs-linux-lts.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
@@ -219,7 +219,7 @@ if [ $(which pacman-mirrors) ]; then
     pacman -Syy linux-headers
     pacman -Su --noconfirm
     echo "[Log] Installing packages"
-    pacman -S --noconfirm ${pacmanpkgs2[*]}
+    pacman -S --noconfirm --needed ${pacmanpkgs2[*]}
     setupstuff
     exit
 fi
@@ -228,8 +228,8 @@ echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 echo "[Log] Installing packages"
-pacman -S --noconfirm ${pacmanpkgs[*]}
-pacman -S --noconfirm ${pacmanpkgs2[*]}
+pacman -S --noconfirm --needed ${pacmanpkgs[*]}
+pacman -S --noconfirm --needed ${pacmanpkgs2[*]}
 echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
@@ -259,9 +259,10 @@ fi
 
 echo "[Log] Edit mkinitcpio.conf"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
-sed -i "s/MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
+sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
+echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux
+mkinitcpio -p linux-lts
 
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
@@ -296,7 +297,8 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
         Driver "libinput"
         MatchIsTouchpad "on"
         Option "Tapping" "on"
-        Option "TappingButtonMap" "lmr"
+        Option "TappingButtonMap" "lrm"
+        Option "NaturalScrolling" "true"
     EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
