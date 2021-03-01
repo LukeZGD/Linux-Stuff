@@ -3,6 +3,9 @@ export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 
+. /etc/os-release
+[[ $ID == arch ]] && export PATH=/opt/wine-6.2/usr/bin:$PATH
+
 drirc='
 <device screen="0" driver="dri2">
     <application name="Default">
@@ -137,8 +140,11 @@ function install {
     [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     
-    . /etc/os-release
-    [[ $ID == arch ]] && sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
+    if [[ $ID == arch ]]; then
+        sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
+        sudo mkdir /opt/wine-6.2
+        sudo tar -I zstd -xvf $HOME/Programs/wine-6.2-1-x86_64.pkg.tar.zst -C /opt/wine-6.2
+    fi
     if [ -d $HOME/.wine_osu ]; then
         read -p "wine_osu folder detected! Delete and reinstall? (y/N) " Confirm
         if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then

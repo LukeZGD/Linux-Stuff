@@ -118,6 +118,7 @@ freerdp
 samba
 seahorse
 testdisk
+v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-kde
