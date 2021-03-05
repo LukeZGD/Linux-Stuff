@@ -112,31 +112,6 @@ function update {
 }
 
 function install {
-    sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
-    echo "@audio - nice -20
-    @audio - rtprio 99" | sudo tee /etc/security/limits.conf
-    sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
-    
-    echo "high-priority = yes
-    nice-level = -15
-
-    realtime-scheduling = yes
-    realtime-priority = 50
-
-    resample-method = speex-float-0
-
-    default-sample-format = s32le
-    default-sample-rate = 48000
-    alternate-sample-rate = 48000
-    default-sample-channels = 2
-
-    default-fragments = 2
-    default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
-    
-    mkdir $HOME/.config/pulse 2>/dev/null
-    cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
-    sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
-    
     [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     
@@ -158,7 +133,31 @@ function install {
         #winetricks sound=alsa
     fi
     
+    sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
+    printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
+    
     : '
+    sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
+    echo "high-priority = yes
+    nice-level = -15
+
+    realtime-scheduling = yes
+    realtime-priority = 50
+
+    resample-method = speex-float-0
+
+    default-sample-format = s32le
+    default-sample-rate = 48000
+    alternate-sample-rate = 48000
+    default-sample-channels = 2
+
+    default-fragments = 2
+    default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
+    
+    mkdir $HOME/.config/pulse 2>/dev/null
+    cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
+    sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
+    
     cat > /tmp/dsound.reg << "EOF"
 Windows Registry Editor Version 5.00
 

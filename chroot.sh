@@ -20,9 +20,9 @@ wget
 
 alsa-utils
 pavucontrol
-pulseaudio
-pulseaudio-alsa
-pulseaudio-bluetooth
+pipewire
+pipewire-alsa
+pipewire-pulse
 
 xorg-server
 xorg-xinit
@@ -106,6 +106,7 @@ htop
 jre11-openjdk
 jsoncpp
 krdc
+libreoffice-fresh
 love
 okular
 openssh

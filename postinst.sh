@@ -2,19 +2,15 @@
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 packages=(
-gconf
-libirecovery-git
 ncurses5-compat-libs
-f3-qt-git
+f3
 gallery-dl
 github-desktop-bin
-idevicerestore-git
 masterpdfeditor-free
 qdirstat
 qsynth
 qview
 tartube
-wps-office
 zoom
 )
 
@@ -177,7 +173,7 @@ function vbox {
 }
 
 function laptop {
-    pac install nvidia-lts lib32-nvidia-utils nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
+    pac install nvidia-lts lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
@@ -202,7 +198,7 @@ function devkitPro {
     Server = https://downloads.devkitpro.org/packages
     [dkp-linux]
     Server = https://downloads.devkitpro.org/packages/linux/$arch/' | sudo tee -a /etc/pacman.conf
-    sudo pacman -Sy --noconfirm 3ds-dev switch-dev
+    sudo pacman -Syu --noconfirm 3ds-dev switch-dev
 }
 
 function kvm {

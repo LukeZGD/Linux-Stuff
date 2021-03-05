@@ -6,6 +6,7 @@ GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/GI-on-Linux"
 
 function Main {
+    qdbus org.kde.KWin /Compositor suspend
     ln -sf "$BASEDIR" "$PROGDIR"
     clear
     echo "Genshin Impact"
@@ -18,6 +19,7 @@ function Main {
             * ) exit;;
         esac
     done
+    qdbus org.kde.KWin /Compositor resume
 }
 
 function Patch {

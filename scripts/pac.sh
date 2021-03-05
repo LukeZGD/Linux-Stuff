@@ -46,8 +46,9 @@ elif [[ $1 == list ]]; then
     fi
 elif [[ $1 == query ]]; then
     paru -Q ${@:2}
-elif [[ $1 == remove ]] || [[ $1 == removec ]]; then
-    [[ $1 != removec ]] && noconfirm=--noconfirm
+elif [[ $1 == remove ]] || [[ $1 == removec ]] ||
+     [[ $1 == uninstall ]] || [[ $1 == uninstallc ]]; then
+    [[ $1 != removec ]] && [[ $1 != uninstallc ]] && noconfirm=--noconfirm
     paru -R $noconfirm ${@:2}
 elif [[ $1 == reflector ]]; then
     sudo systemctl start reflector
@@ -55,10 +56,9 @@ elif [[ $1 == reflector ]]; then
 elif [[ $1 == purge ]] || [[ $1 == purgec ]]; then
     [[ $1 != purgec ]] && noconfirm=--noconfirm
     paru -Rsn $noconfirm ${@:2}
-elif [[ $1 == update ]]; then
-    paru -Sy
-elif [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
-    [[ $1 != upgradec ]] && noconfirm=--noconfirm
+elif [[ $1 == update ]] || [[ $1 == updatec ]] ||
+     [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
+    [[ $1 != updatec ]] && [[ $1 != upgradec ]] && noconfirm=--noconfirm
     paru -Syu $noconfirm --sudoloop
 else
     echo "Usage:  pac <operation>(c) [...]"
@@ -70,8 +70,7 @@ else
     pac {purge} [package(s)]
     pac {query} [package(s)]
     pac {reinstall} [package(s)]
-    pac {remove} [package(s)]
+    pac {remove/uninstall} [package(s)]
     pac {reflector}
-    pac {update}
-    pac {upgrade}"
+    pac {update/upgrade}"
 fi
