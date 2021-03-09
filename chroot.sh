@@ -7,8 +7,8 @@ fish
 git
 intel-ucode
 linux-firmware
-linux-lts
-linux-lts-headers
+linux-zen
+linux-zen-headers
 nano
 pacman-contrib
 reflector
@@ -59,11 +59,15 @@ dolphin
 k3b
 kate
 kdegraphics-thumbnailers
+kdesdk-thumbnailers
 kfind
+kimageformats
 kmix
 konsole
 kwalletmanager
+qt5-imageformats
 spectacle
+taglib
 )
 
 pacmanpkgs2=(
@@ -179,9 +183,9 @@ function systemdinstall {
     echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux-lts
+    linux /vmlinuz-linux-zen
     initrd /intel-ucode.img
-    initrd /initramfs-linux-lts.img
+    initrd /initramfs-linux-zen.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
@@ -264,7 +268,7 @@ sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/H
 sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux-lts
+mkinitcpio -p linux-zen
 
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"

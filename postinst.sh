@@ -173,7 +173,7 @@ function vbox {
 }
 
 function laptop {
-    pac install nvidia-lts lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
+    pac install nvidia-dkms lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
@@ -214,7 +214,7 @@ function kvmstep1 {
     
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux-lts
+    sudo mkinitcpio -p linux-zen
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER 
     sudo smbpasswd -a $USER
