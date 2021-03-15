@@ -59,9 +59,11 @@ elif [[ $1 == purge ]] || [[ $1 == purgec ]]; then
 elif [[ $1 == update ]] || [[ $1 == updatec ]] ||
      [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
     [[ $1 != updatec ]] && [[ $1 != upgradec ]] && noconfirm=--noconfirm
-    paru -Syu $noconfirm --sudoloop
+    paru -Syu $noconfirm --sudoloop --nodevel
+elif [[ $1 == news ]]; then
+    paru -Pw
 else
-    echo "Usage:  pac <operation>(c) [...]"
+    echo "Usage:  pac <operation>[c] [...]"
     echo "Operations:
     pac {autoremove}
     pac {clean} [all]
@@ -72,5 +74,6 @@ else
     pac {reinstall} [package(s)]
     pac {remove/uninstall} [package(s)]
     pac {reflector}
-    pac {update/upgrade}"
+    pac {update/upgrade}
+    pac {news}"
 fi

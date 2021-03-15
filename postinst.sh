@@ -15,14 +15,13 @@ zoom
 )
 
 function MainMenu {
-    select opt in "Install stuff" "Run postinstall commands" "Backup and restore" "Add user" "NVIDIA Optimus+TLP" "NVIDIA 390xx"; do
+    select opt in "Install stuff" "Run postinstall commands" "Backup and restore" "Add user" "NVIDIA"; do
         case $opt in
             "Install stuff" ) installstuff; break;;
             "Run postinstall commands" ) postinstallcomm; break;;
             "Backup and restore" ) BackupRestore; break;;
             "Add user" ) adduser; break;;
-            "NVIDIA Optimus+TLP" ) laptop; break;;
-            "NVIDIA 390xx" ) 390xx; break;;
+            "NVIDIA" ) nvidia; break;;
         * ) exit;;
         esac
     done
@@ -34,7 +33,7 @@ function installstuff {
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) emulatorsinstall; break;;
+            "Emulators" ) pac install dolphin-emu mgba-qt nestopia pcsx2 ppsspp snes9x-gtk; break;;
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
@@ -110,8 +109,8 @@ function postinstallcomm {
     fi
     
     pac install fish lutris nano-syntax-highlighting wine winetricks
-    
-    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9 dxvk
+    sudo winetricks --self-update
+    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9 dxvk
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -172,22 +171,32 @@ function vbox {
     sudo modprobe vboxdrv
 }
 
-function laptop {
-    pac install nvidia-dkms lib32-nvidia-utils bbswitch-dkms nvidia-settings tlp tlp-rdw tlpui-git optimus-manager optimus-manager-qt vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl
+function nvidia {
+    select opt in "NVIDIA Optimus+TLP" "NVIDIA 390xx"; do
+        case $opt in
+            "NVIDIA Optimus+TLP" ) nvidia4 optimus; break;;
+            "NVIDIA 390xx" ) pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings; break;;
+            #"system76-power" ) nvidia4 s76p; break;;
+            * ) exit;;
+        esac
+    done
+}
+
+function nvidia4 {
+    pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia tlp tlp-rdw tlpui-git vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl intel-gpu-tools
+    if [[ $1 == s76p ]]; then
+        pac install system76-power
+        sudo systemctl enable system76-power
+        sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep/
+    elif [[ $1 == optimus ]]; then
+        pac install optimus-manager optimus-manager-git
+    fi
     sudo systemctl enable tlp
     if [ $(which pacman-mirrors) ]; then
         sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
         sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
         sudo systemctl disable bumblebeed
     fi
-}
-
-function 390xx {
-    pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings
-}
-
-function emulatorsinstall {
-    pac install dolphin-emu mgba-qt nestopia pcsx2 ppsspp snes9x-gtk
 }
 
 function devkitPro {
@@ -211,7 +220,6 @@ function kvm {
 
 function kvmstep1 {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
-    
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux-zen

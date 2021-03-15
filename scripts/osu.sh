@@ -174,6 +174,8 @@ EOF
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
         wine "osuinstall.exe"
     fi
+    cd $HOME
+    ln -sf $HOME/.osu osu
     echo "Install script done"
 }
 

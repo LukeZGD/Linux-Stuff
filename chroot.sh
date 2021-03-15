@@ -243,8 +243,6 @@ locale-gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Hongkong /etc/localtime
 hwclock --systohc
-echo "[Log] hosts file"
-echo "127.0.0.1 localhost" >> /etc/hosts
 echo "[Log] Running passwd"
 passwd
 
@@ -273,6 +271,10 @@ mkinitcpio -p linux-zen
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
 echo $hostname > /etc/hostname
+echo "[Log] hosts file"
+echo -e "127.0.0.1 localhost.localdomain localhost
+::1       localhost.localdomain localhost
+127.0.1.1 localhost.localdomain $hostname" >> /etc/hosts
 read -p "[Input] Enter username: " username
 echo "[Log] Creating user $username"
 useradd -m -g users -G audio,optical,storage,wheel -s /bin/bash $username
