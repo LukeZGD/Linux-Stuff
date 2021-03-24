@@ -2,10 +2,9 @@
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 packages=(
-ncurses5-compat-libs
+audacity-wxgtk2
 f3
 gallery-dl
-github-desktop-bin
 masterpdfeditor-free
 qdirstat
 qsynth
@@ -100,14 +99,6 @@ function postinstallcomm {
     ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
     
-    if [ $(which pacman-mirrors) ]; then
-        echo "[Log] Manjaro post-install"
-        sudo pacman-mirrors --api --set-branch testing --continent
-        pac purge appimagelauncher gwenview kget lib32-fluidsynth manjaro-application-utility manjaro-pulse pamac-cli pamac-common pamac-flatpak-plugin pamac-gtk pamac-snap-plugin pamac-tray-appindicator vlc yakuake
-        systemctl --global disable pipewire pipewire.socket
-        sudo $BASEDIR/chroot.sh
-    fi
-    
     pac install fish lutris nano-syntax-highlighting wine winetricks
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9 dxvk
@@ -117,7 +108,7 @@ function postinstallcomm {
     ln -sf $HOME/AppData 'Application Data'
     
     fish -c 'set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin'
-    sudo usermod -s /usr/bin/fish $USER
+    #sudo usermod -s /usr/bin/fish $USER
     
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
@@ -183,7 +174,7 @@ function nvidia {
 }
 
 function nvidia4 {
-    pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia tlp tlp-rdw tlpui-git vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl intel-gpu-tools
+    pac install nvidia-dkms lib32-nvidia-utils bbswitch-dkms nvidia-settings opencl-nvidia lib32-opencl-nvidia tlp tlp-rdw tlpui-git vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl nvidia-prime
     if [[ $1 == s76p ]]; then
         pac install system76-power
         sudo systemctl enable system76-power
@@ -192,11 +183,6 @@ function nvidia4 {
         pac install optimus-manager optimus-manager-git
     fi
     sudo systemctl enable tlp
-    if [ $(which pacman-mirrors) ]; then
-        sudo sed -i '/DisplayCommand/s/^/#/g' /etc/sddm.conf
-        sudo sed -i '/DisplayStopCommand/s/^/#/g' /etc/sddm.conf
-        sudo systemctl disable bumblebeed
-    fi
 }
 
 function devkitPro {

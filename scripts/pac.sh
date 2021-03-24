@@ -59,7 +59,8 @@ elif [[ $1 == purge ]] || [[ $1 == purgec ]]; then
 elif [[ $1 == update ]] || [[ $1 == updatec ]] ||
      [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
     [[ $1 != updatec ]] && [[ $1 != upgradec ]] && noconfirm=--noconfirm
-    paru -Syu $noconfirm --sudoloop --nodevel
+    [[ $2 == all ]] || nodevel=--nodevel
+    paru -Syu $noconfirm --sudoloop $nodevel
 elif [[ $1 == news ]]; then
     paru -Pw
 else
@@ -74,6 +75,6 @@ else
     pac {reinstall} [package(s)]
     pac {remove/uninstall} [package(s)]
     pac {reflector}
-    pac {update/upgrade}
+    pac {update/upgrade} [all]
     pac {news}"
 fi

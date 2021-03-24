@@ -19,10 +19,10 @@ vim
 wget
 
 alsa-utils
-pavucontrol
-pipewire
-pipewire-alsa
-pipewire-pulse
+pavucontrol-qt
+pulseaudio
+pulseaudio-alsa
+pulseaudio-bluetooth
 
 xorg-server
 xorg-xinit
@@ -38,15 +38,12 @@ openvpn
 systemd-resolvconf
 
 exfatprogs
-gvfs
-gvfs-afc
-gvfs-gphoto2
 ntfs-3g
 
 p7zip
-zip
 unzip
 unrar
+zip
 
 cups-pdf
 foomatic-db-gutenprint-ppds
@@ -57,20 +54,23 @@ plasma
 ark
 dolphin
 k3b
+kamera
 kate
 kdegraphics-thumbnailers
+kdesdk-kioslaves
 kdesdk-thumbnailers
 kfind
 kimageformats
+kio
+kio-extras
+kio-fuse
 kmix
 konsole
 kwalletmanager
 qt5-imageformats
 spectacle
 taglib
-)
 
-pacmanpkgs2=(
 breeze-gtk
 ccache
 gnome-disk-utility
@@ -85,7 +85,6 @@ system-config-printer
 ttf-dejavu
 
 audacious
-audacity
 digikam
 ffmpeg
 ffmpegthumbs
@@ -147,11 +146,10 @@ function grubinstall {
     grub-install $part --target=i386-pc
     echo "[Log] Edit /etc/default/grub"
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3 resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
     sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     grub-mkconfig -o /boot/grub/grub.cfg
-    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /lib/systemd/system/bluetooth.service
 }
 
 function grubinstallia32 {
@@ -163,7 +161,7 @@ function grubinstallia32 {
     echo "[Log] Got UUID of $swappart: $swapuuid"
     echo "[Log] Run grub-install"
     grub-install $part --target=i386-efi
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -186,7 +184,7 @@ function systemdinstall {
     linux /vmlinuz-linux-zen
     initrd /intel-ucode.img
     initrd /initramfs-linux-zen.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 quiet splash rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
@@ -198,44 +196,27 @@ function setupstuff {
     include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc
 
     echo "[Log] makepkg.conf"
-    #sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -T0 -18 -)|g" /etc/makepkg.conf
-    #sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
     sed -i "s|BUILDENV=(!distcc color !ccache check !sign)|BUILDENV=(!distcc color ccache check !sign)|g" /etc/makepkg.conf
     sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j"$(nproc)"\"/" /etc/makepkg.conf
     sed -i "s|          'ftp::/usr/bin/curl -gqfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u'|          'ftp::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
     sed -i "s|          'http::/usr/bin/curl -gqb \"\" -fLC - --retry 3 --retry-delay 3 -o %o %u'|          'http::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
     sed -i "s|          'https::/usr/bin/curl -gqb \"\" -fLC - --retry 3 --retry-delay 3 -o %o %u'|          'https::/usr/bin/aria2c -UWget -s4 %u -o %o'|g" /etc/makepkg.conf
-
-    #echo "[Log] /etc/environment"
-    #echo "mesa_glthread=true" | tee /etc/environment
     
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
+    
+    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp --plugin=a2dp|g" /lib/systemd/system/bluetooth.service
 }
 
 # ----------------
-
-if [ $(which pacman-mirrors) ]; then
-    echo "[Log] pacman.conf"
-    sed -i "s/#Color/Color/" /etc/pacman.conf
-    sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
-    pacman -Q linux
-    pacman -Syy linux-headers
-    pacman -Su --noconfirm
-    echo "[Log] Installing packages"
-    pacman -S --noconfirm --needed ${pacmanpkgs2[*]}
-    setupstuff
-    exit
-fi
 
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm --needed ${pacmanpkgs[*]}
-pacman -S --noconfirm --needed ${pacmanpkgs2[*]}
 echo "[Log] Setting locale"
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf

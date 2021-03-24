@@ -1,15 +1,13 @@
 #!/bin/bash
 
 mirrorlist='Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
-Server = https://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirror.bethselamin.de/$repo/os/$arch
-Server = http://arch.mirror.square-r00t.net/$repo/os/$arch
 Server = https://arch.mirror.constant.com/$repo/os/$arch
-Server = https://ftp.halifax.rwth-aachen.de/archlinux/$repo/os/$arch
-Server = http://archlinux.polymorf.fr/$repo/os/$arch
 Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://mirror.bethselamin.de/$repo/os/$arch
+Server = http://archlinux.polymorf.fr/$repo/os/$arch
 Server = http://mirror.dkm.cz/archlinux/$repo/os/$arch
-Server = https://mirror.tarellia.net/distr/archlinux/$repo/os/$arch'
+Server = https://mirror.tarellia.net/distr/archlinux/$repo/os/$arch
+Server = https://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch'
 
 clear
 

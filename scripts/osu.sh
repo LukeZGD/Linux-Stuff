@@ -136,7 +136,6 @@ function install {
     sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
     printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
     
-    : '
     sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
     echo "high-priority = yes
     nice-level = -15
@@ -158,6 +157,7 @@ function install {
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
     
+    : '
     cat > /tmp/dsound.reg << "EOF"
 Windows Registry Editor Version 5.00
 
