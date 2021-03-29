@@ -128,9 +128,9 @@ function postinstallcomm {
     printable = no
     follow symlinks = yes
     wide links = yes" | sudo tee /etc/samba/smb.conf
-    sudo systemctl enable --now nmb smb
+    #sudo systemctl enable --now nmb smb
     
-    echo "fish" | tee -a $HOME/.bashrc
+    echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
 }
 
 function adduser {

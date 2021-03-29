@@ -6,9 +6,10 @@ BASEDIR="/mnt/Data/Games/Touhou"
 if [ $1 ]; then
     launch=$1
 else
-    launch=$(kdialog --inputbox "Enter number (1-17)" --title "Touhou Launcher")
+    launch=$(kdialog --inputbox "Enter number (1-18)" --title "Touhou Launcher")
 fi
 
+qdbus org.kde.KWin /Compositor suspend
 if [ $launch == 6 ]; then
     cd "$BASEDIR/Touhou 6 - The Embodiment of Scarlet Devil"
     wine "$BASEDIR/Touhou 6 - The Embodiment of Scarlet Devil/Touhou06.exe"
@@ -64,11 +65,17 @@ elif [ $launch == 16.5 ]; then
 elif [ $launch == 17 ]; then
     cd "$BASEDIR/Touhou 17 - Wily Beast and Weakest Creature"
     wine "$BASEDIR/Touhou 17 - Wily Beast and Weakest Creature/Touhou17.exe"
+elif [ $launch == 18 ]; then
+    wine "$BASEDIR/Touhou 18 - Unconnected Marketeers/th18.exe"
 elif [ $launch == 1 ] || [ $launch == 2 ] || [ $launch == 3 ] || [ $launch == 4 ] || [ $launch == 5 ]; then
     echo "Press F12 > F10 to go to fullscreen"
-    sed -i 's|DISK02=|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
+    #sed -i 's|DISK02=|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
     wine "$BASEDIR/Touhou PC-98/Next.exe"
-    sed -i 's|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|DISK02=|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
+    #sed -i 's|DISK02=Z:\\\mnt\\\Data\\\Games\\\Touhou PC-98\\\'"Touhou$launch.hdi|DISK02=|g" "$BASEDIR/Touhou PC-98/MAIN.INI"
 elif [ ! -z $launch ]; then
     kdialog --sorry "Invalid number!" --title "Touhou Launcher"
+    exit 1
 fi
+
+wineserver -w
+qdbus org.kde.KWin /Compositor resume

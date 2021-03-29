@@ -99,7 +99,7 @@ function update {
         fi
         cd ..
         rm -rf tmp
-        zsync osu.AppImage.zsync
+        #zsync osu.AppImage.zsync
         chmod +x osu.AppImage
         echo "$latest" > osu.AppImage.version
         

@@ -207,7 +207,7 @@ function setupstuff {
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
     
-    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp --plugin=a2dp|g" /lib/systemd/system/bluetooth.service
+    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /lib/systemd/system/bluetooth.service
 }
 
 # ----------------
