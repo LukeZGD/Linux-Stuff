@@ -2,9 +2,10 @@
 export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
+#export STAGING_AUDIO_DURATION=20000
 
 . /etc/os-release
-[[ $ID == arch ]] && export PATH=/opt/wine-6.2/usr/bin:$PATH
+[[ $ID == arch ]] && export PATH=/opt/wine-staging-6.2/usr/bin:$PATH
 
 drirc='
 <device screen="0" driver="dri2">
@@ -117,8 +118,11 @@ function install {
     
     if [[ $ID == arch ]]; then
         sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
-        sudo mkdir /opt/wine-6.2
-        sudo tar -I zstd -xvf $HOME/Programs/wine-6.2-1-x86_64.pkg.tar.zst -C /opt/wine-6.2
+        sudo rm -rf /opt/wine-staging-6.2
+        sudo mkdir /opt/wine-staging-6.2
+        sudo tar -I zstd -xvf $HOME/Programs/wine-staging-6.2-1-x86_64.pkg.tar.zst -C /opt/wine-staging-6.2
+        #sudo wget -O /opt/wine-staging-6.2/usr/lib32/wine/winepulse.drv.so https://blog.thepoon.fr/assets/articles/2018-06-16-osuLinuxAudioLatency/32bit/winepulse.drv.so
+        #sudo wget -O /opt/wine-staging-6.2/usr/lib/wine/winepulse.drv.so https://blog.thepoon.fr/assets/articles/2018-06-16-osuLinuxAudioLatency/64bit/winepulse.drv.so
     fi
     if [ -d $HOME/.wine_osu ]; then
         read -p "wine_osu folder detected! Delete and reinstall? (y/N) " Confirm

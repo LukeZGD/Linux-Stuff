@@ -1,6 +1,7 @@
 #!/bin/bash
 
 pacmanpkgs=(
+amd-ucode
 base-devel
 dialog
 fish
@@ -24,6 +25,16 @@ pulseaudio
 pulseaudio-alsa
 pulseaudio-bluetooth
 
+intel-media-driver
+intel-gpu-tools
+libva-intel-driver
+libva-mesa-driver
+libva-utils
+libvdpau-va-gl
+mesa-demos
+vulkan-icd-loader
+vulkan-intel
+vulkan-radeon
 xorg-server
 xorg-xinit
 xorg-xrandr
@@ -182,6 +193,7 @@ function systemdinstall {
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-linux-zen
+    initrd /amd-ucode.img
     initrd /intel-ucode.img
     initrd /initramfs-linux-zen.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
@@ -214,7 +226,7 @@ function setupstuff {
 
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+sed -i "s/#TotalDownload/TotalDownload\nILoveCandy/" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm --needed ${pacmanpkgs[*]}
 echo "[Log] Setting locale"
@@ -227,12 +239,12 @@ hwclock --systohc
 echo "[Log] Running passwd"
 passwd
 
-if [ -f /ia32 ]; then
+if [[ ! -z /ia32 ]]; then
     echo "[Log] Setup grub ia32"
     grubinstallia32
     rm /ia32
 else
-    if [ -f /fdisk ]; then
+    if [[ ! -z /fdisk ]]; then
         echo "[Log] Setup grub"
         grubinstall
         rm /fdisk

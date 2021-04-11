@@ -172,7 +172,7 @@ function wine {
     sudo apt install -y winehq-stable cabextract fuseiso libmspack0
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks
-    winetricks -q gdiplus vcrun2013 vcrun2015 wmp9 dxvk
+    winetricks -q dxvk gdiplus vcrun2013 vcrun2015 vcrun2019 wmp9
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData

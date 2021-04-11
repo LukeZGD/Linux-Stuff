@@ -99,9 +99,9 @@ function postinstallcomm {
     ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
     
-    pac install fish lutris nano-syntax-highlighting wine winetricks
+    pac install lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine winetricks
     sudo winetricks --self-update
-    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9 dxvk
+    winetricks -q dxvk gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -142,18 +142,16 @@ function adduser {
 }
 
 function autocreate {
-    a=$1
-    [ ! -z $2 ] && a=$2
     echo "[Desktop Entry]
-    Encoding=UTF-8
-    Version=0.9.4
     Type=Application
     Name=$1
-    Exec=$a
-    RunHook=0
-    StartupNotify=false
+    Comment=$1
+    Exec=$2
+    Icon=$3
+    Categories=$4
+    Encoding=UTF-8
     Terminal=false
-    Hidden=false" | tee $HOME/.config/autostart/$1.desktop
+    StartupNotify=false"
 }
 
 function vbox {
@@ -163,26 +161,25 @@ function vbox {
 }
 
 function nvidia {
-    select opt in "NVIDIA Optimus+TLP" "NVIDIA 390xx"; do
+    select opt in "NVIDIA Optimus+TLP" "NVIDIA 460" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA Optimus+TLP" ) nvidia4 optimus; break;;
-            "NVIDIA 390xx" ) pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings; break;;
-            #"system76-power" ) nvidia4 s76p; break;;
+            "NVIDIA Optimus+TLP" ) nvidia4=optimus; break;;
+            "NVIDIA 460" ) nvidia4=460; break;;
+            "NVIDIA 390" ) nvidia4=390; break;;
             * ) exit;;
         esac
     done
-}
-
-function nvidia4 {
-    pac install nvidia-dkms lib32-nvidia-utils bbswitch-dkms nvidia-settings opencl-nvidia lib32-opencl-nvidia tlp tlp-rdw tlpui-git vulkan-icd-loader lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver intel-gpu-tools libva-mesa-driver libva-utils libvdpau-va-gl nvidia-prime
-    if [[ $1 == s76p ]]; then
-        pac install system76-power
-        sudo systemctl enable system76-power
-        sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep/
-    elif [[ $1 == optimus ]]; then
-        pac install optimus-manager optimus-manager-git
+    
+    if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == 460 ]]; then
+        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+    elif [[ $nvidia4 == 390 ]]; then
+        pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
     fi
-    sudo systemctl enable tlp
+    
+    if [[ $nvidia4 == optimus ]]; then
+        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-git tlp tlp-rdw tlpui-git
+        sudo systemctl enable tlp
+    fi
 }
 
 function devkitPro {
@@ -346,7 +343,7 @@ function Plymouth {
 }
 
 function vmwarei {
-    sudo sh $HOME/Documents/VMware-Player-16.0.0-16894299.x86_64.bundle --eulas-agreed --console --required
+    sudo sh $HOME/Documents/Documents/VMware-Player-16.0.0-17801498.x86_64.bundle --eulas-agreed --console --required
     vmwareu
 }
 
