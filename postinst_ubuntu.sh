@@ -18,6 +18,7 @@ qsynth
 gnome-calculator
 gnome-disk-utility
 gparted
+libreoffice
 okteta
 okular
 okular-extra-backends
@@ -30,7 +31,7 @@ f3
 fish
 git
 htop
-libjsoncpp1
+libjsoncpp24
 libqt5websockets5
 libsdl2-net-2.0-0
 neofetch
@@ -54,6 +55,11 @@ audacious-plugins
 obs-studio
 persepolis
 qview
+
+libgl1-mesa-glx
+libgl1-mesa-dri
+libgl1-mesa-glx:i386
+libgl1-mesa-dri:i386
 )
 
 flatpkgs=(
@@ -107,6 +113,7 @@ function AddPPAs {
     sudo add-apt-repository -y ppa:persepolis/ppa
     sudo add-apt-repository -y ppa:jurplel/qview
     sudo add-apt-repository -y ppa:alexlarsson/flatpak
+    sudo add-apt-repository -y ppa:libreoffice/ppa
     sudo apt update
     sudo apt dist-upgrade -y
 }
@@ -138,7 +145,7 @@ function opentabletdriver {
 function nvidia {
     select opt in "NVIDIA 460" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386 libgl1-mesa-glx libgl1-mesa-dri libgl1-mesa-glx:i386 libgl1-mesa-dri:i386; break;;
+            "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386; break;;
             "NVIDIA 390" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
         esac
     done
@@ -182,7 +189,6 @@ function wine {
 function postinstall {
     sudo dpkg --add-architecture i386
     sudo apt purge -y eog evince file-roller geary gedit gwenview kcalc kdeconnect kwrite snapd totem vlc
-    sudo apt-get purge -y libreoffice*
     sudo apt autoremove -y
 
     AddPPAs

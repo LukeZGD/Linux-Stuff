@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
-BASEDIR="/mnt/Data/Games/Genshin Impact"
+BASEDIR="$HOME/Programs/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/GI-on-Linux"
 

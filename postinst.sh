@@ -117,7 +117,7 @@ function postinstallcomm {
     echo "[global]
     allow insecure wide links = yes
     workgroup = WORKGROUP
-    netbios name = $(hostname)
+    netbios name = $(cat /etc/hostname)
 
     [LinuxHost]
     comment = Host Share
@@ -355,7 +355,7 @@ function vmwareu {
 }
 
 function opentabletdriver {
-    pac install dotnet-host-bin dotnet-runtime-bin dotnet-sdk-bin opentabletdriver-git
+    pac install dotnet-host dotnet-runtime dotnet-sdk opentabletdriver-git
     systemctl --user enable --now opentabletdriver
 }
 
