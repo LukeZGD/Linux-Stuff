@@ -23,6 +23,7 @@ mpv
 neofetch
 obs-studio
 okteta
+persepolis
 qbittorrent
 qdirstat
 simple-scan

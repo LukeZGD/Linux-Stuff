@@ -54,7 +54,6 @@ audacious
 audacious-plugins
 obs-studio
 persepolis
-qview
 
 libgl1-mesa-glx
 libgl1-mesa-dri

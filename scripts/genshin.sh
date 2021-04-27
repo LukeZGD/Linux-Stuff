@@ -34,7 +34,10 @@ function Patch {
     cd "$GIOLDIR"
     Version=$(ls -d 1*/ | cut -c 1-3 |sort -n | tail -n 1)
     Current=$(cat "$BASEDIR"/gi-on-linux-version)
+    
+    # Uncomment below for spoof
     #Version=$Current
+    
     chmod +x $Version/*.sh
     cd "$GAMEDIR"
     if [[ $1 == install ]]; then
