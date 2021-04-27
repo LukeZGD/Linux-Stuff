@@ -108,11 +108,11 @@ function installstuff {
 }
 
 function AddPPAs {
-    sudo add-apt-repository -y ppa:obsproject/obs-studio
-    sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
-    sudo add-apt-repository -y ppa:persepolis/ppa
-    sudo add-apt-repository -y ppa:jurplel/qview
-    sudo add-apt-repository -y ppa:alexlarsson/flatpak
+    #sudo add-apt-repository -y ppa:obsproject/obs-studio
+    #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
+    #sudo add-apt-repository -y ppa:persepolis/ppa
+    #sudo add-apt-repository -y ppa:jurplel/qview
+    #sudo add-apt-repository -y ppa:alexlarsson/flatpak
     sudo add-apt-repository -y ppa:libreoffice/ppa
     sudo apt update
     sudo apt dist-upgrade -y
@@ -176,7 +176,7 @@ function wine {
     rm winehq.key
     sudo add-apt-repository -y "deb https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main"
     sudo apt update
-    sudo apt install -y winehq-stable cabextract fuseiso libmspack0
+    sudo apt install -y winehq-devel cabextract fuseiso libmspack0
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks
     winetricks -q dxvk gdiplus vcrun2013 vcrun2015 vcrun2019 wmp9
@@ -203,7 +203,9 @@ function postinstall {
     
     sudo ln -sf $HOME/Arch-Stuff/postinst_ubuntu.sh /usr/local/bin/postinst
     
-    echo '0.0.0.0 get.code-industry.net' | sudo tee -a /etc/hosts
+    LINE='0.0.0.0 get.code-industry.net'
+    FILE='/etc/hosts'
+    sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     
     #echo "xmodmap -e 'keycode 79 = Q KP_7'" | tee -a $HOME/.profile
     #echo "xmodmap -e 'keycode 90 = space KP_0'" | tee -a $HOME/.profile
@@ -231,7 +233,7 @@ IdleAction=suspend
 IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep
     
-    echo "fish" | tee -a $HOME/.bashrc
+    #echo "fish" | tee -a $HOME/.bashrc
     
     read -p "[Input] Enable hibernation? (y/N) " Hibernate
     [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit

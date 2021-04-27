@@ -29,8 +29,6 @@ simple-scan
 )
 
 flatpkgs=(
-com.interversehq.qView
-org.atheme.audacious
 org.gtk.Gtk3theme.Breeze
 )
 
@@ -93,14 +91,17 @@ function vbox {
 
 function wine {
     sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
-    sudo dnf install -y cabextract winehq-stable
+    sudo dnf install -y cabextract winehq-devel
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks
     winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
 }
 
 function postinstall {
-    echo "fastestmirror=1" | sudo tee -a /etc/dnf/dnf.conf
+    LINE='fastestmirror=1'
+    FILE='/etc/dnf/dnf.conf'
+    sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
+    
     sudo dnf remove -y akregator calligra-* dragon kaddressbook kamoso kcalc kdeconnect kf5-ktnef kget kmahjongg kmail kmines kmouth kolourpaint konversation korganizer kpat kruler krusader ktorrent kwrite juk
     sudo dnf autoremove -y
     

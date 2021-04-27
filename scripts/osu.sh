@@ -85,22 +85,15 @@ function update {
     if [[ $latest != $current ]]; then
         read -p "Continue to update? (y/N) " continue
         [[ $continue != y ]] && [[ $continue != Y ]] && exit
-        mkdir tmp 2>/dev/null
+        rm -rf tmp
+        mkdir tmp
         cd tmp
-        if [ ! -e osu.AppImage ]; then
-            echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
-            [ ! -e osu.AppImage ] && echo "Update failed" && exit
-            rm -f ../osu.AppImage*
-            mv osu.AppImage* ..
-        else
-            echo "$osuapi" | grep "/osu.AppImage.zsync" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
-            [ $? != 0 ] && echo "Update failed" && exit
-            rm -f ../osu.AppImage.zsync
-            mv osu.AppImage.zsync ..
-        fi
+        echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
+        [ ! -e osu.AppImage ] && echo "Update failed" && exit
+        rm -f ../osu.AppImage*
+        mv osu.AppImage* ..
         cd ..
         rm -rf tmp
-        #zsync osu.AppImage.zsync
         chmod +x osu.AppImage
         echo "$latest" > osu.AppImage.version
         
