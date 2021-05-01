@@ -13,7 +13,7 @@ tartube
 zoom
 )
 
-function MainMenu {
+MainMenu() {
     select opt in "Install stuff" "Run postinstall commands" "Backup and restore" "Add user" "NVIDIA"; do
         case $opt in
             "Install stuff" ) installstuff; break;;
@@ -26,7 +26,7 @@ function MainMenu {
     done
 }
 
-function installstuff {
+installstuff() {
     select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "devkitPro" "VMware Player install" "VMware Player update"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
@@ -44,7 +44,7 @@ function installstuff {
     done
 }
 
-function installpac {
+installpac() {
     git clone https://aur.archlinux.org/$1.git
     cd $1
     makepkg -sic --noconfirm
@@ -52,7 +52,7 @@ function installpac {
     rm -rf $1
 }
 
-function postinstall {
+postinstall() {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     rm /tmp/failed.txt
     for package in "${packages[@]}"; do
@@ -67,7 +67,7 @@ function postinstall {
     done
 }
 
-function postinstallcomm {
+postinstallcomm() {
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
     setxkbmap -layout us
@@ -134,7 +134,7 @@ function postinstallcomm {
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
 }
 
-function adduser {
+adduser() {
     read -p "[Input] Enter username: " username2
     echo "[Log] Creating user $username2"
     sudo useradd -m -g users -G audio,optical,storage -s /usr/bin/fish $username2
@@ -142,7 +142,7 @@ function adduser {
     sudo passwd $username2
 }
 
-function autocreate {
+autocreate() {
     echo "[Desktop Entry]
     Type=Application
     Name=$1
@@ -155,13 +155,13 @@ function autocreate {
     StartupNotify=false"
 }
 
-function vbox {
+vbox() {
     pac install virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
 
-function nvidia {
+nvidia() {
     select opt in "NVIDIA Optimus+TLP" "NVIDIA 460" "NVIDIA 390"; do
         case $opt in
             "NVIDIA Optimus+TLP" ) nvidia4=optimus; break;;
@@ -183,7 +183,7 @@ function nvidia {
     fi
 }
 
-function devkitPro {
+devkitPro() {
     sudo pacman-key --recv BC26F752D25B92CE272E0F44F7FD5492264BB9D0 --keyserver keyserver.ubuntu.com
     sudo pacman-key --lsign BC26F752D25B92CE272E0F44F7FD5492264BB9D0
     sudo pacman -U --noconfirm https://downloads.devkitpro.org/devkitpro-keyring.pkg.tar.xz
@@ -195,7 +195,7 @@ function devkitPro {
     sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
 }
 
-function kvm {
+kvm() {
     if [ -e /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types ] && [ ! -e /etc/systemd/system/gvtvgpu.service ]; then
         kvmstep2
     else
@@ -203,7 +203,7 @@ function kvm {
     fi
 }
 
-function kvmstep1 {
+kvmstep1() {
     pac installc iptables-nft
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
@@ -216,7 +216,7 @@ function kvmstep1 {
     echo "Reboot and run this again for GVT-g"
 }
 
-function kvmstep2 {
+kvmstep2() {
     read -p "GVT-g? (y/N) " gvtg 
     [[ $gvtg != y ]] && [[ $gvtg != Y ]] && exit
     sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1/' /boot/loader/entries/arch.conf
@@ -239,7 +239,7 @@ function kvmstep2 {
     echo "Done! Reboot before continuing"
 }
 
-function RSYNC {
+RSYNC() {
     [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
@@ -275,7 +275,7 @@ function RSYNC {
     fi
 }
 
-function BackupRestore {
+BackupRestore() {
     select opt in "Backup" "Restore"; do
         case $opt in
         "Backup" ) Action=Backup; break;;
@@ -330,7 +330,7 @@ function BackupRestore {
     fi
 }
 
-function Restoreuser {
+Restoreuser() {
     RSYNC ${Paths[1]} ${Paths[0]} user
     RSYNC ${Paths[3]} ${Paths[2]}
     RSYNC ${Paths[5]} ${Paths[4]}
@@ -340,26 +340,26 @@ function Restoreuser {
     #ln -sf /mnt/Data/$USER/cache/paru
 }
 
-function Plymouth {
+Plymouth() {
     sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume filesystems fsck)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth
 }
 
-function vmwarei {
+vmwarei() {
     sudo sh $HOME/Documents/Documents/VMware-Player-16.0.0-17801498.x86_64.bundle --eulas-agreed --console --required
     vmwareu
 }
 
-function vmwareu {
+vmwareu() {
     pac install vmware-systemd-services
     sudo vmware-modconfig --console --install-all
     sudo modprobe -a vmw_vmci vmmon
     sudo systemctl enable --now vmware vmware-usbarbitrator
 }
 
-function opentabletdriver {
+opentabletdriver() {
     pac install dotnet-host dotnet-runtime dotnet-sdk opentabletdriver-git
     systemctl --user enable --now opentabletdriver
 }

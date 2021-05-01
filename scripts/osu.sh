@@ -15,7 +15,7 @@ drirc='
 </device>
 '
 
-function changeres {
+changeres() {
     if [[ $USER == lukee ]]; then
         if [[ $(xrandr | grep -c 'HDMI-1-1') == 1 ]]; then
             [[ $(xrandr | grep -c 'HDMI-1-1 connected') == 1 ]] && output=HDMI-1-1 || output=eDP-1-1
@@ -33,7 +33,7 @@ function changeres {
     fi
 }
 
-function oss {
+oss() {
     changeres 900
     qdbus org.kde.KWin /Compositor suspend
     xmodmap -e 'keycode 79 = q 7'
@@ -53,7 +53,7 @@ function oss {
     changeres
 }
 
-function random {
+random() {
     mapno=$1
     [[ ! $1 ]] && mapno=4
     cd $HOME/.osu
@@ -62,7 +62,7 @@ function random {
     done
 }
 
-function remove {
+remove() {
     ls $HOME/.osu/oss/ | sed -e 's/\.osz$//' | tee osslist
     ls $HOME/.osu/Songs | tee osulist
     ossremoved=$(comm -12 osslist osulist)
@@ -73,7 +73,7 @@ function remove {
     cat $ossremoved
 }
 
-function update {
+update() {
     cd $HOME/.osu
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
     current=$(cat osu.AppImage.version 2>/dev/null)
@@ -105,7 +105,7 @@ function update {
     read -s
 }
 
-function install {
+osuinstall() {
     [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     
@@ -201,7 +201,7 @@ elif [[ $1 == "help" ]]; then
     osu {remove}
     osu {update}"
 elif [[ $1 == "install" ]]; then
-    install
+    osuinstall
 else
     oss "$@"
 fi

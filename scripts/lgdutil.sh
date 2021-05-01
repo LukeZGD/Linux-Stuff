@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function deedee {
+deedee() {
     if [ ! -z $1 ] && [ ! -z $2 ]; then
         Input=$1
         Output=$2
@@ -18,7 +18,7 @@ function deedee {
     sudo dd if="$Input" of="$Output" bs=4M conv=fsync status=progress
 }
 
-function rsyncee {
+rsyncee() {
     if [ ! -z $1 ] && [ ! -z $2 ]; then
         Input=$1
         Output=$2

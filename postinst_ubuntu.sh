@@ -77,7 +77,7 @@ org.ppsspp.PPSSPP
 
 . /etc/os-release
 
-function MainMenu {
+MainMenu() {
     select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore" "NVIDIA" "(Re-)Add PPAs"; do
         case $opt in
             "Install stuff" ) installstuff; break;;
@@ -91,11 +91,11 @@ function MainMenu {
     done
 }
 
-function installstuff {
+installstuff() {
     select opt in "VirtualBox" "wine" "osu!" "Emulators" "system76-power" "OpenTabletDriver" "Intel non-free"; do
         case $opt in
             "VirtualBox" ) vbox; break;;
-            "wine" ) wine; break;;
+            "wine" ) wineinstall; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) sudo flatpak install flathub ${flatemus[*]}; break;;
             "system76-power" ) system76power; break;;
@@ -106,7 +106,7 @@ function installstuff {
     done
 }
 
-function AddPPAs {
+AddPPAs() {
     #sudo add-apt-repository -y ppa:obsproject/obs-studio
     #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     #sudo add-apt-repository -y ppa:persepolis/ppa
@@ -117,7 +117,7 @@ function AddPPAs {
     sudo apt dist-upgrade -y
 }
 
-function system76power {
+system76power() {
     sudo apt-add-repository -y ppa:system76-dev/stable
     sudo apt update
     sudo apt dist-upgrade -y
@@ -126,7 +126,7 @@ function system76power {
     sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep/
 }
 
-function opentabletdriver {
+opentabletdriver() {
     mkdir tablet
     cd tablet
     wget https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
@@ -141,7 +141,7 @@ function opentabletdriver {
     rm -rf tablet
 }
 
-function nvidia {
+nvidia() {
     select opt in "NVIDIA 460" "NVIDIA 390"; do
         case $opt in
             "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386; break;;
@@ -150,12 +150,12 @@ function nvidia {
     done
 }
 
-function pipinstall {
+pipinstall() {
     sudo apt install -y python3-pip
     python3 -m pip install -U gallery-dl tartube youtube-dl
 }
 
-function vbox {
+vbox() {
     sudo apt install -y virtualbox virtualbox-guest-additions-iso
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
@@ -169,7 +169,7 @@ function vbox {
     rm $vboxextpack SHA256SUMS
 }
 
-function wine {
+wineinstall() {
     wget -nc https://dl.winehq.org/wine-builds/winehq.key
     sudo apt-key add winehq.key
     rm winehq.key
@@ -185,7 +185,7 @@ function wine {
     ln -sf $HOME/AppData 'Application Data'
 }
 
-function postinstall {
+postinstall() {
     sudo dpkg --add-architecture i386
     sudo apt purge -y eog evince file-roller geary gedit gwenview kcalc kdeconnect kwrite snapd totem vlc
     sudo apt autoremove -y

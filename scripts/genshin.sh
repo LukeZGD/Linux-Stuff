@@ -5,7 +5,7 @@ BASEDIR="$HOME/Programs/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/GI-on-Linux"
 
-function Main {
+Main() {
     qdbus org.kde.KWin /Compositor suspend
     ln -sf "$BASEDIR" "$PROGDIR"
     clear
@@ -22,7 +22,7 @@ function Main {
     qdbus org.kde.KWin /Compositor resume
 }
 
-function Patch {
+Patch() {
     if [[ ! -d "$GIOLDIR" ]]; then
         cd "$BASEDIR"
         git clone https://notabug.org/Krock/GI-on-Linux

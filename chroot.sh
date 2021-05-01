@@ -141,7 +141,7 @@ youtube-dl
 zsync
 )
 
-function grubinstall {
+grubinstall() {
     pacman -S --noconfirm --needed grub
     lsblk
     read -p "[Input] Disk? (/dev/sdX) " part
@@ -163,7 +163,7 @@ function grubinstall {
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
-function grubinstallia32 {
+grubinstallia32() {
     pacman -S --noconfirm --needed grub efibootmgr
     lsblk
     read -p "[Input] Disk? (/dev/sdX) " read part
@@ -177,7 +177,7 @@ function grubinstallia32 {
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
-function systemdinstall {
+systemdinstall() {
     pacman -S --noconfirm --needed efibootmgr
     echo "[Log] run bootctl install"
     bootctl install
@@ -202,7 +202,7 @@ function systemdinstall {
     editor 0" > /boot/loader/loader.conf
 }
 
-function setupstuff {
+setupstuff() {
     echo "[Log] nanorc"
     echo 'include "/usr/share/nano/*.nanorc"
     include "/usr/share/nano-syntax-highlighting/*.nanorc"' | tee /etc/nanorc

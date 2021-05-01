@@ -43,7 +43,7 @@ org.DolphinEmu.dolphin-emu
 org.ppsspp.PPSSPP
 )
 
-function MainMenu {
+MainMenu() {
     select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore" "NVIDIA"; do
         case $opt in
             "Install stuff" ) installstuff; break;;
@@ -56,7 +56,7 @@ function MainMenu {
     done
 }
 
-function installstuff {
+installstuff() {
     select opt in "VirtualBox" "wine" "osu!" "Emulators"; do
         case $opt in
             "VirtualBox" ) vbox; break;;
@@ -68,7 +68,7 @@ function installstuff {
     done
 }
 
-function nvidia {
+nvidia() {
     select opt in "NVIDIA Optimus+TLP" "NVIDIA 390xx"; do
         case $opt in
             "NVIDIA Optimus+TLP" ) sudo dnf install -y akmod-nvidia intel-media-driver libva-intel-driver mesa-dri-drivers.i686 tlp; break;;
@@ -77,20 +77,20 @@ function nvidia {
     done
 }
 
-function pipinstall {
+pipinstall() {
     python3 -m pip install -U gallery-dl tartube youtube-dl
 }
 
-function emulatorsinstall {
+emulatorsinstall() {
     sudo flatpak install -y flathub ${flatemus[*]}
 }
 
-function vbox {
+vbox() {
     sudo dnf install -y VirtualBox
     sudo modprobe vboxdrv
 }
 
-function wine {
+wine() {
     sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract winehq-devel
     $HOME/Arch-Stuff/scripts/winetricks.sh
@@ -98,7 +98,7 @@ function wine {
     winetricks -q gdiplus vcrun2013 vcrun2015 wmp9
 }
 
-function postinstall {
+postinstall() {
     LINE='fastestmirror=1'
     FILE='/etc/dnf/dnf.conf'
     sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
