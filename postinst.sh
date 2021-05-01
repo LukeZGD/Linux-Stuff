@@ -32,7 +32,7 @@ function installstuff {
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) pac install dolphin-emu mgba-qt nestopia pcsx2 ppsspp snes9x-gtk; break;;
+            "Emulators" ) pac install dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp snes9x-gtk; break;;
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
@@ -128,7 +128,8 @@ function postinstallcomm {
     printable = no
     follow symlinks = yes
     wide links = yes" | sudo tee /etc/samba/smb.conf
-    #sudo systemctl enable --now nmb smb
+    sudo smbpasswd -a $USER
+    sudo systemctl enable --now nmb smb
     
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
 }
@@ -203,13 +204,13 @@ function kvm {
 }
 
 function kvmstep1 {
+    pac installc iptables-nft
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux-zen
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-    sudo usermod -aG kvm,libvirt $USER 
-    sudo smbpasswd -a $USER
+    sudo usermod -aG kvm,libvirt $USER
     sudo sed -i '/^options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
     echo
     echo "Reboot and run this again for GVT-g"
@@ -239,9 +240,6 @@ function kvmstep2 {
 }
 
 function RSYNC {
-    if [[ $ArgR == sparse ]]; then
-        [[ ! -d $2 ]] && ArgR=--sparse || ArgR=--inplace
-    fi
     [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
@@ -255,6 +253,7 @@ function RSYNC {
           --exclude '.Genymobile/Genymotion/deployed' \
           --exclude '.config/GitHub Desktop/Cache' \
           --exclude 'Windows7' --exclude 'Windows10' \
+          --exclude 'Programs/Genshin Impact' \
           --exclude '.osu' --exclude '.cache' --exclude '.ccache' \
           --exclude '.cemu/wine' --exclude '.config/Caprine' \
           --exclude '.config/chromium/Default/File System' \
@@ -262,10 +261,15 @@ function RSYNC {
           --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
           --exclude '.local/share/baloo' --exclude '.local/share/flatpak' \
           --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
-          --exclude '.npm' --exclude '.nuget' --exclude '.nv' --exclude '.nx' \
+          --exclude '.local/share/NuGet' --exclude '.npm' --exclude '.nuget' \
+          --exclude '.nv' --exclude '.nx' \
           --exclude '.persepolis' --exclude '.pipewire-media-session' --exclude '.xsession-errors.old' \
           --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' \
           --exclude '.wine_osu' --exclude '.zoom' --exclude '.ld.so' $1 $2
+    elif [[ $ArgR == sparse ]]; then
+        [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
+        sudo rsync -va $ArgR --info=progress2 $1 $2
+    fi
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
     fi

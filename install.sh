@@ -1,8 +1,8 @@
 #!/bin/bash
 
-mirrorlist='Server = https://mirror.chaoticum.net/arch/$repo/os/$arch
+mirrorlist='Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
+Server = https://mirror.chaoticum.net/arch/$repo/os/$arch
 Server = https://mirror.pseudoform.org/$repo/os/$arch
-Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
 Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
 Server = https://arch.mirror.constant.com/$repo/os/$arch
 Server = https://mirror.bethselamin.de/$repo/os/$arch
