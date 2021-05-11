@@ -30,6 +30,7 @@ cups-pdf
 f3
 fish
 git
+github-desktop
 htop
 libjsoncpp24
 libqt5websockets5
@@ -112,9 +113,15 @@ AddPPAs() {
     #sudo add-apt-repository -y ppa:persepolis/ppa
     #sudo add-apt-repository -y ppa:jurplel/qview
     #sudo add-apt-repository -y ppa:alexlarsson/flatpak
+    
+    sudo add-apt-repository -y ppa:kubuntu-ppa/backports
     sudo add-apt-repository -y ppa:libreoffice/ppa
+    
+    wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo tee /etc/apt/trusted.gpg.d/shiftkey-desktop.asc > /dev/null
+    sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftky-desktop.list'
+    
     sudo apt update
-    sudo apt dist-upgrade -y
+    sudo apt full-upgrade -y
 }
 
 system76power() {

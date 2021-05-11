@@ -172,7 +172,7 @@ nvidia() {
     done
     
     if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == 460 ]]; then
-        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+        pac install nvidia-lts lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ $nvidia4 == 390 ]]; then
         pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
     fi
@@ -208,7 +208,7 @@ kvmstep1() {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux-zen
+    sudo mkinitcpio -p linux-lts
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
     sudo sed -i '/^options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf

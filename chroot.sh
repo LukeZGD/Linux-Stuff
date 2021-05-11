@@ -8,8 +8,8 @@ fish
 git
 intel-ucode
 linux-firmware
-linux-zen
-linux-zen-headers
+linux-lts
+linux-lts-headers
 nano
 pacman-contrib
 reflector
@@ -192,10 +192,10 @@ systemdinstall() {
     echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux-zen
+    linux /vmlinuz-linux-lts
     initrd /amd-ucode.img
     initrd /intel-ucode.img
-    initrd /initramfs-linux-zen.img
+    initrd /initramfs-linux-lts.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
@@ -219,7 +219,7 @@ setupstuff() {
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
     
-    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /lib/systemd/system/bluetooth.service
+    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.service
 }
 
 # ----------------
@@ -259,7 +259,7 @@ sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/H
 sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux-zen
+mkinitcpio -p linux-lts
 
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
