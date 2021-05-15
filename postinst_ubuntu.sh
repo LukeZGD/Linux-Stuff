@@ -10,8 +10,9 @@ kamoso
 kate
 kde-spectacle
 kdenlive
-kfind
 kdialog
+kfind
+kolourpaint
 mpv
 qsynth
 
@@ -27,10 +28,13 @@ qdirstat
 simple-scan
 
 cups-pdf
+curl
 f3
 fish
+flatpak
 git
 htop
+intel-gpu-tools
 libjsoncpp24
 libqt5websockets5
 libsdl2-net-2.0-0
@@ -39,8 +43,9 @@ openjdk-11-jre
 pavucontrol-qt
 plasma-nm
 printer-driver-gutenprint
+rar
 samba
-unrar-free
+unrar
 v4l2loopback-dkms
 webp
 xdelta3
@@ -132,7 +137,7 @@ opentabletdriver() {
     mkdir tablet
     cd tablet
     wget https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
-    wget https://github.com/InfinityGhost/OpenTabletDriver/releases/download/v0.5.0/OpenTabletDriver.deb
+    wget https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest/download/OpenTabletDriver.deb
     sudo dpkg -i packages-microsoft-prod.deb
     sudo apt update
     sudo apt install -y apt-transport-https
@@ -217,6 +222,7 @@ postinstall() {
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
     sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|g" /etc/default/grub
+    sudo update-grub
     : "
     echo 'HandlePowerKey=suspend-then-hibernate
 HandleLidSwitch=suspend-then-hibernate
@@ -234,19 +240,41 @@ IdleAction=suspend
 IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep
     
-    #echo "fish" | tee -a $HOME/.bashrc
+    sudo sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
+    
+    sudo cp /etc/samba/samba.conf /etc/samba/samba.conf.bak
+    echo "[global]
+    allow insecure wide links = yes
+    workgroup = WORKGROUP
+    netbios name = $(cat /etc/hostname)
+
+    [LinuxHost]
+    comment = Host Share
+    path = $HOME
+    valid users = $USER
+    public = no
+    writable = yes
+    printable = no
+    follow symlinks = yes
+    wide links = yes" | sudo tee /etc/samba/smb.conf
+    sudo smbpasswd -a $USER
+    sudo systemctl enable --now nmbd smbd
     
     read -p "[Input] Enable hibernation? (y/N) " Hibernate
     [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
     
     sudo apt install -y hibernate pm-utils
-    clear
-    lsblk
-    read -p "[Input] Please enter swap partition (/dev/sdaX) " swappart
-    swapuuid=$(blkid -o value -s UUID $swappart)
-    echo "[Log] Got UUID of swap $swappart: $swapuuid"
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=4096 status=progress
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    swapuuid=$(findmnt -no UUID -T /swapfile)
+    swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    swapoffset=$(echo ${swapoffset//./})
+    echo "[Log] Edit /etc/fstab"
+    echo "UUID=$swapoffset swap swap sw 0 0" | sudo tee -a /etc/fstab
     echo "[Log] Edit /etc/default/grub"
-    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi resume=UUID=$swapuuid\"|g" /etc/default/grub
+    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
     

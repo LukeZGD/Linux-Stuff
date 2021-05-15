@@ -106,6 +106,7 @@ gimp
 kamoso
 kate
 kdenlive
+kolourpaint
 lame
 mpv
 obs-studio

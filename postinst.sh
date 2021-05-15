@@ -269,7 +269,6 @@ RSYNC() {
     elif [[ $ArgR == sparse ]]; then
         [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
         sudo rsync -va $ArgR --info=progress2 $1 $2
-    fi
     else
         sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
     fi
@@ -293,8 +292,8 @@ BackupRestore() {
     done
     if [ $Mode == user ]; then
         Paths=($HOME/ /media/$USER/LukeHDD2/BackupsP/$USER/
-            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/
-            $HOME/.osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
+            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/)
+            #$HOME/.osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
         Paths=(/var/cache/pacman/pkg/ /media/$USER/LukeHDD2/BackupsP/pkg/
                /var/cache/pacman/aur/ /media/$USER/LukeHDD2/BackupsP/aur/)
@@ -305,7 +304,7 @@ BackupRestore() {
         if [ $Mode == user ]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
         RSYNC ${Paths[2]} ${Paths[3]}
-        RSYNC ${Paths[4]} ${Paths[5]}
+        #RSYNC ${Paths[4]} ${Paths[5]}
         elif [ $Mode == pac ]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         RSYNC ${Paths[2]} ${Paths[3]}
