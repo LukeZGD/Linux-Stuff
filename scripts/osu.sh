@@ -153,6 +153,7 @@ osuinstall() {
     mkdir $HOME/.config/pulse 2>/dev/null
     cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
     sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
+    sudo usermod -aG audio $USER
     
     : '
     cat > /tmp/dsound.reg << "EOF"

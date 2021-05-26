@@ -106,20 +106,29 @@ installstuff() {
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "Intel non-free" ) sudo apt install i965-va-driver-shaders intel-media-va-driver-non-free; break;;
+            "KVM" ) KVM; break;;
             * ) exit;;
         esac
     done
 }
 
+KVM() {
+    sudo apt install qemu-kvm qemu-utils libvirt-daemon-system libvirt-clients bridge-utils virt-manager ovmf
+    sudo usermod -aG kvm,libvirt $USER
+    echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
+    echo "add 'iommu=pt intel-iommu=on' (or amd-iommu) to /etc/default/grub' then press enter"
+    read -s
+    sudo update-grub
+}
+
 AddPPAs() {
-    #sudo add-apt-repository -y ppa:obsproject/obs-studio
-    #sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
-    #sudo add-apt-repository -y ppa:persepolis/ppa
-    #sudo add-apt-repository -y ppa:jurplel/qview
     #sudo add-apt-repository -y ppa:alexlarsson/flatpak
+    #sudo add-apt-repository -y ppa:jurplel/qview
+    #sudo add-apt-repository -y ppa:libreoffice/ppa
+    #sudo add-apt-repository -y ppa:obsproject/obs-studio
+    #sudo add-apt-repository -y ppa:persepolis/ppa
     sudo add-apt-repository -y ppa:kubuntu-ppa/backports
-    sudo add-apt-repository -y ppa:libreoffice/ppa
-    
+    sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo apt update
     sudo apt full-upgrade -y
 }
@@ -221,7 +230,7 @@ postinstall() {
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | sudo tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
-    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|g" /etc/default/grub
+    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|g" /etc/default/grub
     sudo update-grub
     : "
     echo 'HandlePowerKey=suspend-then-hibernate
@@ -260,6 +269,8 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     sudo smbpasswd -a $USER
     sudo systemctl enable --now nmbd smbd
     
+    echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
+    
     read -p "[Input] Enable hibernation? (y/N) " Hibernate
     [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
     
@@ -272,11 +283,11 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
     swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Edit /etc/fstab"
-    echo "UUID=$swapoffset swap swap sw 0 0" | sudo tee -a /etc/fstab
+    echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
     echo "[Log] Edit /etc/default/grub"
-    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash pci=nomsi resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
-    echo "[Log] Run grub-mkconfig"
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
+    echo "[Log] Run update-grub"
+    sudo update-grub
     
     sudo bash -c 'cat > /etc/polkit-1/localauthority/50-local.d/com.ubuntu.enable-hibernate.pkla << EOF
 [Re-enable hibernate by default in upower]
