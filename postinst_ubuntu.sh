@@ -2,7 +2,6 @@
 
 packages=(
 ark
-audacity
 ffmpegthumbs
 gimp
 k3b
@@ -45,6 +44,7 @@ plasma-nm
 printer-driver-gutenprint
 rar
 samba
+tlpui
 unrar
 v4l2loopback-dkms
 webp
@@ -67,12 +67,12 @@ libgl1-mesa-dri:i386
 )
 
 flatpkgs=(
+org.audacityteam.Audacity
 org.gtk.Gtk3theme.Breeze
 )
 
 flatemus=(
 ca._0ldsk00l.Nestopia
-com.snes9x.Snes9x
 io.mgba.mGBA
 net.kuribo64.melonDS
 net.pcsx2.PCSX2
@@ -128,6 +128,7 @@ AddPPAs() {
     #sudo add-apt-repository -y ppa:obsproject/obs-studio
     #sudo add-apt-repository -y ppa:persepolis/ppa
     sudo add-apt-repository -y ppa:kubuntu-ppa/backports
+    sudo add-apt-repository -y ppa:linuxuprising/apps
     sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo apt update
     sudo apt full-upgrade -y
@@ -191,7 +192,7 @@ wineinstall() {
     rm winehq.key
     sudo add-apt-repository -y "deb https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main"
     sudo apt update
-    sudo apt install -y winehq-devel cabextract fuseiso libmspack0
+    sudo apt install -y winehq-stable cabextract fuseiso libmspack0
     $HOME/Arch-Stuff/scripts/winetricks.sh
     update_winetricks
     winetricks -q dxvk gdiplus vcrun2013 vcrun2015 vcrun2019 wmp9
@@ -271,19 +272,21 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
     
-    read -p "[Input] Enable hibernation? (y/N) " Hibernate
-    [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
-    
-    sudo apt install -y hibernate pm-utils
+    echo "[Log] swapfile"
     sudo dd if=/dev/zero of=/swapfile bs=1M count=4096 status=progress
     sudo chmod 600 /swapfile
     sudo mkswap /swapfile
     sudo swapon /swapfile
+    echo "[Log] Edit /etc/fstab"
+    echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
+    
+    read -p "[Input] Enable hibernation? (y/N) " Hibernate
+    [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
+    
+    sudo apt install -y hibernate pm-utils
     swapuuid=$(findmnt -no UUID -T /swapfile)
     swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
     swapoffset=$(echo ${swapoffset//./})
-    echo "[Log] Edit /etc/fstab"
-    echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
     echo "[Log] Edit /etc/default/grub"
     sudo sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"|GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
     echo "[Log] Run update-grub"

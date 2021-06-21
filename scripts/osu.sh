@@ -34,7 +34,7 @@ changeres() {
 }
 
 oss() {
-    changeres 900
+    #changeres 900
     qdbus org.kde.KWin /Compositor suspend
     xmodmap -e 'keycode 79 = q 7'
     xmodmap -e 'keycode 90 = space 0'
@@ -50,7 +50,7 @@ oss() {
     fi
     setxkbmap -layout us
     qdbus org.kde.KWin /Compositor resume
-    changeres
+    #changeres
 }
 
 random() {

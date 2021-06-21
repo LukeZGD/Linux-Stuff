@@ -32,7 +32,7 @@ installstuff() {
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) pac install dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp snes9x-gtk; break;;
+            "Emulators" ) pac install bsnes-hd dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp; break;;
             "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
