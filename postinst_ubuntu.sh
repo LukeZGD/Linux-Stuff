@@ -40,6 +40,7 @@ libsdl2-net-2.0-0
 neofetch
 openjdk-11-jre
 pavucontrol-qt
+plasma-discover-backend-flatpak
 plasma-nm
 printer-driver-gutenprint
 rar
@@ -72,10 +73,7 @@ org.gtk.Gtk3theme.Breeze
 )
 
 flatemus=(
-ca._0ldsk00l.Nestopia
 io.mgba.mGBA
-net.kuribo64.melonDS
-net.pcsx2.PCSX2
 org.DolphinEmu.dolphin-emu
 org.ppsspp.PPSSPP
 )
@@ -102,7 +100,7 @@ installstuff() {
             "VirtualBox" ) vbox; break;;
             "wine" ) wineinstall; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) sudo flatpak install flathub ${flatemus[*]}; break;;
+            "Emulators" ) sudo apt install nestopia pcsx2; sudo flatpak install flathub ${flatemus[*]}; break;;
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "Intel non-free" ) sudo apt install i965-va-driver-shaders intel-media-va-driver-non-free; break;;
@@ -125,10 +123,10 @@ AddPPAs() {
     #sudo add-apt-repository -y ppa:alexlarsson/flatpak
     #sudo add-apt-repository -y ppa:jurplel/qview
     #sudo add-apt-repository -y ppa:libreoffice/ppa
-    #sudo add-apt-repository -y ppa:obsproject/obs-studio
     #sudo add-apt-repository -y ppa:persepolis/ppa
     sudo add-apt-repository -y ppa:kubuntu-ppa/backports
     sudo add-apt-repository -y ppa:linuxuprising/apps
+    sudo add-apt-repository -y ppa:obsproject/obs-studio
     sudo add-apt-repository -y ppa:ubuntuhandbook1/apps
     sudo apt update
     sudo apt full-upgrade -y
