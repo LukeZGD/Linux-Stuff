@@ -12,6 +12,7 @@ kdenlive
 kdialog
 kfind
 kolourpaint
+ksysguard
 mpv
 qsynth
 
@@ -25,6 +26,7 @@ okular-extra-backends
 qbittorrent
 qdirstat
 simple-scan
+tlpui
 
 cups-pdf
 curl
@@ -33,23 +35,23 @@ fish
 flatpak
 git
 htop
+imagemagick
 intel-gpu-tools
-libjsoncpp24
-libqt5websockets5
-libsdl2-net-2.0-0
 neofetch
 openjdk-11-jre
 pavucontrol-qt
 plasma-discover-backend-flatpak
 plasma-nm
 printer-driver-gutenprint
+python-is-python3
+python3-pip
 rar
 samba
-tlpui
 unrar
 v4l2loopback-dkms
 webp
 xdelta3
+zenity
 zsync
 
 network-manager-openvpn
@@ -65,6 +67,9 @@ libgl1-mesa-glx
 libgl1-mesa-dri
 libgl1-mesa-glx:i386
 libgl1-mesa-dri:i386
+libjsoncpp24
+libqt5websockets5
+libsdl2-net-2.0-0
 )
 
 flatpkgs=(
@@ -85,7 +90,7 @@ MainMenu() {
         case $opt in
             "Install stuff" ) installstuff; break;;
             "Run postinstall commands" ) postinstall; break;;
-            "pip install/update" ) pipinstall; break;;
+            "pip install/update" ) pip3 install -U gallery-dl tartube youtube-dl; break;;
             "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
             "NVIDIA" ) nvidia; break;;
             "(Re-)Add PPAs" ) AddPPAs; break;;
@@ -165,11 +170,6 @@ nvidia() {
     done
 }
 
-pipinstall() {
-    sudo apt install -y python3-pip
-    python3 -m pip install -U gallery-dl tartube youtube-dl
-}
-
 vbox() {
     sudo apt install -y virtualbox virtualbox-guest-additions-iso
     sudo usermod -aG vboxusers $USER
@@ -211,7 +211,8 @@ postinstall() {
     flatpak remote-delete flathub
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak install -y flathub ${flatpkgs[*]}
-    
+    sudo flatpak override org.audacityteam.Audacity --unshare=network
+
     sudo dpkg -i $HOME/Programs/Packages/*.deb
     sudo apt install -yf
     
