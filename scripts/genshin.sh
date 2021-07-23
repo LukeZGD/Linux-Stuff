@@ -8,7 +8,7 @@ UPDATER="$GIOLDIR/updater/update_gi.sh"
 
 Patch() {
     cd "$GIOLDIR"
-    Version=$(ls -d 1*/ | cut -c 1-3 | sort -n | tail -n 1)
+    Version=$(ls -d 2*/ | cut -c 1-3 | sort -n | tail -n 1)
     Current=$(sed -n 's/^game_version=\(.*\)/\1/p' "$GAMEDIR/config.ini" | tr -d "\r\n" | tr -d '.')
     
     chmod +x $Version/*.sh

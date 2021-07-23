@@ -162,9 +162,9 @@ opentabletdriver() {
 }
 
 nvidia() {
-    select opt in "NVIDIA 460" "NVIDIA 390"; do
+    select opt in "NVIDIA 470" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA 460" ) sudo apt install -y --no-install-recommends nvidia-driver-460 nvidia-settings libnvidia-gl-460:i386 libnvidia-compute-460:i386 libnvidia-decode-460:i386 libnvidia-encode-460:i386 libnvidia-ifr1-460:i386 libnvidia-fbc1-460:i386; break;;
+            "NVIDIA 470" ) sudo apt install -y --no-install-recommends nvidia-driver-470 nvidia-settings libnvidia-gl-470:i386 libnvidia-compute-470:i386 libnvidia-decode-470:i386 libnvidia-encode-470:i386 libnvidia-ifr1-470:i386 libnvidia-fbc1-470:i386; break;;
             "NVIDIA 390" ) sudo apt install -y nvidia-driver-390 libnvidia-gl-390:i386; break;;
         esac
     done
@@ -277,6 +277,7 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     sudo mkswap /swapfile
     sudo swapon /swapfile
     echo "[Log] Edit /etc/fstab"
+    echo "tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0" | sudo tee -a /etc/fstab
     echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
     
     read -p "[Input] Enable hibernation? (y/N) " Hibernate

@@ -27,13 +27,12 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "devkitPro" "VMware Player install" "VMware Player update"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) pac install bsnes-hd dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp; break;;
-            "devkitPro" ) devkitPro; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
             "VMware Player install" ) vmwarei; break;;
@@ -162,16 +161,16 @@ vbox() {
 }
 
 nvidia() {
-    select opt in "NVIDIA Optimus+TLP" "NVIDIA 460" "NVIDIA 390"; do
+    select opt in "NVIDIA Optimus+TLP" "NVIDIA Latest" "NVIDIA 390"; do
         case $opt in
             "NVIDIA Optimus+TLP" ) nvidia4=optimus; break;;
-            "NVIDIA 460" ) nvidia4=460; break;;
+            "NVIDIA Latest" ) nvidia4=latest; break;;
             "NVIDIA 390" ) nvidia4=390; break;;
             * ) exit;;
         esac
     done
     
-    if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == 460 ]]; then
+    if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == latest ]]; then
         pac install nvidia-lts lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ $nvidia4 == 390 ]]; then
         pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
@@ -181,18 +180,6 @@ nvidia() {
         pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-git tlp tlp-rdw tlpui-git
         sudo systemctl enable tlp
     fi
-}
-
-devkitPro() {
-    sudo pacman-key --recv BC26F752D25B92CE272E0F44F7FD5492264BB9D0 --keyserver keyserver.ubuntu.com
-    sudo pacman-key --lsign BC26F752D25B92CE272E0F44F7FD5492264BB9D0
-    sudo pacman -U --noconfirm https://downloads.devkitpro.org/devkitpro-keyring.pkg.tar.xz
-    LINE='[dkp-libs]
-    Server = https://downloads.devkitpro.org/packages
-    [dkp-linux]
-    Server = https://downloads.devkitpro.org/packages/linux/$arch/'
-    FILE='/etc/pacman.conf'
-    sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
 }
 
 kvm() {
@@ -340,7 +327,7 @@ Restoreuser() {
 }
 
 Plymouth() {
-    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume filesystems fsck)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume btrfs filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume btrfs filesystems fsck)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth

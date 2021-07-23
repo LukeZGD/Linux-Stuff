@@ -21,17 +21,15 @@ wget
 
 alsa-utils
 pavucontrol-qt
-pulseaudio
-pulseaudio-alsa
-pulseaudio-bluetooth
+pipewire
+pipewire-alsa
+pipewire-pulse
 
 intel-media-driver
 intel-gpu-tools
 libva-intel-driver
 libva-mesa-driver
-libva-utils
 libvdpau-va-gl
-mesa-demos
 vulkan-icd-loader
 vulkan-intel
 vulkan-radeon
@@ -48,8 +46,10 @@ network-manager-applet
 openvpn
 systemd-resolvconf
 
+btrfs-progs
 exfatprogs
 ntfs-3g
+xfsprogs
 
 p7zip
 unzip
@@ -65,7 +65,6 @@ plasma
 ark
 dolphin
 k3b
-kamera
 kate
 kdegraphics-thumbnailers
 kdesdk-kioslaves
@@ -77,6 +76,7 @@ kio-extras
 kio-fuse
 kmix
 konsole
+ksysguard
 kwalletmanager
 qt5-imageformats
 spectacle
@@ -96,18 +96,14 @@ system-config-printer
 ttf-dejavu
 
 audacious
-digikam
 ffmpeg
 ffmpegthumbs
 ffmpegthumbnailer
 fluidsynth
-fuseiso
 gimp
-kamoso
 kate
 kdenlive
 kolourpaint
-lame
 mpv
 obs-studio
 okteta
@@ -120,17 +116,13 @@ gsmartcontrol
 htop
 jre11-openjdk
 jsoncpp
-krdc
 libreoffice-fresh
-love
 okular
 openssh
-maxcso
 noto-fonts-cjk
 noto-fonts-emoji
 persepolis
 qbittorrent
-freerdp
 samba
 seahorse
 testdisk
@@ -139,7 +131,6 @@ xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-kde
 youtube-dl
-zsync
 )
 
 grubinstall() {
@@ -148,17 +139,17 @@ grubinstall() {
     read -p "[Input] Disk? (/dev/sdX) " part
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
-    swapuuid=$(findmnt -no UUID -T /swapfile)
-    swapoffset=$(filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
-    swapoffset=$(echo ${swapoffset//./})
+    #swapuuid=$(findmnt -no UUID -T /swapfile)
+    #swapoffset=$(filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    #swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of root $rootpart: $rootuuid"
     echo "[Log] Got UUID of swap $swappart: $swapuuid"
-    echo "[Log] Got resume offset: $swapoffset"
+    #echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Run grub-install"
     grub-install $part --target=i386-pc
     echo "[Log] Edit /etc/default/grub"
     sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3 resume=UUID=$swapuuid resume_offset=$swapoffset\"|g" /etc/default/grub
+    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3\"|g" /etc/default/grub
     sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
     echo "[Log] Run grub-mkconfig"
     grub-mkconfig -o /boot/grub/grub.cfg
@@ -185,19 +176,20 @@ systemdinstall() {
     lsblk
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
-    swapuuid=$(findmnt -no UUID -T /swapfile)
-    swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
-    swapoffset=$(echo ${swapoffset//./})
+    #swapuuid=$(findmnt -no UUID -T /swapfile)
+    #swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
+    #swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of root $rootpart: $rootuuid"
-    echo "[Log] Got UUID of swap $swappart: $swapuuid"
-    echo "[Log] Got resume offset: $swapoffset"
+    #echo "[Log] Got UUID of swap $swappart: $swapuuid"
+    #echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-linux-lts
     initrd /amd-ucode.img
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards resume=UUID=$swapuuid resume_offset=$swapoffset root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rootflags=compress=zstd,subvol=/root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    #resume=UUID=$swapuuid resume_offset=$swapoffset
     echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
@@ -220,14 +212,14 @@ setupstuff() {
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
     echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
     
-    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.service
+    sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
 }
 
 # ----------------
 
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#TotalDownload/TotalDownload\nILoveCandy/" /etc/pacman.conf
+sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm --needed ${pacmanpkgs[*]}
 echo "[Log] Setting locale"
@@ -240,12 +232,12 @@ hwclock --systohc
 echo "[Log] Running passwd"
 passwd
 
-if [[ ! -z /ia32 ]]; then
+if [[ -e /ia32 ]]; then
     echo "[Log] Setup grub ia32"
     grubinstallia32
     rm /ia32
 else
-    if [[ ! -z /fdisk ]]; then
+    if [[ -e /fdisk ]]; then
         echo "[Log] Setup grub"
         grubinstall
         rm /fdisk
@@ -256,7 +248,7 @@ else
 fi
 
 echo "[Log] Edit mkinitcpio.conf"
-sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume filesystems fsck)/" /etc/mkinitcpio.conf
+sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume btrfs filesystems fsck)/" /etc/mkinitcpio.conf
 sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo "[Log] Run mkinitcpio"
@@ -303,52 +295,6 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
         Option "NaturalScrolling" "true"
     EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
-
-#echo "[Log] unmountonlogout"
-#cat > /usr/bin/unmountonlogout << 'EOF'
-cat > /dev/null << 'EOF'
-#!/bin/bash
-for device in /sys/block/*
-do
-    if udevadm info --query=property --path=$device | grep -q ^ID_BUS=usb
-    then
-        echo Found $device to unmount
-        DEVTO=`echo $device|awk -F"/" 'NF>1{print $NF}'`
-        echo `df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'` is the exact device
-        UM=`df -h|grep "$(ls /dev/$DEVTO*)"|awk '{print $1}'`
-        if sudo umount $UM
-        then echo Done umounting
-        fi
-    fi
-done
-EOF
-#chmod +x /usr/bin/unmountonlogout
-#sed -i "s/#session-cleanup-script=/session-cleanup-script=\/usr\/bin\/unmountonlogout/" /etc/lightdm/lightdm.conf
-cat > /dev/null << 'EOF'
-echo "[Log] reflector service"
-echo '[Unit]
-Description=Pacman mirrorlist update
-Wants=network-online.target
-After=network-online.target nss-lookup.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/reflector --verbose --country "Singapore" -l 5 --sort rate --save /etc/pacman.d/mirrorlist
-
-[Install]
-WantedBy=multi-user.target' | tee /etc/systemd/system/reflector.service
-echo '[Unit]
-Description=Run reflector weekly
-
-[Timer]
-OnCalendar=Mon *-*-* 7:00:00
-RandomizedDelaySec=15h
-Persistent=true
-
-[Install]
-WantedBy=timers.target' | tee /etc/systemd/system/reflector.timer
-systemctl enable reflector.timer
-EOF
 
 setupstuff
 echo "[Log] chroot script done"

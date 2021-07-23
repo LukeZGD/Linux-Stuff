@@ -22,7 +22,7 @@ echo
 echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#TotalDownload/TotalDownload/" /etc/pacman.conf
+sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 #echo "[Log] Installing reflector"
 #pacman -Sy --noconfirm --needed python reflector
 #echo "[Log] Creating mirrorlist with reflector"
@@ -67,11 +67,14 @@ if [[ ! -z $swappart ]]; then
     mkdir -p /mnt/boot/EFI
     mount $bootpart /mnt/boot/EFI
 else
+    pvname="lvm"
+    vgname="vg0"
+    lvname="root"
     cryptsetup luksFormat $rootpart
-    cryptsetup luksOpen $rootpart lvm
-    pvcreate /dev/mapper/lvm
-    vgcreate vg0 /dev/mapper/lvm
-    lvcreate -l 100%FREE vg0 -n root
+    cryptsetup luksOpen $rootpart $pvname
+    pvcreate /dev/mapper/$pvname
+    vgcreate $vgname /dev/mapper/$pvname
+    lvcreate -l 100%FREE $vgname -n $lvname
 fi
 if [[ $formatboot != n ]] && [[ $formatboot != N ]]; then
     echo "[Log] Formatting boot partition"
@@ -82,29 +85,41 @@ if [[ $formatboot != n ]] && [[ $formatboot != N ]]; then
     fi
 fi
 if [[ -z $swappart ]]; then
-    echo "[Log] Formatting and mounting volumes"
-    mkfs.ext4 /dev/mapper/vg0-root
-    mount /dev/mapper/vg0-root /mnt
-    mkdir /mnt/boot
+    rootpart="/dev/mapper/$vgname-$lvname"
+    echo "[Log] Formatting and mounting btrfs volume"
+    mkfs.btrfs -f $rootpart
+    mount $rootpart /mnt
+    echo "[Log] Creating subvolumes"
+    btrfs su cr /mnt/root
+    btrfs su cr /mnt/home
+    btrfs su cr /mnt/swap
+    umount /mnt
+    echo "[Log] Mounting subvolumes"
+    mount -o compress=zstd,subvol=/root $rootpart /mnt
+    mkdir /mnt/{boot,home,swap}
     mount $bootpart /mnt/boot
+    mount -o compress=zstd,subvol=/home $rootpart /mnt/home
+    mount -o subvol=/swap $rootpart /mnt/swap
     echo "[Log] Creating swap"
-    dd if=/dev/zero of=/mnt/swapfile bs=1M count=4096 status=progress
-    chmod 600 /mnt/swapfile
-    mkswap /mnt/swapfile
-    swapon /mnt/swapfile
+    #dd if=/dev/zero of=/mnt/swapfile bs=1M count=4096 status=progress
+    touch /mnt/swap/swapfile
+    chmod 600 /mnt/swap/swapfile
+    chattr +C /mnt/swap/swapfile
+    fallocate /mnt/swap/swapfile -l4g
+    mkswap /mnt/swap/swapfile
+    swapon /mnt/swap/swapfile
 fi
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
-mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
-cp pac.sh /mnt/usr/bin/pac
-cp -R Backups/pkg /mnt/var/cache/pacman
+#mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
+#cp -R Backups/pkg /mnt/var/cache/pacman
 echo "[Log] Installing base"
 pacstrap /mnt base
 [[ ! -z $swappart ]] && touch /mnt/ia32
 [[ $diskprog == y ]] || [[ $diskprog == Y ]] && touch /mnt/fdisk
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
-echo 'tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0' | tee -a /mnt/etc/fstab
+echo "tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0" | tee -a /mnt/etc/fstab
 sed -i "s/relatime/noatime/" /mnt/etc/fstab
 echo "[Log] Running chroot.sh in arch-chroot"
 arch-chroot /mnt ./chroot.sh
