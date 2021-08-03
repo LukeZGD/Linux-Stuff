@@ -46,7 +46,8 @@ Game() {
     qdbus org.kde.KWin /Compositor suspend
     Patch install
     cd "$GAMEDIR"
-    wine explorer /desktop=anyname,1920x1080 cmd /c launcher.bat
+    res=$(xrandr --current | grep  '*' | uniq | awk '{print $1}' | tail -n1)
+    wine explorer /desktop=anyname,$res cmd /c launcher.bat
     qdbus org.kde.KWin /Compositor resume
     running=0
 }

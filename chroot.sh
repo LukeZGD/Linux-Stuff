@@ -223,8 +223,8 @@ sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm --needed ${pacmanpkgs[*]}
 echo "[Log] Setting locale"
-echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "en_CA.UTF-8 UTF-8" > /etc/locale.gen
+echo "LANG=en_CA.UTF-8" > /etc/locale.conf
 locale-gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Asia/Manila /etc/localtime
