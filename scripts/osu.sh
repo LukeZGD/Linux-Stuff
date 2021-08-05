@@ -1,11 +1,10 @@
 #!/bin/bash
 export vblank_mode=0
-export WINEPREFIX="$HOME/.wine_osu"
+export WINEPREFIX="$HOME/.osu/wine"
 export WINEARCH="win32"
-#export STAGING_AUDIO_DURATION=20000
 
 . /etc/os-release
-[[ $ID == arch ]] && export PATH=/opt/wine-staging-6.2/usr/bin:$PATH
+[[ $ID == arch ]] && export PATH=$HOME/.local/share/lutris/runners/wine/lutris-6.1-3-x86_64/bin:$PATH
 
 drirc='
 <device screen="0" driver="dri2">
@@ -77,19 +76,19 @@ update() {
     cd $HOME/.osu
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
     current=$(cat osu.AppImage.version 2>/dev/null)
-    [ ! $current ] && current='N/A'
+    [[ ! $current ]] && current='N/A'
     latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3)
     echo "osu!lazer"
     echo "* Current version: $current"
     echo "* Latest version: $latest"
     if [[ $latest != $current ]]; then
         read -p "Continue to update? (y/N) " continue
-        [[ $continue != y ]] && [[ $continue != Y ]] && exit
+        [[ $continue != y && $continue != Y ]] && exit
         rm -rf tmp
         mkdir tmp
         cd tmp
         echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
-        [ ! -e osu.AppImage ] && echo "Update failed" && exit
+        [[ ! -e osu.AppImage ]] && echo "Update failed" && exit
         rm -f ../osu.AppImage*
         mv osu.AppImage* ..
         cd ..
@@ -106,55 +105,60 @@ update() {
 }
 
 osuinstall() {
-    [ ! -e /usr/local/bin/osu ] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
+    [[ ! -e /usr/local/bin/osu ]] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
-    
+    mkdir -p $HOME/.osu/wine 2>/dev/null
+    cd $HOME/.osu
+
     if [[ $ID == arch ]]; then
         sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
-        sudo rm -rf /opt/wine-staging-6.2
-        sudo mkdir /opt/wine-staging-6.2
-        sudo tar -I zstd -xvf $HOME/Programs/wine-staging-6.2-1-x86_64.pkg.tar.zst -C /opt/wine-staging-6.2
-        #sudo wget -O /opt/wine-staging-6.2/usr/lib32/wine/winepulse.drv.so https://blog.thepoon.fr/assets/articles/2018-06-16-osuLinuxAudioLatency/32bit/winepulse.drv.so
-        #sudo wget -O /opt/wine-staging-6.2/usr/lib/wine/winepulse.drv.so https://blog.thepoon.fr/assets/articles/2018-06-16-osuLinuxAudioLatency/64bit/winepulse.drv.so
+        cd $HOME/Programs
+        [[ ! -e wine-lutris-6.1-3-x86_64.tar.xz ]] && curl -LO https://github.com/lutris/wine/releases/download/lutris-6.1-3/wine-lutris-6.1-3-x86_64.tar.xz -o $HOME/Programs
+        if [[ ! -d $HOME/.local/share/lutris/runners/wine/lutris-6.1-3-x86_64 ]]; then
+            mkdir -p $HOME/.local/share/lutris/runners/wine
+            7z x $HOME/Programs/wine-lutris-6.1-3-x86_64.tar.xz
+            tar xvf wine-lutris-6.1-3-x86_64.tar -C $HOME/.local/share/lutris/runners/wine
+            rm -f wine-lutris-6.1-3-x86_64.tar
+        fi
     fi
-    if [ -d $HOME/.wine_osu ]; then
-        read -p "wine_osu folder detected! Delete and reinstall? (y/N) " Confirm
+    if [[ -d $WINEPREFIX ]]; then
+        read -p "osu wine folder detected! Delete and reinstall? (y/N) " Confirm
         if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
-            rm -rf $HOME/.wine_osu
+            rm -rf $WINEPREFIX
             winetricks -q dotnet40 gdiplus
-            #winetricks sound=alsa
         fi
         Confirm=
     else
         winetricks -q dotnet40 gdiplus
-        #winetricks sound=alsa
     fi
     
-    sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
+    [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
     printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
-    
-    sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
-    echo "high-priority = yes
-    nice-level = -15
-
-    realtime-scheduling = yes
-    realtime-priority = 50
-
-    resample-method = speex-float-0
-
-    default-sample-format = s32le
-    default-sample-rate = 48000
-    alternate-sample-rate = 48000
-    default-sample-channels = 2
-
-    default-fragments = 2
-    default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
-    
-    mkdir $HOME/.config/pulse 2>/dev/null
-    cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
-    sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
     sudo usermod -aG audio $USER
-    
+
+    if [[ $ID != arch ]]; then
+        sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
+        echo "high-priority = yes
+        nice-level = -15
+
+        realtime-scheduling = yes
+        realtime-priority = 50
+
+        resample-method = speex-float-0
+
+        default-sample-format = s32le
+        default-sample-rate = 48000
+        alternate-sample-rate = 48000
+        default-sample-channels = 2
+
+        default-fragments = 2
+        default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
+
+        mkdir $HOME/.config/pulse 2>/dev/null
+        cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
+        sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
+    fi
+
     : '
     cat > /tmp/dsound.reg << "EOF"
 Windows Registry Editor Version 5.00
@@ -165,8 +169,6 @@ Windows Registry Editor Version 5.00
 EOF
     wine regedit /tmp/dsound.reg'
     
-    mkdir $HOME/.osu 2>/dev/null
-    cd $HOME/.osu
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
     if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe

@@ -1,10 +1,11 @@
 #!/bin/bash
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+BASEDIR="$(dirname $(type -p $0))"
 
 packages=(
 audacity-wxgtk2
 f3
 gallery-dl
+github-desktop-bin
 masterpdfeditor-free
 qdirstat
 qsynth
@@ -32,7 +33,7 @@ installstuff() {
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) pac install bsnes-hd dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp; break;;
+            "Emulators" ) pac install dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
             "VMware Player install" ) vmwarei; break;;
@@ -73,10 +74,8 @@ postinstallcomm() {
     #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
     sudo rm -rf /media
     sudo ln -sf /run/media /media
-    sudo ln -sf $BASEDIR/postinst.sh /usr/local/bin/postinst
-    sudo ln -sf $BASEDIR/scripts/lgdutil.sh /usr/local/bin/lgdutil
-    sudo ln -sf $BASEDIR/scripts/pac.sh /usr/local/bin/pac
-    sudo ln -sf $BASEDIR/scripts/touhou.sh /usr/local/bin/touhou
+    #sudo ln -sf $BASEDIR/postinst.sh /usr/local/bin/postinst
+    #sudo ln -sf $BASEDIR/scripts/pac.sh /usr/local/bin/pac
     # home symlinks
     cd $HOME/.config
     ln -sf /mnt/Data/$USER/config/PCSX2/
@@ -89,7 +88,6 @@ postinstallcomm() {
     ln -sf /mnt/Data/$USER/share/yuzu/
     cd $HOME/.cemu
     ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
-    ln -sf /mnt/Data/$USER/cemu/graphicPacks/
     ln -sf /mnt/Data/$USER/cemu/mlc01/
     ln -sf /mnt/Data/$USER/cemu/shaderCache/
     cd $HOME/.cache
@@ -105,9 +103,6 @@ postinstallcomm() {
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
-    
-    fish -c 'set -U fish_user_paths $fish_user_paths /usr/sbin /sbin /usr/lib/ccache/bin'
-    #sudo usermod -s /usr/bin/fish $USER
     
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
@@ -155,7 +150,7 @@ autocreate() {
 }
 
 vbox() {
-    pac install virtualbox virtualbox-host-dkms virtualbox-guest-iso virtualbox-ext-oracle
+    pac install virtualbox virtualbox-host-modules-arch virtualbox-guest-iso virtualbox-ext-oracle
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
@@ -171,13 +166,13 @@ nvidia() {
     done
     
     if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == latest ]]; then
-        pac install nvidia-lts lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+        pac install nvidia lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ $nvidia4 == 390 ]]; then
         pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
     fi
     
     if [[ $nvidia4 == optimus ]]; then
-        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-git tlp tlp-rdw tlpui-git
+        pac install bbswitch nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
         sudo systemctl enable tlp
     fi
 }
@@ -195,16 +190,17 @@ kvmstep1() {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux-lts
+    sudo mkinitcpio -p linux
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
-    sudo sed -i '/^options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
+    sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
     echo
     echo "Reboot and run this again for GVT-g"
 }
 
 kvmstep2() {
-    read -p "GVT-g? (y/N) " gvtg 
+    echo "KVM qemu already installed"
+    read -p "Setup GVT-g? (y/N) " gvtg
     [[ $gvtg != y ]] && [[ $gvtg != Y ]] && exit
     sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1/' /boot/loader/entries/arch.conf
     UUID=029a88f0-6c3e-4673-8b3c-097fe77d7c97
@@ -230,34 +226,57 @@ RSYNC() {
     [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 \
-          --exclude '.bash_history' --exclude '.bash_logout' --exclude '.bashrc' \
-          --exclude '.gitconfig' --exclude '.gtkrc-2.0' \
-          --exclude '.nvidia-settings-rc' --exclude '.pam_environment' \
-          --exclude '.profile' --exclude '.sudo_as_admin_successful' \
-          --exclude '.Xauthority' --exclude '.xsession-errors' \
-          --exclude 'KVM' --exclude 'VirtualBox VMs' \
-          --exclude '.Genymobile/Genymotion/deployed' \
-          --exclude '.config/GitHub Desktop/Cache' \
-          --exclude 'Windows7' --exclude 'Windows10' \
-          --exclude 'Programs/Genshin Impact' \
-          --exclude '.osu' --exclude '.cache' --exclude '.ccache' \
-          --exclude '.cemu/wine' --exclude '.config/Caprine' \
-          --exclude '.config/chromium/Default/File System' \
-          --exclude '.config/chromium/Default/Service Worker/CacheStorage' \
-          --exclude '.local/share/Kingsoft' --exclude '.local/share/Trash' \
-          --exclude '.local/share/baloo' --exclude '.local/share/flatpak' \
-          --exclude '.local/share/gvfs-metadata' --exclude '.local/share/lutris' \
-          --exclude '.local/share/NuGet' --exclude '.npm' --exclude '.nuget' \
-          --exclude '.nv' --exclude '.nx' \
-          --exclude '.persepolis' --exclude '.pipewire-media-session' --exclude '.xsession-errors.old' \
-          --exclude '.wine' --exclude '.wine_fl' --exclude '.wine_lutris' \
-          --exclude '.wine_osu' --exclude '.zoom' --exclude '.ld.so' $1 $2
+        excludestr=
+        excludelist=(
+        ".bash_history"
+        ".bash_logout"
+        ".cache"
+        ".ccache"
+        ".cemu"
+        ".conan"
+        ".config/Caprine"
+        ".config/chromium/Default/File System"
+        ".config/chromium/Default/Service Worker/CacheStorage"
+        ".config/GitHub Desktop/Cache"
+        ".Genymobile/Genymotion/deployed"
+        ".gitconfig"
+        ".gtkrc-2.0"
+        ".ld.so"
+        ".local/share/Baloo"
+        ".local/share/flatpak"
+        ".local/share/gvfs-metadata"
+        ".local/share/Kingsoft"
+        ".local/share/lutris"
+        ".local/share/NuGet"
+        ".local/share/Trash"
+        ".npm"
+        ".nuget"
+        ".nv"
+        ".nvidia-settings-rc"
+        ".nx"
+        ".osu"
+        ".pam_environment"
+        ".pipewire-media-session"
+        ".profile"
+        ".sudo_as_admin_successful"
+        ".wine"
+        ".wine_fl"
+        ".Xauthority"
+        ".xsession-errors"
+        ".zoom"
+        "KVM"
+        "VirtualBox VMs"
+        "Programs/Genshin Impact"
+        )
+        for exclude in "${excludelist[@]}"; do
+            excludestr+="--exclude \"$exclude\" "
+        done
+        sudo rsync -va $ArgR $Update --delete-after --info=progress2 $excludestr $1 $2
     elif [[ $ArgR == sparse ]]; then
         [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
         sudo rsync -va $ArgR --info=progress2 $1 $2
     else
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude 'VirtualBox VMs' $1 $2
+        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude "VirtualBox VMs" --exclude "wine" $1 $2
     fi
 }
 
@@ -348,6 +367,7 @@ vmwareu() {
 opentabletdriver() {
     pac install dotnet-host dotnet-runtime dotnet-sdk opentabletdriver-git
     systemctl --user enable --now opentabletdriver
+    #printf "blacklist wacom\nblacklist hid_uclogic\n" | sudo tee /etc/modprobe.d/blacklist.conf
 }
 
 # ----------------------------------

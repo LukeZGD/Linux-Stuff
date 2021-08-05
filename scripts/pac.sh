@@ -25,7 +25,7 @@ elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
     else
         paru -S $noconfirm $needed --sudoloop ${@:2}
     fi
-    kernelI=$(pacman -Q linux-lts | awk '{print $2}' | cut -c -6 | tr -d .)
+    kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -6 | tr -d .)
     kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
     if [[ $kernelR != $kernelI ]]; then
         echo
