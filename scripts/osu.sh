@@ -1,55 +1,26 @@
 #!/bin/bash
 export vblank_mode=0
-export WINEPREFIX="$HOME/.osu/wine"
+export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-
+lutris="lutris-6.1-3-x86_64"
+lpath="$HOME/.local/share/lutris/runners/wine"
 . /etc/os-release
-[[ $ID == arch ]] && export PATH=$HOME/.local/share/lutris/runners/wine/lutris-6.1-3-x86_64/bin:$PATH
-
-drirc='
-<device screen="0" driver="dri2">
-    <application name="Default">
-        <option name="vblank_mode" value="0"/>
-    </application>
-</device>
-'
-
-changeres() {
-    if [[ $USER == lukee ]]; then
-        if [[ $(xrandr | grep -c 'HDMI-1-1') == 1 ]]; then
-            [[ $(xrandr | grep -c 'HDMI-1-1 connected') == 1 ]] && output=HDMI-1-1 || output=eDP-1-1
-        elif [[ $(xrandr | grep -c 'HDMI-1') == 1 ]]; then
-            [[ $(xrandr | grep -c 'HDMI-1 connected') == 1 ]] && output=HDMI-1 || output=eDP-1
-        fi
-        echo $output
-        [[ $1 == 900 ]] && res="1440x900" || res="1920x1080"
-        if [[ $res == 1440x900 ]]; then
-            xrandr --output $output --mode $res --rate 74.98 2>/dev/null
-            [ $? == 1 ] && xrandr --output $output --mode 1440x900 2>/dev/null
-        elif [[ $res == 1920x1080 ]]; then
-            xrandr --output $output --mode $res 2>/dev/null
-        fi
-    fi
-}
+[[ $ID == arch ]] && export PATH=$lpath/$lutris/bin:$PATH
 
 oss() {
-    #changeres 900
     qdbus org.kde.KWin /Compositor suspend
     xmodmap -e 'keycode 79 = q 7'
     xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
         $HOME/.osu/osu.AppImage
     else
-        echo "$drirc" > $HOME/.drirc
         wineserver -k
         cd $HOME/.osu
         wine osu!.exe "$@"
         wineserver -k
-        rm -f $HOME/.drirc
     fi
     setxkbmap -layout us
     qdbus org.kde.KWin /Compositor resume
-    #changeres
 }
 
 random() {
@@ -80,7 +51,7 @@ update() {
     latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3)
     echo "osu!lazer"
     echo "* Current version: $current"
-    echo "* Latest version: $latest"
+    echo "* Latest version:  $latest"
     if [[ $latest != $current ]]; then
         read -p "Continue to update? (y/N) " continue
         [[ $continue != y && $continue != Y ]] && exit
@@ -111,19 +82,29 @@ osuinstall() {
     cd $HOME/.osu
 
     if [[ $ID == arch ]]; then
-        sudo pacman -S --noconfirm --needed lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
+        sudo pacman -S --noconfirm --needed aria2 lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
         cd $HOME/Programs
-        [[ ! -e wine-lutris-6.1-3-x86_64.tar.xz ]] && curl -LO https://github.com/lutris/wine/releases/download/lutris-6.1-3/wine-lutris-6.1-3-x86_64.tar.xz -o $HOME/Programs
-        if [[ ! -d $HOME/.local/share/lutris/runners/wine/lutris-6.1-3-x86_64 ]]; then
-            mkdir -p $HOME/.local/share/lutris/runners/wine
-            7z x $HOME/Programs/wine-lutris-6.1-3-x86_64.tar.xz
-            tar xvf wine-lutris-6.1-3-x86_64.tar -C $HOME/.local/share/lutris/runners/wine
-            rm -f wine-lutris-6.1-3-x86_64.tar
+
+        if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
+            aria2c https://github.com/lutris/wine/releases/download/lutris-6.1-3/wine-$lutris.tar.xz -d $HOME/Programs
+        fi
+
+        if [[ $(shasum $HOME/Programs/wine-$lutris.tar.xz | awk '{print $1}' ) != 3a20dfdfa1744811ed51b9fe76c99322cc44033d ]]; then
+            echo "wine lutris verifying failed"
+            [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f $HOME/Programs/wine-$lutris.tar.xz
+            exit 1
+        fi
+
+        if [[ ! -d $lpath/$lutris ]]; then
+            mkdir -p $lpath
+            7z x $HOME/Programs/wine-$lutris.tar.xz
+            tar xvf wine-$lutris.tar -C $lpath
+            rm -f wine-$lutris.tar
         fi
     fi
     if [[ -d $WINEPREFIX ]]; then
         read -p "osu wine folder detected! Delete and reinstall? (y/N) " Confirm
-        if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
+        if [[ $Confirm == y || $Confirm == Y ]]; then
             rm -rf $WINEPREFIX
             winetricks -q dotnet40 gdiplus
         fi
@@ -159,16 +140,6 @@ osuinstall() {
         sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
     fi
 
-    : '
-    cat > /tmp/dsound.reg << "EOF"
-Windows Registry Editor Version 5.00
-
-[HKEY_CURRENT_USER\Software\Wine\DirectSound]
-"HelBuflen"="512"
-"SndQueueMax"="3"
-EOF
-    wine regedit /tmp/dsound.reg'
-    
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
     if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
@@ -189,9 +160,7 @@ elif [[ $1 == "lazer" ]]; then
     oss lazer
 elif [[ $1 == "kill" ]]; then
     wineserver -k
-    rm -f $HOME/.drirc
     qdbus org.kde.KWin /Compositor resume
-    changeres
     exit
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"

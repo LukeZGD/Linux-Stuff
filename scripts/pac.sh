@@ -25,15 +25,6 @@ elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
     else
         paru -S $noconfirm $needed --sudoloop ${@:2}
     fi
-    kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -6 | tr -d .)
-    kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
-    if [[ $kernelR != $kernelI ]]; then
-        echo
-        echo "                   *******************************"
-        echo "[WARNING] A kernel update has been detected. It is recommended to reboot!"
-        echo "                   *******************************"
-        echo
-    fi
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
         paru -Q
@@ -77,4 +68,14 @@ else
     pac {reflector}
     pac {update/upgrade} [all]
     pac {news}"
+fi
+
+kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -6 | tr -d .)
+kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
+if [[ $kernelR != $kernelI ]]; then
+    echo
+    echo "                   *******************************"
+    echo "[WARNING] A kernel update has been detected. It is recommended to reboot!"
+    echo "                   *******************************"
+    echo
 fi

@@ -12,8 +12,6 @@ linux
 linux-headers
 nano
 pacman-contrib
-reflector
-rsync
 terminus-font
 usbutils
 vim
@@ -47,8 +45,10 @@ openvpn
 systemd-resolvconf
 
 btrfs-progs
+compsize
 exfatprogs
 ntfs-3g
+rsync
 xfsprogs
 
 p7zip
@@ -223,7 +223,7 @@ sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 echo "[Log] Installing packages"
 pacman -S --noconfirm --needed ${pacmanpkgs[*]}
 echo "[Log] Setting locale"
-echo "en_CA.UTF-8 UTF-8" > /etc/locale.gen
+echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
 locale-gen
 echo "[Log] Time stuff"

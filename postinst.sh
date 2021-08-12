@@ -10,7 +10,7 @@ masterpdfeditor-free
 qdirstat
 qsynth
 qview
-tartube
+youtube-dl-gui-git
 zoom
 )
 
@@ -150,7 +150,7 @@ autocreate() {
 }
 
 vbox() {
-    pac install virtualbox virtualbox-host-modules-arch virtualbox-guest-iso virtualbox-ext-oracle
+    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-modules-arch
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
@@ -222,56 +222,56 @@ kvmstep2() {
     echo "Done! Reboot before continuing"
 }
 
+excludelist=(
+".bash_history"
+".bash_logout"
+".cache"
+".ccache"
+".cemu"
+".conan"
+".config/Caprine"
+".config/chromium/Default/File System"
+".config/chromium/Default/Service Worker/CacheStorage"
+".config/GitHub Desktop/Cache"
+".Genymobile/Genymotion/deployed"
+".gitconfig"
+".gtkrc-2.0"
+".ld.so"
+".local/share/baloo"
+".local/share/flatpak"
+".local/share/gvfs-metadata"
+".local/share/Kingsoft"
+".local/share/lutris"
+".local/share/NuGet"
+".local/share/Trash"
+".npm"
+".nuget"
+".nv"
+".nvidia-settings-rc"
+".nx"
+".osu"
+".pam_environment"
+".pipewire-media-session"
+".profile"
+".sudo_as_admin_successful"
+".wine*"
+".Xauthority"
+".xsession-errors"
+".zoom"
+"Programs/Genshin Impact"
+"VMs"
+)
+
 RSYNC() {
     [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full ]] && [[ $ArgR != sparse ]] && Update=--update
     if [[ $3 == user ]]; then
         excludestr=
-        excludelist=(
-        ".bash_history"
-        ".bash_logout"
-        ".cache"
-        ".ccache"
-        ".cemu"
-        ".conan"
-        ".config/Caprine"
-        ".config/chromium/Default/File System"
-        ".config/chromium/Default/Service Worker/CacheStorage"
-        ".config/GitHub Desktop/Cache"
-        ".Genymobile/Genymotion/deployed"
-        ".gitconfig"
-        ".gtkrc-2.0"
-        ".ld.so"
-        ".local/share/Baloo"
-        ".local/share/flatpak"
-        ".local/share/gvfs-metadata"
-        ".local/share/Kingsoft"
-        ".local/share/lutris"
-        ".local/share/NuGet"
-        ".local/share/Trash"
-        ".npm"
-        ".nuget"
-        ".nv"
-        ".nvidia-settings-rc"
-        ".nx"
-        ".osu"
-        ".pam_environment"
-        ".pipewire-media-session"
-        ".profile"
-        ".sudo_as_admin_successful"
-        ".wine"
-        ".wine_fl"
-        ".Xauthority"
-        ".xsession-errors"
-        ".zoom"
-        "KVM"
-        "VirtualBox VMs"
-        "Programs/Genshin Impact"
-        )
+        rm /tmp/excludelist 2>/dev/null
         for exclude in "${excludelist[@]}"; do
-            excludestr+="--exclude \"$exclude\" "
+            echo "$exclude" >> /tmp/excludelist
         done
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 $excludestr $1 $2
+        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude-from=/tmp/excludelist $1 $2
     elif [[ $ArgR == sparse ]]; then
         [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
         sudo rsync -va $ArgR --info=progress2 $1 $2
