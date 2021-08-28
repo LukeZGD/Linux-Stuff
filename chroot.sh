@@ -7,6 +7,7 @@ dialog
 fish
 git
 intel-ucode
+kernel-modules-hook
 linux-firmware
 linux
 linux-headers
@@ -109,6 +110,7 @@ obs-studio
 okteta
 
 aria2
+bat
 firefox
 gnome-calculator
 gnome-keyring

@@ -1,25 +1,18 @@
 #!/bin/bash
 trap exit INT TERM EXIT
 
-if [[ $1 == autoremove ]] || [[ $1 == autoremovec ]]; then
-    [[ $1 != autoremovec ]] && noconfirm=--noconfirm
+[[ $1 != *c ]] && noconfirm=--noconfirm
+if [[ $1 == autoremove* ]]; then
     sudo pacman -Rsn $noconfirm $(pacman -Qdtq) 2>/dev/null
-    [ $? == 1 ] && echo ' there is nothing to do' || exit $?
-elif [[ $1 == clean ]] || [[ $1 == cleanc ]]; then
-    [[ $1 != cleanc ]] && noconfirm=--noconfirm
-    if [[ $2 == all ]]; then 
-        paru -Sc $noconfirm
-    else
-        sudo pacman -Sc $noconfirm
-    fi
-elif [[ $1 == install ]] || [[ $1 == reinstall ]] ||
-     [[ $1 == installc ]] || [[ $1 == reinstallc ]]; then
-    [[ $1 != installc ]] && [[ $1 != reinstallc ]] && noconfirm=--noconfirm
-    [[ $1 == install ]] && needed=--needed
-    if [ -f $2 ]; then
+    [[ $? != 0 ]] && echo ' there is nothing to do' || exit $?
+elif [[ $1 == clean* ]]; then
+    [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
+elif [[ $1 == install* || $1 == reinstall* ]]; then
+    [[ $1 == install* ]] && needed=--needed
+    if [[ -f $2 ]]; then
         install=($2)
         for package in ${@:3}; do
-        [ -f $package ] && install+=($package)
+            [[ -f $package ]] && install+=($package)
         done
         paru -U $noconfirm $needed ${install[@]}
     else
@@ -37,19 +30,11 @@ elif [[ $1 == list ]]; then
     fi
 elif [[ $1 == query ]]; then
     paru -Q ${@:2}
-elif [[ $1 == remove ]] || [[ $1 == removec ]] ||
-     [[ $1 == uninstall ]] || [[ $1 == uninstallc ]]; then
-    [[ $1 != removec ]] && [[ $1 != uninstallc ]] && noconfirm=--noconfirm
+elif [[ $1 == remove* || $1 == uninstall* ]]; then
     paru -R $noconfirm ${@:2}
-elif [[ $1 == reflector ]]; then
-    sudo systemctl start reflector
-    systemctl status reflector
-elif [[ $1 == purge ]] || [[ $1 == purgec ]]; then
-    [[ $1 != purgec ]] && noconfirm=--noconfirm
+elif [[ $1 == purge* ]]; then
     paru -Rsn $noconfirm ${@:2}
-elif [[ $1 == update ]] || [[ $1 == updatec ]] ||
-     [[ $1 == upgrade ]] || [[ $1 == upgradec ]]; then
-    [[ $1 != updatec ]] && [[ $1 != upgradec ]] && noconfirm=--noconfirm
+elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
     paru -Syu $noconfirm --sudoloop $nodevel
 elif [[ $1 == news ]]; then
@@ -65,13 +50,11 @@ else
     pac {query} [package(s)]
     pac {reinstall} [package(s)]
     pac {remove/uninstall} [package(s)]
-    pac {reflector}
     pac {update/upgrade} [all]
     pac {news}"
 fi
-
-kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -6 | tr -d .)
-kernelR=$(uname -r | cut -c -6 | tr -d . | tr -d -)
+kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -7 | tr -d .)
+kernelR=$(uname -r | cut -c -7 | tr -d .-)
 if [[ $kernelR != $kernelI ]]; then
     echo
     echo "                   *******************************"

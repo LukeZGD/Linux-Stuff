@@ -3,21 +3,27 @@ export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 lutris="lutris-6.1-3-x86_64"
-lpath="$HOME/.local/share/lutris/runners/wine"
+lutrispath="$HOME/.local/share/lutris/runners/wine"
+osupath="$HOME/.osu"
 . /etc/os-release
-[[ $ID == arch ]] && export PATH=$lpath/$lutris/bin:$PATH
+[[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
-oss() {
+osurun() {
+    wine osu!.exe "$@"
+}
+
+osugame() {
     qdbus org.kde.KWin /Compositor suspend
     xmodmap -e 'keycode 79 = q 7'
     xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
-        $HOME/.osu/osu.AppImage
+        "$osupath"/osu.AppImage
     else
-        wineserver -k
-        cd $HOME/.osu
-        wine osu!.exe "$@"
-        wineserver -k
+        [[ -z "$@" ]] && wineserver -k
+        cd "$osupath"
+        osurun
+        [[ -d _pending ]] && osurun
+        [[ -d _cleanup ]] && osurun
     fi
     setxkbmap -layout us
     qdbus org.kde.KWin /Compositor resume
@@ -26,16 +32,16 @@ oss() {
 random() {
     mapno=$1
     [[ ! $1 ]] && mapno=4
-    cd $HOME/.osu
+    cd "$osupath"
     for i in $(seq 1 $mapno); do
-        wine osu!.exe "$HOME/.osu/oss/$(ls $HOME/.osu/oss/ | shuf -n 1)"
+        wine osu!.exe ""$osupath"/oss/$(ls "$osupath"/oss/ | shuf -n 1)"
     done
 }
 
 remove() {
-    ls $HOME/.osu/oss/ | sed -e 's/\.osz$//' | tee osslist
-    ls $HOME/.osu/Songs | tee osulist
-    ossremoved=$(comm -12 osslist osulist)
+    ls "$osupath"/oss/ | sed -e 's/\.osz$//' | tee osslist
+    ls "$osupath"/Songs | tee osulist
+    local ossremoved=$(comm -12 osslist osulist)
     sed 's/$/.osz/' $ossremoved
     sed 's/^/oss\//' $ossremoved
     cat $ossremoved | xargs -d '\n' rm -rf
@@ -44,7 +50,7 @@ remove() {
 }
 
 update() {
-    cd $HOME/.osu
+    cd "$osupath"
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
     current=$(cat osu.AppImage.version 2>/dev/null)
     [[ ! $current ]] && current='N/A'
@@ -78,8 +84,8 @@ update() {
 osuinstall() {
     [[ ! -e /usr/local/bin/osu ]] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
-    mkdir -p $HOME/.osu/wine 2>/dev/null
-    cd $HOME/.osu
+    mkdir -p "$osupath"/wine 2>/dev/null
+    cd "$osupath"
 
     if [[ $ID == arch ]]; then
         sudo pacman -S --noconfirm --needed aria2 lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
@@ -95,10 +101,10 @@ osuinstall() {
             exit 1
         fi
 
-        if [[ ! -d $lpath/$lutris ]]; then
-            mkdir -p $lpath
+        if [[ ! -d $lutrispath/$lutris ]]; then
+            mkdir -p $lutrispath
             7z x $HOME/Programs/wine-$lutris.tar.xz
-            tar xvf wine-$lutris.tar -C $lpath
+            tar xvf wine-$lutris.tar -C $lutrispath
             rm -f wine-$lutris.tar
         fi
     fi
@@ -146,7 +152,7 @@ osuinstall() {
         wine "osuinstall.exe"
     fi
     cd $HOME
-    ln -sf $HOME/.osu osu
+    ln -sf "$osupath" osu
     echo "Install script done"
 }
 
@@ -157,7 +163,7 @@ elif [[ $1 == "remove" ]]; then
 elif [[ $1 == "update" ]]; then
     update
 elif [[ $1 == "lazer" ]]; then
-    oss lazer
+    osugame lazer
 elif [[ $1 == "kill" ]]; then
     wineserver -k
     qdbus org.kde.KWin /Compositor resume
@@ -175,5 +181,5 @@ elif [[ $1 == "help" ]]; then
 elif [[ $1 == "install" ]]; then
     osuinstall
 else
-    oss "$@"
+    osugame "$@"
 fi

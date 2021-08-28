@@ -8,10 +8,19 @@ gallery-dl
 github-desktop-bin
 masterpdfeditor-free
 qdirstat
-qsynth
 qview
 youtube-dl-gui-git
 zoom
+)
+
+packages2=(
+arduino-ide
+legendary
+plasma-wayland-session
+qsynth
+simplescreenrecorder
+ventoy-bin
+waifu2x-ncnn-vulkan-bin
 )
 
 MainMenu() {
@@ -54,17 +63,9 @@ installpac() {
 
 postinstall() {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
-    rm /tmp/failed.txt
-    for package in "${packages[@]}"; do
-        sudo pacman -U --noconfirm --needed /var/cache/pacman/aur/$package*.zst 2>/dev/null
-        if [ $? == 1 ]; then
-        echo $package | tee -a /tmp/failed.txt
-        fi
-    done
-    IFS=$'\r\n' GLOBIGNORE='*' command eval 'failed=($(cat /tmp/failed.txt))'
-    for package in "${failed[@]}"; do
-        pac install $package
-    done
+    pac install ${packages[@]}
+    read -p "Install packages in packages2? (Y/n) " confirm
+    [[ $confirm != n && $confirm != N ]] && pac install ${packages2[@]}
 }
 
 postinstallcomm() {
@@ -123,9 +124,11 @@ postinstallcomm() {
     follow symlinks = yes
     wide links = yes" | sudo tee /etc/samba/smb.conf
     sudo smbpasswd -a $USER
-    sudo systemctl enable --now nmb smb
+    #sudo systemctl enable --now nmb smb
     
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
+    sudo systemctl disable NetworkManager-wait-online
+    sudo systemctl mask NetworkManager-wait-online
 }
 
 adduser() {
