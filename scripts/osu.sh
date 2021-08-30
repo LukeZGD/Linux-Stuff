@@ -9,13 +9,14 @@ osupath="$HOME/.osu"
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
 osurun() {
+    qdbus org.kde.KWin /Compositor suspend
     wine osu!.exe "$@"
+    qdbus org.kde.KWin /Compositor resume
 }
 
 osugame() {
-    qdbus org.kde.KWin /Compositor suspend
-    xmodmap -e 'keycode 79 = q 7'
-    xmodmap -e 'keycode 90 = space 0'
+    #xmodmap -e 'keycode 79 = q 7'
+    #xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
         "$osupath"/osu.AppImage
     else
@@ -25,8 +26,7 @@ osugame() {
         [[ -d _pending ]] && osurun
         [[ -d _cleanup ]] && osurun
     fi
-    setxkbmap -layout us
-    qdbus org.kde.KWin /Compositor resume
+    #setxkbmap -layout us
 }
 
 random() {

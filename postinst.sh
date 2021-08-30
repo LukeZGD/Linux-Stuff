@@ -2,7 +2,6 @@
 BASEDIR="$(dirname $(type -p $0))"
 
 packages=(
-audacity-wxgtk2
 f3
 gallery-dl
 github-desktop-bin
@@ -42,7 +41,7 @@ installstuff() {
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) pac install dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets; break;;
+            "Emulators" ) emulators; break;;
             "KVM (with GVT-g)" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
             "VMware Player install" ) vmwarei; break;;
@@ -51,6 +50,14 @@ installstuff() {
             * ) exit;;
         esac
     done
+}
+
+emulators() {
+    pac install dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets
+    cd $HOME/.cemu
+    ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
+    ln -sf /mnt/Data/$USER/cemu/mlc01/
+    ln -sf /mnt/Data/$USER/cemu/shaderCache/
 }
 
 installpac() {
@@ -81,16 +88,12 @@ postinstallcomm() {
     cd $HOME/.config
     ln -sf /mnt/Data/$USER/config/PCSX2/
     ln -sf /mnt/Data/$USER/config/ppsspp/
-    ln -sf /mnt/Data/$USER/config/rpcs3/
+    #ln -sf /mnt/Data/$USER/config/rpcs3/
     cd $HOME/.local/share
     ln -sf /mnt/Data/$USER/share/citra-emu/
     ln -sf /mnt/Data/$USER/share/dolphin-emu/
-    ln -sf /mnt/Data/$USER/share/osu/
-    ln -sf /mnt/Data/$USER/share/yuzu/
-    cd $HOME/.cemu
-    ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
-    ln -sf /mnt/Data/$USER/cemu/mlc01/
-    ln -sf /mnt/Data/$USER/cemu/shaderCache/
+    #ln -sf /mnt/Data/$USER/share/osu/
+    #ln -sf /mnt/Data/$USER/share/yuzu/
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
@@ -252,7 +255,6 @@ excludelist=(
 ".nv"
 ".nvidia-settings-rc"
 ".nx"
-".osu"
 ".pam_environment"
 ".pipewire-media-session"
 ".profile"

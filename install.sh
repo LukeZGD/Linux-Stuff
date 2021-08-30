@@ -95,10 +95,10 @@ if [[ -z $swappart ]]; then
     btrfs su cr /mnt/swap
     umount /mnt
     echo "[Log] Mounting subvolumes"
-    mount -o compress=zstd,subvol=/root $rootpart /mnt
+    mount -o compress=zstd:1,subvol=/root $rootpart /mnt
     mkdir /mnt/{boot,home,swap}
     mount $bootpart /mnt/boot
-    mount -o compress=zstd,subvol=/home $rootpart /mnt/home
+    mount -o compress=zstd:1,subvol=/home $rootpart /mnt/home
     mount -o subvol=/swap $rootpart /mnt/swap
     echo "[Log] Creating swap"
     #dd if=/dev/zero of=/mnt/swapfile bs=1M count=4096 status=progress
