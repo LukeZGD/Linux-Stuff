@@ -13,8 +13,9 @@ zoom
 )
 
 packages2=(
-arduino-ide
+arduino-ide-beta-bin
 legendary
+mystiq
 plasma-wayland-session
 qsynth
 simplescreenrecorder
@@ -53,11 +54,20 @@ installstuff() {
 }
 
 emulators() {
-    pac install dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets
+    pac install cemu dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets
+    mkdir $HOME/.cemu
     cd $HOME/.cemu
-    ln -sf /mnt/Data/$USER/cemu/controllerProfiles/
-    ln -sf /mnt/Data/$USER/cemu/mlc01/
-    ln -sf /mnt/Data/$USER/cemu/shaderCache/
+    ln -s /usr/share/cemu/Cemu.exe
+    ln -s /usr/share/cemu/cemuhook.dll
+    ln -s /usr/share/cemu/keystone.dll
+    ln -s /usr/share/cemu/sharedFonts/
+    ln -s /mnt/Data/$USER/cemu/controllerProfiles/
+    ln -s /mnt/Data/$USER/cemu/mlc01/
+    ln -s /mnt/Data/$USER/cemu/shaderCache/
+    ln -s /usr/share/cemu/cemuhook.dll
+    ln -s /usr/share/cemu/sharedFonts/
+    cp -r /usr/share/cemu/gameProfiles/ .
+    curl -L https://pastebin.com/raw/GWApZVLa -o keys.txt
 }
 
 installpac() {
@@ -156,7 +166,7 @@ autocreate() {
 }
 
 vbox() {
-    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-modules-arch
+    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-dkms
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
@@ -172,13 +182,13 @@ nvidia() {
     done
     
     if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == latest ]]; then
-        pac install nvidia lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ $nvidia4 == 390 ]]; then
         pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
     fi
     
     if [[ $nvidia4 == optimus ]]; then
-        pac install bbswitch nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
+        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
         sudo systemctl enable tlp
     fi
 }
@@ -196,7 +206,7 @@ kvmstep1() {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux
+    sudo mkinitcpio -p linux-zen
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
     sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
@@ -351,7 +361,7 @@ Restoreuser() {
 }
 
 Plymouth() {
-    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 resume btrfs filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 resume btrfs filesystems fsck)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 btrfs filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 btrfs filesystems fsck)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth

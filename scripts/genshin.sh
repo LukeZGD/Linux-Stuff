@@ -6,27 +6,43 @@ GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/GI-on-Linux"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 
+GetVersions() {
+    # from update_gi script
+    UPDATE_URL="https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource?key=gcStgarh&launcher_id=10"
+    game_element="game"
+    end_element="plugin"
+    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* 2>/dev/null)
+    rm update_content
+    update_content=$(sed "s/^.*\"$game_element\":{//;s/,\"$end_element\":.*$//;s/{/&\n/g;s/}/\n&/g" <<< "$update_content_src")
+    latest_version_content=$(sed -n '/"latest":/,/^}/{/"version":/!d;s/,/\n/g;s/"//g;p}' <<< "$update_content")
+    declare -A version_info
+    while read -r keyvalue; do
+        version_info[${keyvalue%%:*}]=${keyvalue#*:}
+    done <<< "$latest_version_content"
+    Current=$(sed -n 's/^game_version=\(.*\)/\1/p' "$GAMEDIR/config.ini" | tr -d "\r\n" | tr -d '.')
+    Version=$(echo ${version_info[version]} | tr -d '.')
+}
+
 Patch() {
     cd "$GIOLDIR"
-    Version=$(ls -d 2*/ | cut -c 1-3 | sort -n | tail -n 1)
-    Current=$(sed -n 's/^game_version=\(.*\)/\1/p' "$GAMEDIR/config.ini" | tr -d "\r\n" | tr -d '.')
-    
-    chmod +x $Version/*.sh
+    GetVersions
+    chmod +x $Current/*.sh $Version/*.sh
     cd "$GAMEDIR"
     if [[ $1 == install ]]; then
-        if [[ $Version != $Current ]]; then
+        if (( $Version > $Current )); then
             echo
             echo "There is a newer version available!"
             echo "  Your current version is: $Current"
             echo "    The latest version is: $Version"
             echo
-            echo "Make sure that the game is updated via the launcher before proceeding!"
-            exit 1
+            echo "Make sure that the game is updated before proceeding!"
+            read -s
+            return 1
         fi
-        "$GIOLDIR"/$Version/patch.sh
-        "$GIOLDIR"/$Version/patch_anti_logincrash.sh
+        "$GIOLDIR"/$Current/patch.sh
+        "$GIOLDIR"/$Current/patch_anti_logincrash.sh
     elif [[ $1 == uninstall ]]; then
-        "$GIOLDIR"/$Version/patch_revert.sh
+        "$GIOLDIR"/$Current/patch_revert.sh
     fi
     cd "$BASEDIR"
 }
@@ -45,8 +61,9 @@ Updater() {
 Game() {
     qdbus org.kde.KWin /Compositor suspend
     Patch install
+    [[ $? != 0 ]] && return
     cd "$GAMEDIR"
-    res=$(xrandr --current | grep  '*' | uniq | awk '{print $1}' | tail -n1)
+    res=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | tail -n1)
     wine explorer /desktop=anyname,$res cmd /c launcher.bat
     qdbus org.kde.KWin /Compositor resume
     running=0
@@ -75,7 +92,7 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Open Launcher for Updating" "Updater Script" "Install Patch" "Uninstall Patch"; do
+        select opt in "Launch Game" "Open Launcher for Updating" "Updater Script" "Install Patch" "Uninstall Patch" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Open Launcher for Updating" ) Updater launcher; break;;

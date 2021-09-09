@@ -21,6 +21,10 @@ elif [[ $1 == install* || $1 == reinstall* ]]; then
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
         paru -Q
+    elif [[ $2 == aur ]]; then
+        paru -Qm
+    elif [[ $2 == deps ]]; then
+        paru -Qd
     elif [[ $2 == upgrade ]]; then
         paru -Qu
     elif [[ ! -z $2 ]]; then
@@ -45,7 +49,7 @@ else
     pac {autoremove}
     pac {clean} [all]
     pac {install} [package(s)]
-    pac {list} [all,upgrade]/[package]
+    pac {list} [all,aur,deps,upgrade]/[package]
     pac {purge} [package(s)]
     pac {query} [package(s)]
     pac {reinstall} [package(s)]
@@ -53,7 +57,8 @@ else
     pac {update/upgrade} [all]
     pac {news}"
 fi
-kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -7 | tr -d .)
+
+kernelI=$(pacman -Q linux-zen | awk '{print $2}' | cut -c -7 | tr -d .)
 kernelR=$(uname -r | cut -c -7 | tr -d .-)
 if [[ $kernelR != $kernelI ]]; then
     echo
