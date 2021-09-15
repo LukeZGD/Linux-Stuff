@@ -8,23 +8,19 @@ osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
-osurun() {
-    qdbus org.kde.KWin /Compositor suspend
-    wine osu!.exe "$@"
-    qdbus org.kde.KWin /Compositor resume
-}
-
 osugame() {
     #xmodmap -e 'keycode 79 = q 7'
     #xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
         "$osupath"/osu.AppImage
     else
+        qdbus org.kde.KWin /Compositor suspend
         [[ -z "$@" ]] && wineserver -k
         cd "$osupath"
-        osurun
-        [[ -d _pending ]] && osurun
-        [[ -d _cleanup ]] && osurun
+        wine osu!.exe "$@"
+        [[ -d _pending ]] && wine osu!.exe "$@"
+        [[ -d _cleanup ]] && wine osu!.exe "$@"
+        qdbus org.kde.KWin /Compositor resume
     fi
     #setxkbmap -layout us
 }
@@ -34,7 +30,7 @@ random() {
     [[ ! $1 ]] && mapno=4
     cd "$osupath"
     for i in $(seq 1 $mapno); do
-        wine osu!.exe ""$osupath"/oss/$(ls "$osupath"/oss/ | shuf -n 1)"
+        wine osu!.exe "$osupath/oss/$(ls "$osupath"/oss/ | shuf -n 1)"
     done
 }
 
@@ -56,9 +52,10 @@ update() {
     [[ ! $current ]] && current='N/A'
     latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3)
     echo "osu!lazer"
-    echo "* Current version: $current"
-    echo "* Latest version:  $latest"
+    echo "* Your current version is: $current"
+    echo "* The latest version is:   $latest"
     if [[ $latest != $current ]]; then
+        echo "There is a newer version available!"
         read -p "Continue to update? (y/N) " continue
         [[ $continue != y && $continue != Y ]] && exit
         rm -rf tmp
@@ -108,6 +105,7 @@ osuinstall() {
             rm -f wine-$lutris.tar
         fi
     fi
+
     if [[ -d $WINEPREFIX ]]; then
         read -p "osu wine folder detected! Delete and reinstall? (y/N) " Confirm
         if [[ $Confirm == y || $Confirm == Y ]]; then

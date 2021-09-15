@@ -11,7 +11,7 @@ GetVersions() {
     UPDATE_URL="https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource?key=gcStgarh&launcher_id=10"
     game_element="game"
     end_element="plugin"
-    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* 2>/dev/null)
+    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* &>/dev/null)
     rm update_content
     update_content=$(sed "s/^.*\"$game_element\":{//;s/,\"$end_element\":.*$//;s/{/&\n/g;s/}/\n&/g" <<< "$update_content_src")
     latest_version_content=$(sed -n '/"latest":/,/^}/{/"version":/!d;s/,/\n/g;s/"//g;p}' <<< "$update_content")
@@ -32,8 +32,8 @@ Patch() {
         if (( $Version > $Current )); then
             echo
             echo "There is a newer version available!"
-            echo "  Your current version is: $Current"
-            echo "    The latest version is: $Version"
+            echo "* Your current version is: $Current"
+            echo "* The latest version is:   $Version"
             echo
             echo "Make sure that the game is updated before proceeding!"
             read -s
@@ -51,9 +51,9 @@ Updater() {
     if [[ $1 == launcher ]]; then
         Patch uninstall
         wine "$BASEDIR/launcher.exe"
-    elif [[ $1 == script ]]; then
+    else
         chmod +x "$UPDATER"
-        "$UPDATER"
+        "$UPDATER" $1
         read -s
     fi
 }
@@ -92,11 +92,10 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Open Launcher for Updating" "Updater Script" "Install Patch" "Uninstall Patch" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Updater Script" "Install Patch" "Uninstall Patch" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
-            "Open Launcher for Updating" ) Updater launcher; break;;
-            "Updater Script" ) Updater script; break;;
+            "Updater Script" ) Updater; break;;
             "Install Patch" ) Patch install; read -s; break;;
             "Uninstall Patch" ) Patch uninstall; read -s; break;;
             * ) exit;;

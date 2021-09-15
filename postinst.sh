@@ -62,10 +62,10 @@ emulators() {
     ln -s /usr/share/cemu/keystone.dll
     ln -s /usr/share/cemu/sharedFonts/
     ln -s /mnt/Data/$USER/cemu/controllerProfiles/
+    ln -s /mnt/Data/$USER/cemu/graphicPacks/
     ln -s /mnt/Data/$USER/cemu/mlc01/
+    ln -s /mnt/Data/$USER/cemu/settings.xml
     ln -s /mnt/Data/$USER/cemu/shaderCache/
-    ln -s /usr/share/cemu/cemuhook.dll
-    ln -s /usr/share/cemu/sharedFonts/
     cp -r /usr/share/cemu/gameProfiles/ .
     curl -L https://pastebin.com/raw/GWApZVLa -o keys.txt
 }
@@ -112,7 +112,7 @@ postinstallcomm() {
     
     pac install lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine winetricks
     sudo winetricks --self-update
-    winetricks -q dxvk gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
+    winetricks -q dotnet48 dxvk gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -239,6 +239,7 @@ kvmstep2() {
 }
 
 excludelist=(
+".android"
 ".bash_history"
 ".bash_logout"
 ".cache"
@@ -251,6 +252,7 @@ excludelist=(
 ".config/GitHub Desktop/Cache"
 ".Genymobile/Genymotion/deployed"
 ".gitconfig"
+".gradle"
 ".gtkrc-2.0"
 ".ld.so"
 ".local/share/baloo"
@@ -273,6 +275,7 @@ excludelist=(
 ".Xauthority"
 ".xsession-errors"
 ".zoom"
+"Android"
 "Programs/Genshin Impact"
 "VMs"
 )

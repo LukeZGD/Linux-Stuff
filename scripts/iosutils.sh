@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 . /etc/os-release
 compdir="$HOME/Programs/ios-utils"
 instdir="/opt/ios-utils"
@@ -25,36 +24,28 @@ if [[ ! -d $compdir ]]; then
     git clone https://github.com/tihmstar/img4tool
     git clone https://github.com/tihmstar/partialZipBrowser
     git clone --recursive https://github.com/tihmstar/tsschecker
-    #git clone --recursive https://github.com/m1stadev/futurerestore
 fi
 
 cd $compdir
 cd lzfse ; git reset --hard ; git pull ; cd ..
-#cd libplist ; git reset --hard ; git pull ; cd ..
-#cd libimobiledevice-glue ; git reset --hard ; git pull ; cd ..
-#cd libusbmuxd ; git reset --hard ; git pull ; cd ..
-#cd libimobiledevice ; git reset --hard ; git pull ; cd ..
-#cd libirecovery ; git reset --hard ; git pull ; cd ..
-#cd libideviceactivation ; git reset --hard ; git pull ; cd ..
-#cd idevicerestore ; git reset --hard ; git pull ; cd ..
-cd libplist ; git checkout feb0bcd ; git reset --hard ; cd ..
-cd libusbmuxd ; git checkout 1a73518 ; git reset --hard ; cd ..
-cd libimobiledevice ; git checkout 24abbb9 ; git reset --hard ; cd ..
-cd libirecovery ; git checkout 3dda9d2 ; git reset --hard ; cd ..
-cd libideviceactivation ; git checkout b2d7536 ; git reset --hard ; cd ..
-cd idevicerestore ; git checkout 9a9ad5d ; git reset --hard ; cd ..
+cd libplist ; git reset --hard ; git pull ; cd ..
+cd libimobiledevice-glue ; git reset --hard ; git pull ; cd ..
+cd libusbmuxd ; git reset --hard ; git pull ; cd ..
+cd libimobiledevice ; git reset --hard ; git pull ; cd ..
+cd libirecovery ; git reset --hard ; git pull ; cd ..
+cd libideviceactivation ; git reset --hard ; git pull ; cd ..
+cd idevicerestore ; git reset --hard ; git pull ; cd ..
 cd libgeneral ; git reset --hard ; git pull ; cd ..
 cd libfragmentzip ; git reset --hard ; git pull ; cd ..
 cd img4tool ; git reset --hard ; git pull ; cd ..
 cd partialZipBrowser ; git reset --hard ; git pull ; cd ..
 cd tsschecker ; git reset --hard ; git pull ; git submodule update --recursive ; cd ..
-#cd futurerestore ; git reset --hard ; git pull ; git submodule update --recursive ; cd ..
 
 sudo rm -rf $instdir
 sudo mkdir $instdir
 
 cd libplist ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
-#cd libimobiledevice-glue ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
+cd libimobiledevice-glue ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd libusbmuxd ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd libimobiledevice ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd lzfse ; make ; sudo make install INSTALL_PREFIX=$instdir ; make clean ; cd ..
@@ -66,7 +57,7 @@ cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$ins
 cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd partialZipBrowser ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd tsschecker ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
-#cd futurerestore ; git checkout test ; git reset --hard ; git submodule update --recursive ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
-
+sudo ln -sf $HOME/Programs/checkra1n /opt/ios-utils/bin
+sudo ln -sf $HOME/Programs/futurerestore /opt/ios-utils/bin
 sudo ldconfig
 echo "Done"
