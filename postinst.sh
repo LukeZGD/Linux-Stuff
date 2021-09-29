@@ -110,9 +110,10 @@ postinstallcomm() {
     ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
     
-    pac install lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine winetricks
+    pac install lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
-    winetricks -q dotnet48 dxvk gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
+    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
+    $HOME/Documents/dxvk/setup_dxvk.sh install
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -205,7 +206,7 @@ kvmstep1() {
     pac installc iptables-nft
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
-    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1 vfio-mdev)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux-zen
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER

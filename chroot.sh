@@ -17,6 +17,7 @@ terminus-font
 usbutils
 vim
 wget
+zram-generator
 
 alsa-utils
 pavucontrol-qt
@@ -212,7 +213,7 @@ setupstuff() {
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
-    echo "vm.swappiness=10" | tee /etc/sysctl.d/99-swappiness.conf
+    echo "vm.swappiness=1" | tee /etc/sysctl.d/99-swappiness.conf
     
     sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
 }
@@ -297,6 +298,10 @@ if [ $touchpad == y ] || [ $touchpad == Y ]; then
         Option "NaturalScrolling" "true"
     EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
+
+echo '[zram0]
+zram-fraction = 1.0
+max-zram-size = 8192' > /etc/systemd/zram-generator.conf
 
 setupstuff
 echo "[Log] chroot script done"

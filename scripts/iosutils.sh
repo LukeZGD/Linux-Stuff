@@ -23,7 +23,7 @@ if [[ ! -d $compdir ]]; then
     git clone https://github.com/tihmstar/libfragmentzip
     git clone https://github.com/tihmstar/img4tool
     git clone https://github.com/tihmstar/partialZipBrowser
-    git clone --recursive https://github.com/tihmstar/tsschecker
+    git clone --recursive https://github.com/1Conan/tsschecker
 fi
 
 cd $compdir

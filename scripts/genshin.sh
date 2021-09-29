@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export DXVK_ASYNC=1
 PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
 BASEDIR="$HOME/Programs/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
@@ -11,7 +12,7 @@ GetVersions() {
     UPDATE_URL="https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource?key=gcStgarh&launcher_id=10"
     game_element="game"
     end_element="plugin"
-    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* &>/dev/null)
+    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* 2>/dev/null)
     rm update_content
     update_content=$(sed "s/^.*\"$game_element\":{//;s/,\"$end_element\":.*$//;s/{/&\n/g;s/}/\n&/g" <<< "$update_content_src")
     latest_version_content=$(sed -n '/"latest":/,/^}/{/"version":/!d;s/,/\n/g;s/"//g;p}' <<< "$update_content")

@@ -92,22 +92,21 @@ if [[ -z $swappart ]]; then
     echo "[Log] Creating subvolumes"
     btrfs su cr /mnt/root
     btrfs su cr /mnt/home
-    btrfs su cr /mnt/swap
+    #btrfs su cr /mnt/swap
     umount /mnt
     echo "[Log] Mounting subvolumes"
     mount -o compress=zstd:1,subvol=/root $rootpart /mnt
-    mkdir /mnt/{boot,home,swap}
+    mkdir /mnt/{boot,home}
     mount $bootpart /mnt/boot
     mount -o compress=zstd:1,subvol=/home $rootpart /mnt/home
-    mount -o subvol=/swap $rootpart /mnt/swap
-    echo "[Log] Creating swap"
-    #dd if=/dev/zero of=/mnt/swapfile bs=1M count=4096 status=progress
-    touch /mnt/swap/swapfile
-    chmod 600 /mnt/swap/swapfile
-    chattr +C /mnt/swap/swapfile
-    fallocate /mnt/swap/swapfile -l4g
-    mkswap /mnt/swap/swapfile
-    swapon /mnt/swap/swapfile
+    #mount -o subvol=/swap $rootpart /mnt/swap
+    #echo "[Log] Creating swap"
+    #touch /mnt/swap/swapfile
+    #chmod 600 /mnt/swap/swapfile
+    #chattr +C /mnt/swap/swapfile
+    #fallocate /mnt/swap/swapfile -l8g
+    #mkswap /mnt/swap/swapfile
+    #swapon /mnt/swap/swapfile
 fi
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt

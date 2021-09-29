@@ -2,10 +2,7 @@
 
 display1="eDP-1"
 display2="HDMI-1"
-
-if [[ $(xrandr | grep -c "$display2 connected") == 1 ]]; then
-    display2_connected=1
-fi
+display2_connected=$(xrandr | grep -c "$display2 connected")
 
 if [[ ! -z $1 ]]; then
     choice=$1
