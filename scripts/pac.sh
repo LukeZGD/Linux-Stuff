@@ -58,7 +58,7 @@ else
     pac {news}"
 fi
 
-kernelI=$(pacman -Q linux-zen | awk '{print $2}' | cut -c -7 | tr -d .)
+kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -7 | tr -d .)
 kernelR=$(uname -r | cut -c -7 | tr -d .-)
 if [[ $kernelR != $kernelI ]]; then
     echo

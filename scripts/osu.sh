@@ -4,25 +4,44 @@ export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 lutris="lutris-6.1-3-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-osupath="$HOME/.osu"
+osupath="/mnt/Data/osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
 osugame() {
-    #xmodmap -e 'keycode 79 = q 7'
-    #xmodmap -e 'keycode 90 = space 0'
     if [[ $1 == "lazer" ]]; then
         "$osupath"/osu.AppImage
-    else
-        qdbus org.kde.KWin /Compositor suspend
-        [[ -z "$@" ]] && wineserver -k
-        cd "$osupath"
-        wine osu!.exe "$@"
-        [[ -d _pending ]] && wine osu!.exe "$@"
-        [[ -d _cleanup ]] && wine osu!.exe "$@"
-        qdbus org.kde.KWin /Compositor resume
+        return
     fi
-    #setxkbmap -layout us
+
+    qdbus org.kde.KWin /Compositor suspend
+    [[ -z "$@" ]] && wineserver -k
+    cd "$osupath"
+    wine osu!.exe "$@"
+    [[ -d _pending ]] && wine osu!.exe "$@"
+    if [[ -d _cleanup && ! -e osu!.exe ]]; then
+        local current
+        local latest=0
+        local latestfile
+        echo "osu!.exe is missing. finding latest .exe in _cleanup..."
+        for file in _cleanup/*; do
+            if [[ $(file "$file" | grep -c Windows) ]]; then
+                current=$(date -r $file +%s) # date modified in unix time
+                echo "found: $file - $current"
+                if (( current > latest )); then
+                    latest=$current
+                    latestfile="$file"
+                    echo "latest: $file - $latest"
+                fi
+            fi
+        done
+        echo "latest file found: $latestfile"
+        echo "copying"
+        cp "$latestfile" osu!.exe
+        echo "done"
+    fi
+    [[ -d _cleanup ]] && wine osu!.exe "$@"
+    qdbus org.kde.KWin /Compositor resume
 }
 
 random() {

@@ -60,13 +60,13 @@ Updater() {
 }
 
 Game() {
-    qdbus org.kde.KWin /Compositor suspend
+    #qdbus org.kde.KWin /Compositor suspend
     Patch install
     [[ $? != 0 ]] && return
     cd "$GAMEDIR"
     res=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | tail -n1)
     wine explorer /desktop=anyname,$res cmd /c launcher.bat
-    qdbus org.kde.KWin /Compositor resume
+    #qdbus org.kde.KWin /Compositor resume
     running=0
 }
 

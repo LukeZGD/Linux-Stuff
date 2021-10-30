@@ -6,21 +6,28 @@ f3
 gallery-dl
 github-desktop-bin
 masterpdfeditor-free
+nohang-git
 qdirstat
 qview
-youtube-dl-gui-git
-zoom
 )
 
 packages2=(
 arduino-ide-beta-bin
+blobsaver-bin
 legendary
 mystiq
+persepolis
+portsmf-git
 plasma-wayland-session
 qsynth
 simplescreenrecorder
+tenacity-git
 ventoy-bin
 waifu2x-ncnn-vulkan-bin
+yt-dlp
+yt-dlp-drop-in
+youtube-dl-gui-git
+zoom
 )
 
 MainMenu() {
@@ -143,6 +150,7 @@ postinstallcomm() {
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
     sudo systemctl disable NetworkManager-wait-online
     sudo systemctl mask NetworkManager-wait-online
+    sudo systemctl enable --now nohang-desktop
 }
 
 adduser() {
@@ -167,7 +175,7 @@ autocreate() {
 }
 
 vbox() {
-    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-dkms
+    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-modules-arch
     sudo usermod -aG vboxusers $USER
     sudo modprobe vboxdrv
 }
@@ -183,13 +191,13 @@ nvidia() {
     done
     
     if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == latest ]]; then
-        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+        pac install nvidia lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ $nvidia4 == 390 ]]; then
         pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
     fi
     
     if [[ $nvidia4 == optimus ]]; then
-        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
+        pac install bbswitch nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
         sudo systemctl enable tlp
     fi
 }
@@ -207,7 +215,7 @@ kvmstep1() {
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux-zen
+    sudo mkinitcpio -p linux
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
     sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
@@ -317,8 +325,8 @@ BackupRestore() {
     done
     if [ $Mode == user ]; then
         Paths=($HOME/ /media/$USER/LukeHDD2/BackupsP/$USER/
-            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/)
-            #$HOME/.osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
+            /mnt/Data/$USER/ /media/$USER/LukeHDD2/BackupsP/Data/$USER/
+            /mnt/Data/osu/ /media/$USER/LukeHDD2/BackupsP/Data/osu/)
     elif [ $Mode == pac ]; then
         Paths=(/var/cache/pacman/pkg/ /media/$USER/LukeHDD2/BackupsP/pkg/
                /var/cache/pacman/aur/ /media/$USER/LukeHDD2/BackupsP/aur/)
@@ -329,7 +337,7 @@ BackupRestore() {
         if [ $Mode == user ]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
         RSYNC ${Paths[2]} ${Paths[3]}
-        #RSYNC ${Paths[4]} ${Paths[5]}
+        RSYNC ${Paths[4]} ${Paths[5]}
         elif [ $Mode == pac ]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         RSYNC ${Paths[2]} ${Paths[3]}
