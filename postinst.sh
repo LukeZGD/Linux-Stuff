@@ -10,7 +10,6 @@ masterpdfeditor-free
 mkmm
 mystiq
 nohang-git
-persepolis
 portsmf-git
 qdirstat
 qsynth
@@ -57,7 +56,13 @@ installstuff() {
 }
 
 msoffice() {
-    WINEPREFIX=~/.wine-office2010 WINEARCH='win32' winetricks -q msxml6 riched20 gdiplus richtx32
+    WINEPREFIX=$HOME/.wine-office2010 WINEARCH='win32' winetricks winxp
+    WINEPREFIX=$HOME/.wine-office2010 WINEARCH='win32' winetricks -q msxml6 riched20 gdiplus richtx32
+    echo 'REGEDIT4
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"LogPixels"=dword:00000090' | tee /tmp/dpi.reg
+    WINEPREFIX=$HOME/.wine-office2010 wine regedit /tmp/dpi.reg
+    rm /tmp/dpi.reg
     echo "prepared wineprefix"
     echo "now run: WINEPREFIX=~/.wine-office2010 WINEARCH='win32' wine /path/to/setup.exe"
     echo "also add the kwinrule"
@@ -65,6 +70,13 @@ msoffice() {
 
 emulators() {
     pac install cemu dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp
+
+    echo 'REGEDIT4
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"LogPixels"=dword:00000090' | tee /tmp/dpi.reg
+    WINEPREFIX=$HOME/.cemu/wine wine regedit /tmp/dpi.reg
+    rm /tmp/dpi.reg
+    WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
     cd $HOME/.cemu
     ln -s /usr/share/cemu/Cemu.exe
@@ -91,6 +103,7 @@ installpac() {
 postinstall() {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     pac install ${packages[@]}
+    pac install persepolis
     sudo systemctl enable --now nohang-desktop
 }
 
@@ -114,6 +127,11 @@ postinstallcomm() {
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
     $HOME/Documents/dxvk/setup_dxvk.sh install
+    echo 'REGEDIT4
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"LogPixels"=dword:00000078' | tee /tmp/dpi.reg
+    wine regedit /tmp/dpi.reg
+    rm /tmp/dpi.reg
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -189,8 +207,7 @@ nvidia() {
     fi
     
     if [[ $nvidia4 == optimus ]]; then
-        pac install bbswitch nvidia-prime optimus-manager optimus-manager-qt tlp tlp-rdw tlpui-git
-        sudo systemctl enable tlp
+        pac install auto-cpufreq bbswitch nvidia-prime optimus-manager optimus-manager-qt
     fi
 }
 

@@ -49,14 +49,10 @@ Patch() {
 }
 
 Updater() {
-    if [[ $1 == launcher ]]; then
-        Patch uninstall
-        wine "$BASEDIR/launcher.exe"
-    else
-        chmod +x "$UPDATER"
-        "$UPDATER" $1
-        read -s
-    fi
+    cd "$GAMEDIR"
+    chmod +x "$UPDATER"
+    "$UPDATER" $1
+    read -s
 }
 
 Game() {
@@ -68,6 +64,24 @@ Game() {
     wine explorer /desktop=anyname,$res cmd /c launcher.bat
     #qdbus org.kde.KWin /Compositor resume
     running=0
+}
+
+Install() {
+    if [[ -d "$GIOLDIR" ]]; then
+        cd "$GIOLDIR"
+        GetVersions
+        echo $Current
+        if (( $Current > 0 )); then
+            echo "Game is already installed."
+            read -s
+            return
+        fi
+    fi
+    read -p "Game folder will be removed and the full game will be (re-)installed. Continue? (y/N) " opt
+    [[ $opt != y && $opt != Y ]] && return
+    rm -rf "$GAMEDIR"
+    mkdir "$GAMEDIR"
+    Updater install
 }
 
 Main() {
@@ -93,12 +107,13 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Updater Script" "Install Patch" "Uninstall Patch" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "(Re-)Install Game" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
-            "Updater Script" ) Updater; break;;
+            "Update Game" ) Updater; break;;
             "Install Patch" ) Patch install; read -s; break;;
             "Uninstall Patch" ) Patch uninstall; read -s; break;;
+            "(Re-)Install Game" ) Install; break;;
             * ) exit;;
         esac
         done
