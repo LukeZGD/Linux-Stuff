@@ -7,7 +7,6 @@ dialog
 fish
 git
 intel-ucode
-kernel-modules-hook
 linux-firmware
 linux
 linux-headers

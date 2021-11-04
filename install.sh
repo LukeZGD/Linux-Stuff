@@ -1,9 +1,11 @@
 #!/bin/bash
 
-mirrorlist='Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
-Server = https://mirror.chaoticum.net/arch/$repo/os/$arch
-Server = https://mirror.pseudoform.org/$repo/os/$arch
-Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
+mirrorlist='Server = https://asia.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://archmirror.it/repos/$repo/os/$arch
+Server = https://mirrors.niyawe.de/archlinux/$repo/os/$arch
+Server = https://mirror.lty.me/archlinux/$repo/os/$arch
+Server = https://archlinux.uk.mirror.allworldit.com/archlinux/$repo/os/$arch
+Server = https://mirror.hackingand.coffee/arch/$repo/os/$arch
 Server = https://arch.mirror.constant.com/$repo/os/$arch
 Server = https://mirror.bethselamin.de/$repo/os/$arch
 Server = http://archlinux.polymorf.fr/$repo/os/$arch

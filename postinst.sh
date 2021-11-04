@@ -5,21 +5,16 @@ packages=(
 f3
 gallery-dl
 github-desktop-bin
-masterpdfeditor-free
-nohang-git
-qdirstat
-qview
-)
-
-packages2=(
-arduino-ide-beta-bin
-blobsaver-bin
 legendary
+masterpdfeditor-free
+mkmm
 mystiq
+nohang-git
 persepolis
 portsmf-git
-plasma-wayland-session
+qdirstat
 qsynth
+qview
 simplescreenrecorder
 tenacity-git
 ventoy-bin
@@ -44,7 +39,7 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
@@ -55,13 +50,21 @@ installstuff() {
             "VMware Player install" ) vmwarei; break;;
             "VMware Player update" ) vmwareu; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
+            "MS office" ) msoffice; break;;
             * ) exit;;
         esac
     done
 }
 
+msoffice() {
+    WINEPREFIX=~/.wine-office2010 WINEARCH='win32' winetricks -q msxml6 riched20 gdiplus richtx32
+    echo "prepared wineprefix"
+    echo "now run: WINEPREFIX=~/.wine-office2010 WINEARCH='win32' wine /path/to/setup.exe"
+    echo "also add the kwinrule"
+}
+
 emulators() {
-    pac install cemu dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp sdl2_net qt5-websockets
+    pac install cemu dolphin-emu melonds mgba-qt nestopia pcsx2 ppsspp
     mkdir $HOME/.cemu
     cd $HOME/.cemu
     ln -s /usr/share/cemu/Cemu.exe
@@ -88,29 +91,19 @@ installpac() {
 postinstall() {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     pac install ${packages[@]}
-    read -p "Install packages in packages2? (Y/n) " confirm
-    [[ $confirm != n && $confirm != N ]] && pac install ${packages2[@]}
+    sudo systemctl enable --now nohang-desktop
 }
 
 postinstallcomm() {
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
     setxkbmap -layout us
-    #xmodmap -e 'keycode 84 = Down KP_5 Down KP_5'
     sudo rm -rf /media
     sudo ln -sf /run/media /media
-    #sudo ln -sf $BASEDIR/postinst.sh /usr/local/bin/postinst
-    #sudo ln -sf $BASEDIR/scripts/pac.sh /usr/local/bin/pac
-    # home symlinks
-    cd $HOME/.config
-    ln -sf /mnt/Data/$USER/config/PCSX2/
-    ln -sf /mnt/Data/$USER/config/ppsspp/
-    #ln -sf /mnt/Data/$USER/config/rpcs3/
     cd $HOME/.local/share
     ln -sf /mnt/Data/$USER/share/citra-emu/
     ln -sf /mnt/Data/$USER/share/dolphin-emu/
-    #ln -sf /mnt/Data/$USER/share/osu/
-    #ln -sf /mnt/Data/$USER/share/yuzu/
+    ln -sf /mnt/Data/$USER/share/osu/
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
@@ -150,7 +143,6 @@ postinstallcomm() {
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
     sudo systemctl disable NetworkManager-wait-online
     sudo systemctl mask NetworkManager-wait-online
-    sudo systemctl enable --now nohang-desktop
 }
 
 adduser() {

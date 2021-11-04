@@ -57,6 +57,7 @@ cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$ins
 cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd partialZipBrowser ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
 cd tsschecker ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
+sudo ln -sf $HOME/Programs/AltServer /opt/ios-utils/bin
 sudo ln -sf $HOME/Programs/checkra1n /opt/ios-utils/bin
 sudo ln -sf $HOME/Programs/futurerestore /opt/ios-utils/bin
 sudo ldconfig

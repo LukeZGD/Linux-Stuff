@@ -18,7 +18,9 @@ osugame() {
     [[ -z "$@" ]] && wineserver -k
     cd "$osupath"
     wine osu!.exe "$@"
+    wineserver -w
     [[ -d _pending ]] && wine osu!.exe "$@"
+    wineserver -w
     if [[ -d _cleanup && ! -e osu!.exe ]]; then
         local current
         local latest=0
@@ -41,6 +43,7 @@ osugame() {
         echo "done"
     fi
     [[ -d _cleanup ]] && wine osu!.exe "$@"
+    wineserver -w
     qdbus org.kde.KWin /Compositor resume
 }
 
