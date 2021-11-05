@@ -122,6 +122,9 @@ postinstallcomm() {
     ln -sf /mnt/Data/$USER/cache/winetricks
     ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
+
+    sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
+    sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
     pac install lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
@@ -191,23 +194,25 @@ vbox() {
 }
 
 nvidia() {
-    select opt in "NVIDIA Optimus+TLP" "NVIDIA Latest" "NVIDIA 390"; do
+    select opt in "NVIDIA Optimus+TLP" "NVIDIA Latest" "NVIDIA 470" "NVIDIA 390"; do
         case $opt in
             "NVIDIA Optimus+TLP" ) nvidia4=optimus; break;;
             "NVIDIA Latest" ) nvidia4=latest; break;;
+            "NVIDIA 470" ) nvidia4=470; break;;
             "NVIDIA 390" ) nvidia4=390; break;;
             * ) exit;;
         esac
     done
     
-    if [[ $nvidia4 == optimus ]] || [[ $nvidia4 == latest ]]; then
+    if [[ $nvidia4 == optimus || $nvidia4 == latest ]]; then
         pac install nvidia lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
-    elif [[ $nvidia4 == 390 ]]; then
-        pac install nvidia-390xx-dkms lib32-nvidia-390xx-utils nvidia-390xx-settings opencl-nvidia-390xx lib32-opencl-nvidia-390xx
+    elif [[ ! -z $nvidia4 ]]; then
+        pac install nvidia-${nvidia4}xx-dkms lib32-nvidia-${nvidia4}xx-utils nvidia-${nvidia4}xx-settings opencl-nvidia-${nvidia4}xx lib32-opencl-nvidia-${nvidia4}xx
     fi
     
     if [[ $nvidia4 == optimus ]]; then
         pac install auto-cpufreq bbswitch nvidia-prime optimus-manager optimus-manager-qt
+        sudo systemctl enable --now auto-cpufreq
     fi
 }
 

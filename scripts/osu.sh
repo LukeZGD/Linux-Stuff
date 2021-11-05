@@ -1,5 +1,5 @@
 #!/bin/bash
-export vblank_mode=0
+
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 lutris="lutris-6.1-3-x86_64"
@@ -7,6 +7,10 @@ lutrispath="$HOME/.local/share/lutris/runners/wine"
 osupath="/mnt/Data/osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
+
+if [[ $1 != "lazer" ]]; then
+    export vblank_mode=0
+fi
 
 osugame() {
     if [[ $1 == "lazer" ]]; then
@@ -138,7 +142,12 @@ osuinstall() {
     else
         winetricks -q dotnet40 gdiplus
     fi
-    
+    echo 'REGEDIT4
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"LogPixels"=dword:00000078' | tee /tmp/dpi.reg
+    wine regedit /tmp/dpi.reg
+    rm /tmp/dpi.reg
+
     [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
     printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
     sudo usermod -aG audio $USER
