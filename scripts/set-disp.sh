@@ -4,7 +4,7 @@ display1="eDP-1"
 display2="HDMI-1"
 display2_connected=$(xrandr | grep -c "$display2 connected")
 
-if [[ ! -z $1 ]]; then
+if [[ -n $1 ]]; then
     choice=$1
 else
     choice=$(kdialog --title "Display" --radiolist "Set display configuration" display2 "External screen" on display1 "Laptop screen" off unify "Unify outputs" off left "Extend to left" off right "Extend to right" off)

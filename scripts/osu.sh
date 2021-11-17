@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 lutris="lutris-6.1-3-x86_64"
@@ -8,18 +9,14 @@ osupath="/mnt/Data/osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
-if [[ $1 != "lazer" ]]; then
-    export vblank_mode=0
-fi
-
 osugame() {
     if [[ $1 == "lazer" ]]; then
-        "$osupath"/osu.AppImage
+        env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
 
     qdbus org.kde.KWin /Compositor suspend
-    [[ -z "$@" ]] && wineserver -k
+    [[ -z "$*" ]] && wineserver -k
     cd "$osupath"
     wine osu!.exe "$@"
     wineserver -w
@@ -143,8 +140,8 @@ osuinstall() {
         winetricks -q dotnet40 gdiplus
     fi
     echo 'REGEDIT4
-[HKEY_CURRENT_USER\Control Panel\Desktop]
-"LogPixels"=dword:00000078' | tee /tmp/dpi.reg
+    [HKEY_CURRENT_USER\Control Panel\Desktop]
+    "LogPixels"=dword:00000078' | tee /tmp/dpi.reg
     wine regedit /tmp/dpi.reg
     rm /tmp/dpi.reg
 

@@ -6,7 +6,7 @@ instdir="/opt/ios-utils"
 export PKG_CONFIG_PATH=$instdir/lib/pkgconfig:/usr/lib/$(uname -m)-linux-gnu/pkgconfig:/usr/lib/pkgconfig
 export CC=$(which gcc)
 export CXX=$(which g++)
-[[ ! -z $UBUNTU_CODENAME ]] && sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev git
+[[ -n "$UBUNTU_CODENAME" ]] && sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev git
 
 if [[ ! -d $compdir ]]; then
     mkdir $compdir

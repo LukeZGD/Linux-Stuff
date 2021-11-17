@@ -105,7 +105,7 @@ installstuff() {
             "VirtualBox" ) vbox; break;;
             "wine" ) wineinstall; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) sudo apt install nestopia pcsx2; sudo flatpak install flathub ${flatemus[*]}; break;;
+            "Emulators" ) sudo apt install nestopia pcsx2; sudo flatpak install flathub "${flatemus[@]}"; break;;
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "Intel non-free" ) sudo apt install i965-va-driver-shaders intel-media-va-driver-non-free; break;;
@@ -207,10 +207,10 @@ postinstall() {
 
     AddPPAs
     
-    sudo apt install -y ${packages[*]}
+    sudo apt install -y "${packages[@]}"
     flatpak remote-delete flathub
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    sudo flatpak install -y flathub ${flatpkgs[*]}
+    sudo flatpak install -y flathub "${flatpkgs[@]}"
     sudo flatpak override org.audacityteam.Audacity --unshare=network
 
     sudo dpkg -i $HOME/Programs/Packages/*.deb
@@ -281,7 +281,7 @@ IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
     echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
     
     read -p "[Input] Enable hibernation? (y/N) " Hibernate
-    [[ $Hibernate != y ]] && [[ $Hibernate != Y ]] && exit
+    [[ $Hibernate != y && $Hibernate != Y ]] && exit
     
     sudo apt install -y hibernate pm-utils
     swapuuid=$(findmnt -no UUID -T /swapfile)

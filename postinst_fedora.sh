@@ -82,7 +82,7 @@ pipinstall() {
 }
 
 emulatorsinstall() {
-    sudo flatpak install -y flathub ${flatemus[*]}
+    sudo flatpak install -y flathub "${flatemus[@]}"
 }
 
 vbox() {
@@ -109,9 +109,9 @@ postinstall() {
     sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
     sudo dnf upgrade -y
     
-    sudo dnf install -y ${packages[*]}
+    sudo dnf install -y "${packages[@]}"
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    sudo flatpak install -y flathub ${flatpkgs[*]}
+    sudo flatpak install -y flathub "${flatpkgs[@]}"
     
     sudo dnf install -y $HOME/Programs/Packages/*.rpm
     

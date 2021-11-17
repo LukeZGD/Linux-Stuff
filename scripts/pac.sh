@@ -3,20 +3,20 @@ trap exit INT TERM EXIT
 
 [[ $1 != *c ]] && noconfirm=--noconfirm
 if [[ $1 == autoremove* ]]; then
-    sudo pacman -Rsn $noconfirm $(pacman -Qdtq) 2>/dev/null
+    sudo pacman -Rsn $noconfirm "$(pacman -Qdtq)" 2>/dev/null
     [[ $? != 0 ]] && echo ' there is nothing to do' || exit $?
 elif [[ $1 == clean* ]]; then
     [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
 elif [[ $1 == install* || $1 == reinstall* ]]; then
     [[ $1 == install* ]] && needed=--needed
     if [[ -f $2 ]]; then
-        install=($2)
-        for package in ${@:3}; do
-            [[ -f $package ]] && install+=($package)
+        install=("$2")
+        for package in "${@:3}"; do
+            [[ -f $package ]] && install+=("$package")
         done
-        paru -U $noconfirm $needed ${install[@]}
+        paru -U $noconfirm $needed "${install[@]}"
     else
-        paru -S $noconfirm $needed --sudoloop ${@:2}
+        paru -S $noconfirm $needed --sudoloop "${@:2}"
     fi
 elif [[ $1 == list ]]; then
     if [[ $2 == all ]]; then 
@@ -27,20 +27,24 @@ elif [[ $1 == list ]]; then
         paru -Qd
     elif [[ $2 == upgrade ]]; then
         paru -Qu
-    elif [[ ! -z $2 ]]; then
+    elif [[ -n $2 ]]; then
         paru -Ql $2
     else
         paru -Qe
     fi
 elif [[ $1 == query ]]; then
-    paru -Q ${@:2}
+    paru -Q "${@:2}"
 elif [[ $1 == remove* || $1 == uninstall* ]]; then
-    paru -R $noconfirm ${@:2}
+    paru -R $noconfirm "${@:2}"
 elif [[ $1 == purge* ]]; then
-    paru -Rsn $noconfirm ${@:2}
+    paru -Rsn $noconfirm "${@:2}"
 elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
-    paru -Syu $noconfirm --sudoloop $nodevel
+    if [[ $2 == refresh ]]; then
+        paru -Sy
+    else
+        paru -Syu $noconfirm --sudoloop $nodevel
+    fi
 elif [[ $1 == news ]]; then
     paru -Pw
 else
@@ -54,11 +58,11 @@ else
     pac {query} [package(s)]
     pac {reinstall} [package(s)]
     pac {remove/uninstall} [package(s)]
-    pac {update/upgrade} [all]
+    pac {update/upgrade} [all,refresh]
     pac {news}"
 fi
 
-kernelI=$(pacman -Q linux | awk '{print $2}' | cut -c -7 | tr -d .)
+kernelI=$(pacman -Q linux-lts | awk '{print $2}' | cut -c -7 | tr -d .)
 kernelR=$(uname -r | cut -c -7 | tr -d .-)
 if [[ $kernelR != $kernelI ]]; then
     echo

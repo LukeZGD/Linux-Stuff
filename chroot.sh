@@ -8,8 +8,8 @@ fish
 git
 intel-ucode
 linux-firmware
-linux
-linux-headers
+linux-lts
+linux-lts-headers
 nano
 pacman-contrib
 terminus-font
@@ -119,6 +119,7 @@ htop
 jre-openjdk
 jsoncpp
 libreoffice-fresh
+love
 okular
 openssh
 noto-fonts-cjk
@@ -126,7 +127,6 @@ noto-fonts-emoji
 qbittorrent
 samba
 seahorse
-testdisk
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
@@ -158,7 +158,7 @@ grubinstall() {
 grubinstallia32() {
     pacman -S --noconfirm --needed grub efibootmgr
     lsblk
-    read -p "[Input] Disk? (/dev/sdX) " read part
+    read -p "[Input] Disk? (/dev/sdX) " part
     read -p "[Input] Please enter swap partition (/dev/sdaX) " swappart
     swapuuid=$(blkid -o value -s UUID $swappart)
     echo "[Log] Got UUID of $swappart: $swapuuid"
@@ -184,10 +184,10 @@ systemdinstall() {
     #echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux
+    linux /vmlinuz-linux-lts
     initrd /amd-ucode.img
     initrd /intel-ucode.img
-    initrd /initramfs-linux.img
+    initrd /initramfs-linux-lts.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rootflags=compress=zstd:1,subvol=/root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     #resume=UUID=$swapuuid resume_offset=$swapoffset
     echo "timeout 0
@@ -221,7 +221,7 @@ echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 echo "[Log] Installing packages"
-pacman -S --noconfirm --needed ${pacmanpkgs[*]}
+pacman -S --noconfirm --needed "${pacmanpkgs[@]}"
 echo "[Log] Setting locale"
 echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
@@ -284,7 +284,7 @@ echo 'FONT=ter-p32n
 FONT_MAP=8859-2' | tee /etc/vconsole.conf
 
 read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N) " touchpad
-if [ $touchpad == y ] || [ $touchpad == Y ]; then
+if [[ $touchpad == y || $touchpad == Y ]]; then
     echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
     echo 'Section "InputClass"
         Identifier "touchpad"
@@ -299,6 +299,16 @@ fi
 echo '[zram0]
 zram-fraction = 1.0
 max-zram-size = 8192' > /etc/systemd/zram-generator.conf
+
+echo '[X11]
+ServerArguments=-dpi 96' >> /etc/sddm.conf.d/kde_settings.conf
+
+echo 'Section "InputClass"
+   Identifier   "ds4-touchpad"
+   Driver       "libinput"
+   MatchProduct "Wireless Controller Touchpad"
+   Option       "Ignore" "True"
+EndSection' > /etc/X11/xorg.conf.d/30ds4.conf
 
 setupstuff
 echo "[Log] chroot script done"

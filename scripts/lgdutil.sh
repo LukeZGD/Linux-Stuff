@@ -1,7 +1,7 @@
 #!/bin/bash
 
 deedee() {
-    if [ ! -z $1 ] && [ ! -z $2 ]; then
+    if [[ -n $1 && -n $2 ]]; then
         Input=$1
         Output=$2
     else
@@ -19,7 +19,7 @@ deedee() {
 }
 
 rsyncee() {
-    if [ ! -z $1 ] && [ ! -z $2 ]; then
+    if [[ -n $1 && -n $2 ]]; then
         Input=$1
         Output=$2
         Type=$3
