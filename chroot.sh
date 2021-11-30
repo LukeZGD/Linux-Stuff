@@ -12,6 +12,7 @@ linux-lts
 linux-lts-headers
 nano
 pacman-contrib
+reflector
 terminus-font
 usbutils
 vim
@@ -125,6 +126,7 @@ openssh
 noto-fonts-cjk
 noto-fonts-emoji
 qbittorrent
+retext
 samba
 seahorse
 v4l2loopback-dkms
@@ -269,7 +271,7 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth cups fstrim.timer sddm
+systemctl enable NetworkManager bluetooth cups fstrim.timer sddm reflector.timer
 
 echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend

@@ -108,7 +108,7 @@ osuinstall() {
     cd "$osupath"
 
     if [[ $ID == arch ]]; then
-        sudo pacman -S --noconfirm --needed aria2 lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
+        pac install aria2 lib32-alsa-plugins lib32-gnutls lib32-gsm lib32-libpulse lib32-libxcomposite winetricks
         cd $HOME/Programs
 
         if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
@@ -145,11 +145,11 @@ osuinstall() {
     wine regedit /tmp/dpi.reg
     rm /tmp/dpi.reg
 
-    [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
-    printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
-    sudo usermod -aG audio $USER
-
     if [[ $ID != arch ]]; then
+        [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
+        printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
+        sudo usermod -aG audio $USER
+
         sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
         echo "high-priority = yes
         nice-level = -15
@@ -173,7 +173,7 @@ osuinstall() {
     fi
 
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
-    if [[ $Confirm == y ]] || [[ $Confirm == Y ]]; then
+    if [[ $Confirm == y || $Confirm == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
         wine "osuinstall.exe"
     fi

@@ -179,7 +179,7 @@ vbox() {
     wget https://www.virtualbox.org/download/hashes/$vboxversion/SHA256SUMS
     wget https://download.virtualbox.org/virtualbox/$vboxversion/$vboxextpack
     sha256sum -c --ignore-missing SHA256SUMS
-    [ $? != 0 ] && echo "Failed" && rm $vboxextpack SHA256SUMS && exit
+    [[ $? != 0 ]] && echo "Failed" && rm $vboxextpack SHA256SUMS && exit
     sudo VBoxManage extpack install --replace $vboxextpack
     rm $vboxextpack SHA256SUMS
 }

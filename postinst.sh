@@ -16,6 +16,7 @@ portsmf-git
 qdirstat
 qsynth
 qview
+reflector-mirrorlist-update
 shellcheck-bin
 simplescreenrecorder
 tenacity-git
@@ -375,29 +376,29 @@ BackupRestore() {
         * ) exit;;
         esac
     done
-    if [ $Mode == user ]; then
+    if [[ $Mode == user ]]; then
         Paths=("$HOME/" "/media/$USER/LukeHDD2/BackupsP/$USER/"
                "/mnt/Data/$USER/" "/media/$USER/LukeHDD2/BackupsP/Data/$USER/"
                "/mnt/Data/osu/" "/media/$USER/LukeHDD2/BackupsP/Data/osu/")
-    elif [ $Mode == pac ]; then
+    elif [[ $Mode == pac ]]; then
         Paths=("/var/cache/pacman/pkg/" "/media/$USER/LukeHDD2/BackupsP/pkg/"
                "/var/cache/pacman/aur/" "/media/$USER/LukeHDD2/BackupsP/aur/")
-    elif [ $Mode == vm ]; then
+    elif [[ $Mode == vm ]]; then
         Paths=("$HOME/KVM/" "/media/$USER/LukeHDD2/BackupsP/Data/KVM/")
     fi
-    if [ $Action == Backup ]; then
-        if [ $Mode == user ]; then
+    if [[ $Action == Backup ]]; then
+        if [[ $Mode == user ]]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
         RSYNC ${Paths[2]} ${Paths[3]}
         RSYNC ${Paths[4]} ${Paths[5]}
-        elif [ $Mode == pac ]; then
+        elif [[ $Mode == pac ]]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         RSYNC ${Paths[2]} ${Paths[3]}
-        elif [ $Mode == vm ]; then
+        elif [[ $Mode == vm ]]; then
         RSYNC ${Paths[0]} ${Paths[1]}
         fi
-    elif [ $Action == Restore ]; then
-        if [ $Mode == user ]; then
+    elif [[ $Action == Restore ]]; then
+        if [[ $Mode == user ]]; then
         select opt in "Update restore" "Full restore"; do
             case $opt in
             "Update restore" ) Restoreuser; break;;
@@ -405,10 +406,10 @@ BackupRestore() {
             * ) exit;;
             esac
         done
-        elif [ $Mode == pac ]; then
+        elif [[ $Mode == pac ]]; then
         RSYNC ${Paths[1]} ${Paths[0]}
         RSYNC ${Paths[3]} ${Paths[2]}
-        elif [ $Mode == vm ]; then
+        elif [[ $Mode == vm ]]; then
         RSYNC ${Paths[1]} ${Paths[0]}
         fi
     fi
@@ -457,7 +458,7 @@ if [[ -z $UBUNTU_CODENAME && $ID != fedora ]]; then
     echo "LukeZGD Arch Post-Install Script"
     echo "This script will assume that you have a working Internet connection"
     echo
-    if [ ! $(which paru) ]; then
+    if [[ ! $(which paru) ]]; then
         echo "No paru detected, installing paru"
         installpac paru-bin
         sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf

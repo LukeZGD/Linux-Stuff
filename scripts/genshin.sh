@@ -4,7 +4,7 @@ export DXVK_ASYNC=1
 PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
 BASEDIR="$HOME/Programs/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
-GIOLDIR="$BASEDIR/GI-on-Linux"
+GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 
 GetVersions() {
@@ -12,7 +12,7 @@ GetVersions() {
     UPDATE_URL="https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource?key=gcStgarh&launcher_id=10"
     game_element="game"
     end_element="plugin"
-    update_content_src=$(curl -L "$UPDATE_URL" -o update_content && cat update_content* 2>/dev/null)
+    update_content_src=$(curl -L "$UPDATE_URL" -o update_content >/dev/null && cat update_content* 2>/dev/null)
     rm update_content
     update_content=$(sed "s/^.*\"$game_element\":{//;s/,\"$end_element\":.*$//;s/{/&\n/g;s/}/\n&/g" <<< "$update_content_src")
     latest_version_content=$(sed -n '/"latest":/,/^}/{/"version":/!d;s/,/\n/g;s/"//g;p}' <<< "$update_content")
@@ -20,7 +20,7 @@ GetVersions() {
     while read -r keyvalue; do
         version_info[${keyvalue%%:*}]=${keyvalue#*:}
     done <<< "$latest_version_content"
-    Current=$(sed -n 's/^game_version=\(.*\)/\1/p' "$GAMEDIR/config.ini" | tr -d "\r\n" | tr -d '.')
+    Current=$(sed -n 's/^game_version=\(.*\)/\1/p' "$GAMEDIR/config.ini" | tr -d "\r\n.")
     Version=$(echo ${version_info[version]} | tr -d '.')
 }
 
@@ -30,7 +30,9 @@ Patch() {
     chmod +x $Current/*.sh $Version/*.sh
     cd "$GAMEDIR"
     if [[ $1 == install ]]; then
-        if (( $Version > $Current )); then
+        if (( Version > Current )); then
+            Current=$(echo $Current | sed 's/./&./2;s/./&./1')
+            Version=$(echo $Version | sed 's/./&./2;s/./&./1')
             echo
             echo "There is a newer version available!"
             echo "* Your current version is: $Current"
@@ -56,13 +58,13 @@ Updater() {
 }
 
 Game() {
-    #qdbus org.kde.KWin /Compositor suspend
+    qdbus org.kde.KWin /Compositor suspend
     Patch install
     [[ $? != 0 ]] && return
     cd "$GAMEDIR"
     res=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | tail -n1)
     wine explorer /desktop=anyname,$res cmd /c launcher.bat
-    #qdbus org.kde.KWin /Compositor resume
+    qdbus org.kde.KWin /Compositor resume
     running=0
 }
 
@@ -71,7 +73,7 @@ Install() {
         cd "$GIOLDIR"
         GetVersions
         echo $Current
-        if (( $Current > 0 )); then
+        if (( Current > 0 )); then
             echo "Game is already installed."
             read -s
             return
@@ -86,15 +88,16 @@ Install() {
 
 Main() {
     running=1
-    
-    if [[ ! $(ping -c1 1.1.1.1 2>/dev/null) ]]; then
+
+    ping -c1 8.8.8.8 >/dev/null
+    if [[ $? != 0 ]]; then
         echo "Please check your Internet connection before proceeding."
         exit 1
     fi
     
     if [[ ! -d "$GIOLDIR" ]]; then
         cd "$BASEDIR"
-        git clone https://notabug.org/Krock/GI-on-Linux
+        git clone https://notabug.org/Krock/dawn
     else
         cd "$GIOLDIR"
         git reset --hard

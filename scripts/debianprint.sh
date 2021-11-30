@@ -45,3 +45,5 @@ sudo sed -z -i "s|<Location /admin>\n  Order allow,deny|<Location /admin>\n  Ord
 echo '192.168.1.1/24' | sudo tee -a /etc/sane.d/saned.conf
 sudo systemctl enable --now avahi-daemon cups nmbd smbd saned.socket
 sudo systemctl restart avahi-daemon cups nmbd smbd saned.socket
+sudo usermod -aG lp,scanner $USER
+sudo usermod -aG lp saned
