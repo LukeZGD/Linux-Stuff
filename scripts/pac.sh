@@ -8,7 +8,7 @@ if [[ $1 == autoremove* ]]; then
 elif [[ $1 == clean* ]]; then
     [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
 elif [[ $1 == install* || $1 == reinstall* ]]; then
-    [[ $1 == install* ]] && needed=--needed
+    [[ $1 == install* ]] && needed=--needed || needed=--rebuild
     if [[ -f $2 ]]; then
         install=("$2")
         for package in "${@:3}"; do
@@ -32,12 +32,14 @@ elif [[ $1 == list ]]; then
     else
         paru -Qe
     fi
+elif [[ $1 == purge* ]]; then
+    paru -Rsn $noconfirm "${@:2}"
 elif [[ $1 == query ]]; then
     paru -Q "${@:2}"
 elif [[ $1 == remove* || $1 == uninstall* ]]; then
     paru -R $noconfirm "${@:2}"
-elif [[ $1 == purge* ]]; then
-    paru -Rsn $noconfirm "${@:2}"
+elif [[ $1 == reflector ]]; then
+    sudo systemctl restart reflector
 elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
     if [[ $2 == refresh ]]; then
@@ -57,12 +59,20 @@ else
     pac {purge} [package(s)]
     pac {query} [package(s)]
     pac {reinstall} [package(s)]
+    pac {reflector}
     pac {remove/uninstall} [package(s)]
     pac {update/upgrade} [all,refresh]
     pac {news}"
 fi
 
-kernelI=$(pacman -Q linux-lts | awk '{print $2}' | cut -c -7 | tr -d .)
+if [[ $(pacman -Q linux-xanmod-lts 2>/dev/null) ]]; then
+    kernel=-xanmod-lts
+elif [[ $(pacman -Q linux-zen 2>/dev/null) ]]; then
+    kernel=-zen
+elif [[ $(pacman -Q linux-lts 2>/dev/null) ]]; then
+    kernel=-lts
+fi
+kernelI=$(pacman -Q linux$kernel | awk '{print $2}' | cut -c -7 | tr -d .)
 kernelR=$(uname -r | cut -c -7 | tr -d .-)
 if [[ $kernelR != $kernelI ]]; then
     echo

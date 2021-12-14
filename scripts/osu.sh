@@ -5,7 +5,7 @@ export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 lutris="lutris-6.1-3-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-osupath="/mnt/Data/osu"
+osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 
@@ -18,9 +18,9 @@ osugame() {
     qdbus org.kde.KWin /Compositor suspend
     [[ -z "$*" ]] && wineserver -k
     cd "$osupath"
-    wine osu!.exe "$@"
+    wine osu!.exe "$@" &> $osupath/Logs/osulog1
     wineserver -w
-    [[ -d _pending ]] && wine osu!.exe "$@"
+    [[ -d _pending ]] && wine osu!.exe "$@" &> $osupath/Logs/osulog2
     wineserver -w
     if [[ -d _cleanup && ! -e osu!.exe ]]; then
         local current
@@ -43,7 +43,7 @@ osugame() {
         cp "$latestfile" osu!.exe
         echo "done"
     fi
-    [[ -d _cleanup ]] && wine osu!.exe "$@"
+    [[ -d _cleanup ]] && wine osu!.exe "$@" &> $osupath/Logs/osulog3
     wineserver -w
     qdbus org.kde.KWin /Compositor resume
 }
@@ -139,11 +139,7 @@ osuinstall() {
     else
         winetricks -q dotnet40 gdiplus
     fi
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Control Panel\Desktop]
-    "LogPixels"=dword:00000078' | tee /tmp/dpi.reg
-    wine regedit /tmp/dpi.reg
-    rm /tmp/dpi.reg
+    wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
 
     if [[ $ID != arch ]]; then
         [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak

@@ -2,7 +2,6 @@
 BASEDIR="$(dirname $(type -p $0))"
 
 packages=(
-appimagelauncher
 earlyoom
 f3
 gallery-dl
@@ -42,7 +41,7 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office" "FL"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Chaotic AUR" "Linux Xanmod Kernel"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
@@ -54,7 +53,9 @@ installstuff() {
             "VMware Player update" ) vmwareu; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "MS office" ) msoffice; break;;
-            "FL" ) FL; break;;
+            "FL Studio" ) FL; break;;
+            "Chaotic AUR" ) chaoticaur; break;;
+            "Linux Xanmod Kernel" ) xanmod; break;;
             * ) exit;;
         esac
     done
@@ -62,23 +63,15 @@ installstuff() {
 
 msoffice() {
     WINEPREFIX=$HOME/.wine_office2010 WINEARCH=win32 winetricks winxp
-    WINEPREFIX=$HOME/.wine_office2010 WINEARCH=win32 winetricks -q msxml6 riched20 gdiplus richtx32
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Control Panel\Desktop]
-    "LogPixels"=dword:00000090' | tee /tmp/dpi.reg
-    WINEPREFIX=$HOME/.wine_office2010 wine regedit /tmp/dpi.reg
-    rm /tmp/dpi.reg
+    WINEPREFIX=$HOME/.wine_office2010 winetricks -q msxml6 riched20 gdiplus richtx32
+    WINEPREFIX=$HOME/.wine_office2010 wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     echo "prepared wineprefix"
     echo "now run: WINEPREFIX=~/.wine_office2010 WINEARCH=win32 wine /path/to/setup.exe"
     echo "also add the kwinrule"
 }
 
 FL() {
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Control Panel\Desktop]
-    "LogPixels"=dword:00000078' | tee /tmp/dpi.reg
-    WINEPREFIX=$HOME/.wine_fl wine regedit /tmp/dpi.reg
-    rm /tmp/dpi.reg
+    WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     cd "$HOME/.wine_fl/drive_c/Program Files/"
     ln -sf ../Program\ Files\ \(x86\)/Image-Line/ .
     mkdir "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
@@ -87,14 +80,27 @@ FL() {
     echo "now run: WINEPREFIX=~/.wine_fl /path/to/flsetup.exe"
 }
 
+chaoticaur() {
+    sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+    sudo pacman-key --lsign-key FBA220DFC880C036
+    sudo pacman -U --noconfirm --needed 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+    printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
+}
+
+xanmod() {
+    pac remove linux-lts linux-lts-headers
+    pac install linux-xanmod-lts linux-xanmod-lts-headers
+    sudo sed -i "s/linux-lts/linux-xanmod-lts/g" /boot/loader/entries/arch.conf
+    if [[ $(pac query nvidia-lts 2>/dev/null) ]]; then
+        pac remove nvidia-lts
+        pac install nvidia-dkms
+        printf "blacklist nouveau\nblacklist nvidiafb\n" | sudo tee /etc/modprobe.d/my_nvidia.conf
+    fi
+}
+
 emulators() {
     pac install cemu dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp rpcs3-udev snes9x-gtk
-
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Control Panel\Desktop]
-    "LogPixels"=dword:00000090' | tee /tmp/dpi.reg
-    WINEPREFIX=$HOME/.cemu/wine wine regedit /tmp/dpi.reg
-    rm /tmp/dpi.reg
+    WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
     cd $HOME/.cemu
@@ -149,11 +155,11 @@ postinstallcomm() {
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
     $HOME/Documents/dxvk/setup_dxvk.sh install
-    echo 'REGEDIT4
-    [HKEY_CURRENT_USER\Control Panel\Desktop]
-    "LogPixels"=dword:00000078' | tee /tmp/dpi.reg
-    wine regedit /tmp/dpi.reg
-    rm /tmp/dpi.reg
+    wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
+    wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
+    cd $HOME/.wine/drive_c
+    rm -rf ProgramData
+    ln -sf $HOME/AppData ProgramData
     cd $HOME/.wine/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
@@ -234,9 +240,9 @@ vbox() {
 }
 
 nvidia() {
-    select opt in "NVIDIA Optimus+TLP" "NVIDIA Latest" "NVIDIA 470" "NVIDIA 390"; do
+    select opt in "NVIDIA Optimus+cpufreq" "NVIDIA Latest" "NVIDIA 470" "NVIDIA 390"; do
         case $opt in
-            "NVIDIA Optimus+TLP" ) nvidia4=optimus; break;;
+            "NVIDIA Optimus+cpufreq" ) nvidia4=optimus; break;;
             "NVIDIA Latest" ) nvidia4=latest; break;;
             "NVIDIA 470" ) nvidia4=470; break;;
             "NVIDIA 390" ) nvidia4=390; break;;
@@ -268,7 +274,8 @@ kvmstep1() {
     pac installc iptables-nft
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
-    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
+    #sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|MODULES=()|MODULES=(kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
@@ -313,6 +320,8 @@ excludelist=(
 ".config/chromium/Default/File System"
 ".config/chromium/Default/Service Worker/CacheStorage"
 ".config/GitHub Desktop/Cache"
+".config/google-chrome/Default/File System"
+".config/google-chrome/Default/Service Worker/CacheStorage"
 ".Genymobile/Genymotion/deployed"
 ".gitconfig"
 ".gradle"
@@ -330,6 +339,7 @@ excludelist=(
 ".nv"
 ".nvidia-settings-rc"
 ".nx"
+".osu"
 ".pam_environment"
 ".pipewire-media-session"
 ".profile"
@@ -379,7 +389,7 @@ BackupRestore() {
     if [[ $Mode == user ]]; then
         Paths=("$HOME/" "/media/$USER/LukeHDD2/BackupsP/$USER/"
                "/mnt/Data/$USER/" "/media/$USER/LukeHDD2/BackupsP/Data/$USER/"
-               "/mnt/Data/osu/" "/media/$USER/LukeHDD2/BackupsP/Data/osu/")
+               "$HOME/.osu/" "/media/$USER/LukeHDD2/BackupsP/Data/osu/")
     elif [[ $Mode == pac ]]; then
         Paths=("/var/cache/pacman/pkg/" "/media/$USER/LukeHDD2/BackupsP/pkg/"
                "/var/cache/pacman/aur/" "/media/$USER/LukeHDD2/BackupsP/aur/")
@@ -426,7 +436,7 @@ Restoreuser() {
 }
 
 Plymouth() {
-    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 btrfs filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 btrfs filesystems fsck)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)|HOOKS=(base udev plymouth plymouth-encrypt autodetect modconf block keyboard lvm2 filesystems fsck)|g" /etc/mkinitcpio.conf
     pac install plymouth
     sudo systemctl disable sddm
     sudo systemctl enable sddm-plymouth

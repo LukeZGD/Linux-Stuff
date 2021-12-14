@@ -1,5 +1,6 @@
 #!/bin/bash
 
+: "
 mirrorlist='Server = https://asia.mirror.pkgbuild.com/$repo/os/$arch
 Server = https://archmirror.it/repos/$repo/os/$arch
 Server = https://mirrors.niyawe.de/archlinux/$repo/os/$arch
@@ -12,6 +13,14 @@ Server = http://archlinux.polymorf.fr/$repo/os/$arch
 Server = http://mirror.dkm.cz/archlinux/$repo/os/$arch
 Server = https://mirror.tarellia.net/distr/archlinux/$repo/os/$arch
 Server = https://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch'
+"
+mirrorlist='Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
+Server = https://mirror.lty.me/archlinux/$repo/os/$arch
+Server = https://de.arch.mirror.kescher.at/$repo/os/$arch
+Server = https://archlinux.thaller.ws/$repo/os/$arch
+Server = https://mirror.nw-sys.ru/archlinux/$repo/os/$arch
+Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
+Server = https://archlinux.mailtunnel.eu/$repo/os/$arch'
 
 clear
 
@@ -88,9 +97,11 @@ if [[ $formatboot != n && $formatboot != N ]]; then
 fi
 if [[ -z $swappart ]]; then
     rootpart="/dev/mapper/$vgname-$lvname"
-    echo "[Log] Formatting and mounting btrfs volume"
-    mkfs.btrfs -f $rootpart
+    echo "[Log] Formatting and mounting volume"
+    #mkfs.btrfs -f $rootpart
+    mkfs.f2fs -f $rootpart
     mount $rootpart /mnt
+    : '
     echo "[Log] Creating subvolumes"
     btrfs su cr /mnt/root
     btrfs su cr /mnt/home
@@ -109,6 +120,7 @@ if [[ -z $swappart ]]; then
     fallocate /mnt/swap/swapfile -l8g
     mkswap /mnt/swap/swapfile
     swapon /mnt/swap/swapfile
+    '
 fi
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
