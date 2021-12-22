@@ -64,17 +64,17 @@ installstuff() {
 msoffice() {
     WINEPREFIX=$HOME/.wine_office2010 WINEARCH=win32 winetricks winxp
     WINEPREFIX=$HOME/.wine_office2010 winetricks -q msxml6 riched20 gdiplus richtx32
-    WINEPREFIX=$HOME/.wine_office2010 wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
+    WINEPREFIX=$HOME/.wine_office2010 wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     echo "prepared wineprefix"
     echo "now run: WINEPREFIX=~/.wine_office2010 WINEARCH=win32 wine /path/to/setup.exe"
     echo "also add the kwinrule"
 }
 
 FL() {
-    WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
+    WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     cd "$HOME/.wine_fl/drive_c/Program Files/"
     ln -sf ../Program\ Files\ \(x86\)/Image-Line/ .
-    mkdir "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
+    mkdir -p "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     cp "$HOME/Documents/FL Studio 20 (32bit).lnk" "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     echo "prepared wineprefix"
     echo "now run: WINEPREFIX=~/.wine_fl /path/to/flsetup.exe"
@@ -106,6 +106,7 @@ emulators() {
     cd $HOME/.cemu
     ln -s /usr/share/cemu/Cemu.exe .
     ln -s /usr/share/cemu/cemuhook.dll .
+    ln -s /usr/share/cemu/dbghelp.dll .
     ln -s /usr/share/cemu/keystone.dll .
     ln -s /usr/share/cemu/sharedFonts/ .
     ln -s /mnt/Data/$USER/cemu/controllerProfiles/ .
@@ -151,7 +152,7 @@ postinstallcomm() {
     sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
     sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
-    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
+    pac install lib32-gst-plugins-base lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
     $HOME/Documents/dxvk/setup_dxvk.sh install
@@ -161,6 +162,15 @@ postinstallcomm() {
     rm -rf ProgramData
     ln -sf $HOME/AppData ProgramData
     cd $HOME/.wine/drive_c/users/$USER
+    rm -rf AppData 'Application Data'
+    ln -sf $HOME/AppData
+    ln -sf $HOME/AppData 'Application Data'
+    WINEPREFIX=$HOME/.wine_lutris wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
+    WINEPREFIX=$HOME/.wine_lutris wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
+    cd $HOME/.wine_lutris/drive_c
+    rm -rf ProgramData
+    ln -sf $HOME/AppData ProgramData
+    cd $HOME/.wine_lutris/drive_c/users/$USER
     rm -rf AppData 'Application Data'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
@@ -274,8 +284,7 @@ kvmstep1() {
     pac installc iptables-nft
     pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
-    #sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
-    sudo sed -i "s|MODULES=()|MODULES=(kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
+    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
     sudo mkinitcpio -p linux
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER

@@ -192,7 +192,7 @@ systemdinstall() {
     initrd /amd-ucode.img
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rootflags=compress=zstd:1,subvol=/root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     #resume=UUID=$swapuuid resume_offset=$swapoffset
     echo "timeout 0
     default arch
@@ -214,14 +214,7 @@ setupstuff() {
     echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
-    tee -a /etc/sysctl.d/99-sysctl.conf << EOF
-kernel.sysrq=1
-vm.swappiness=1
-vm.vfs_cache_pressure=50
-vm.dirty_background_bytes=4194304
-vm.dirty_bytes=4194304
-EOF
-    
+    printf "kernel.sysrq=1\nvm.swappiness=1\n" | tee /etc/sysctl.d/99-sysctl.conf
     sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
 }
 
@@ -259,7 +252,7 @@ fi
 
 echo "[Log] Edit mkinitcpio.conf"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/" /etc/mkinitcpio.conf
-#sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
+sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 #echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo "[Log] Run mkinitcpio"
 mkinitcpio -p linux

@@ -97,10 +97,12 @@ if [[ $formatboot != n && $formatboot != N ]]; then
 fi
 if [[ -z $swappart ]]; then
     rootpart="/dev/mapper/$vgname-$lvname"
-    echo "[Log] Formatting and mounting volume"
+    echo "[Log] Formatting and mounting volumes"
     #mkfs.btrfs -f $rootpart
     mkfs.f2fs -f $rootpart
     mount $rootpart /mnt
+    mkdir /mnt/boot
+    mount $bootpart /mnt/boot
     : '
     echo "[Log] Creating subvolumes"
     btrfs su cr /mnt/root
@@ -109,7 +111,7 @@ if [[ -z $swappart ]]; then
     umount /mnt
     echo "[Log] Mounting subvolumes"
     mount -o compress=zstd:1,subvol=/root $rootpart /mnt
-    mkdir /mnt/{boot,home}
+    mkdir /mnt/{boot,home,swap}
     mount $bootpart /mnt/boot
     mount -o compress=zstd:1,subvol=/home $rootpart /mnt/home
     mount -o subvol=/swap $rootpart /mnt/swap

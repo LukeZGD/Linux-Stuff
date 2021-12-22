@@ -3,8 +3,10 @@
 export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-lutris="lutris-6.1-3-x86_64"
+lutrisver="6.1-3"
+lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
+lutrissha1="3a20dfdfa1744811ed51b9fe76c99322cc44033d"
 osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
@@ -18,9 +20,9 @@ osugame() {
     qdbus org.kde.KWin /Compositor suspend
     [[ -z "$*" ]] && wineserver -k
     cd "$osupath"
-    wine osu!.exe "$@" &> $osupath/Logs/osulog1
+    wine osu!.exe "$@" &> "$osupath"/Logs/osulog1
     wineserver -w
-    [[ -d _pending ]] && wine osu!.exe "$@" &> $osupath/Logs/osulog2
+    [[ -d _pending ]] && wine osu!.exe "$@" &> "$osupath"/Logs/osulog2
     wineserver -w
     if [[ -d _cleanup && ! -e osu!.exe ]]; then
         local current
@@ -43,7 +45,7 @@ osugame() {
         cp "$latestfile" osu!.exe
         echo "done"
     fi
-    [[ -d _cleanup ]] && wine osu!.exe "$@" &> $osupath/Logs/osulog3
+    [[ -d _cleanup ]] && wine osu!.exe "$@" &> "$osupath"/Logs/osulog3
     wineserver -w
     qdbus org.kde.KWin /Compositor resume
 }
@@ -112,18 +114,18 @@ osuinstall() {
         cd $HOME/Programs
 
         if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
-            aria2c https://github.com/lutris/wine/releases/download/lutris-6.1-3/wine-$lutris.tar.xz -d $HOME/Programs
+            aria2c https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz
         fi
 
-        if [[ $(shasum $HOME/Programs/wine-$lutris.tar.xz | awk '{print $1}' ) != 3a20dfdfa1744811ed51b9fe76c99322cc44033d ]]; then
+        if [[ $(shasum wine-$lutris.tar.xz | awk '{print $1}') != $lutrissha1 ]]; then
             echo "wine lutris verifying failed"
-            [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f $HOME/Programs/wine-$lutris.tar.xz
+            [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
             exit 1
         fi
 
         if [[ ! -d $lutrispath/$lutris ]]; then
             mkdir -p $lutrispath
-            7z x $HOME/Programs/wine-$lutris.tar.xz
+            7z x wine-$lutris.tar.xz
             tar xvf wine-$lutris.tar -C $lutrispath
             rm -f wine-$lutris.tar
         fi

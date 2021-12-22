@@ -1,7 +1,29 @@
 #!/bin/bash
-
-#BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BASEDIR="/mnt/Data/Games/Touhou"
+lutrisver="6.21-6"
+lutris="lutris-fshack-$lutrisver-x86_64"
+lutrispath="$HOME/.local/share/lutris/runners/wine"
+lutrissha1="d27a7a23d1081b8090ee5683e59a99519dd77ef0"
+export WINEPREFIX="$HOME/.wine_lutris"
+export PATH=$lutrispath/$lutris/bin:$PATH
+
+cd $HOME/Programs
+if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
+    aria2c https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz
+fi
+
+if [[ $(shasum wine-$lutris.tar.xz | awk '{print $1}') != $lutrissha1 ]]; then
+    echo "wine lutris verifying failed"
+    [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
+    exit 1
+fi
+
+if [[ ! -d $lutrispath/$lutris ]]; then
+    mkdir -p $lutrispath
+    7z x wine-$lutris.tar.xz
+    tar xvf wine-$lutris.tar -C $lutrispath
+    rm -f wine-$lutris.tar
+fi
 
 if [[ -n "$1" ]]; then
     launch=$1
