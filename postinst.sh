@@ -261,7 +261,7 @@ nvidia() {
     done
     
     if [[ $nvidia4 == optimus || $nvidia4 == latest ]]; then
-        pac install nvidia-lts lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
+        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
     elif [[ -n $nvidia4 ]]; then
         pac install nvidia-${nvidia4}xx-dkms lib32-nvidia-${nvidia4}xx-utils nvidia-${nvidia4}xx-settings opencl-nvidia-${nvidia4}xx lib32-opencl-nvidia-${nvidia4}xx
     fi

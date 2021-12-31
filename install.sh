@@ -1,19 +1,5 @@
 #!/bin/bash
 
-: "
-mirrorlist='Server = https://asia.mirror.pkgbuild.com/$repo/os/$arch
-Server = https://archmirror.it/repos/$repo/os/$arch
-Server = https://mirrors.niyawe.de/archlinux/$repo/os/$arch
-Server = https://mirror.lty.me/archlinux/$repo/os/$arch
-Server = https://archlinux.uk.mirror.allworldit.com/archlinux/$repo/os/$arch
-Server = https://mirror.hackingand.coffee/arch/$repo/os/$arch
-Server = https://arch.mirror.constant.com/$repo/os/$arch
-Server = https://mirror.bethselamin.de/$repo/os/$arch
-Server = http://archlinux.polymorf.fr/$repo/os/$arch
-Server = http://mirror.dkm.cz/archlinux/$repo/os/$arch
-Server = https://mirror.tarellia.net/distr/archlinux/$repo/os/$arch
-Server = https://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch'
-"
 mirrorlist='Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
 Server = https://mirror.lty.me/archlinux/$repo/os/$arch
 Server = https://de.arch.mirror.kescher.at/$repo/os/$arch
@@ -34,10 +20,6 @@ echo "[Log] Creating mirrorlist"
 echo "$mirrorlist" > /etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
-#echo "[Log] Installing reflector"
-#pacman -Sy --noconfirm --needed python reflector
-#echo "[Log] Creating mirrorlist with reflector"
-#reflector --verbose --country 'Singapore' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
@@ -131,7 +113,7 @@ cp chroot.sh /mnt
 echo "[Log] Installing base"
 pacstrap /mnt base
 [[ -n $swappart ]] && touch /mnt/ia32
-[[ $diskprog == y || $diskprog == Y ]] && touch /mnt/fdisk
+[[ $diskprog == fdisk ]] && touch /mnt/fdisk
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
 echo "tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0" | tee -a /mnt/etc/fstab
