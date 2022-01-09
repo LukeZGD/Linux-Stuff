@@ -8,8 +8,6 @@ fish
 git
 intel-ucode
 linux-firmware
-linux-lts
-linux-lts-headers
 nano
 pacman-contrib
 reflector
@@ -188,10 +186,10 @@ systemdinstall() {
     #echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
-    linux /vmlinuz-linux-lts
+    linux /vmlinuz-$kernel
     initrd /amd-ucode.img
     initrd /intel-ucode.img
-    initrd /initramfs-linux-lts.img
+    initrd /initramfs-$kernel.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     #resume=UUID=$swapuuid resume_offset=$swapoffset
     echo "timeout 0
@@ -223,7 +221,18 @@ setupstuff() {
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
+echo "[Log] archlinux-keyring"
+pacman -S --noconfirm archlinux-keyring
+echo "[Input] Select kernel:"
+select opt in "linux" "linux-lts" "linux-zen"; do
+case $opt in
+    "linux" ) kernel=linux; break;;
+    "linux-lts" ) kernel=linux-lts; break;;
+    "linux-zen" ) kernel=linux-zen; break;;
+esac
+done
 echo "[Log] Installing packages"
+pacman -S --noconfirm $kernel $kernel-headers
 pacman -S --noconfirm --needed "${pacmanpkgs[@]}"
 echo "[Log] Setting locale"
 echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8" > /etc/locale.gen

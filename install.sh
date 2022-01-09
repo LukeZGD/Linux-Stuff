@@ -110,6 +110,8 @@ echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
 #mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
 #cp -R Backups/pkg /mnt/var/cache/pacman
+echo "[Log] archlinux-keyring"
+pacman -S --noconfirm archlinux-keyring
 echo "[Log] Installing base"
 pacstrap /mnt base
 [[ -n $swappart ]] && touch /mnt/ia32

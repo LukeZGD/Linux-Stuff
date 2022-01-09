@@ -88,12 +88,20 @@ chaoticaur() {
 }
 
 xanmod() {
-    pac remove linux-lts linux-lts-headers
-    pac install linux-xanmod-lts linux-xanmod-lts-headers
-    sudo sed -i "s/linux-lts/linux-xanmod-lts/g" /boot/loader/entries/arch.conf
-    if [[ $(pac query nvidia-lts 2>/dev/null) ]]; then
-        pac remove nvidia-lts
-        pac install nvidia-dkms
+    echo "[Input] Select current kernel:"
+    select opt in "linux" "linux-lts" "linux-zen"; do
+    case $opt in
+        "linux" ) kernel=linux; break;;
+        "linux-lts" ) kernel=linux-lts; break;;
+        "linux-zen" ) kernel=linux-zen; break;;
+    esac
+    done
+    pac remove $kernel $kernel-headers
+    read -p "Xanmod LTS? (Y/n) " lts
+    [[ $lts != n && $lts != N ]] && lts=-lts
+    pac install linux-xanmod$lts linux-xanmod$lts-headers
+    sudo sed -i "s/$kernel/linux-xanmod-lts/g" /boot/loader/entries/arch.conf
+    if [[ $(pac query nvidia-dkms 2>/dev/null) ]]; then
         printf "blacklist nouveau\nblacklist nvidiafb\n" | sudo tee /etc/modprobe.d/my_nvidia.conf
     fi
 }
