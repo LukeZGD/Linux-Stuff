@@ -2,7 +2,7 @@
 
 export DXVK_ASYNC=1
 PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
-BASEDIR="$HOME/Programs/Genshin Impact"
+BASEDIR="$HOME/Programs/Games/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"

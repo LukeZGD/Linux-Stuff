@@ -121,6 +121,7 @@ jre-openjdk
 jsoncpp
 libreoffice-fresh
 love
+maxcso
 okular
 openssh
 noto-fonts-cjk

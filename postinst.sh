@@ -10,6 +10,7 @@ legendary
 masterpdfeditor-free
 mkmm
 mystiq
+ndstrim
 nohang-git
 portsmf-git
 qdirstat
@@ -56,9 +57,16 @@ installstuff() {
             "FL Studio" ) FL; break;;
             "Chaotic AUR" ) chaoticaur; break;;
             "Linux Xanmod Kernel" ) xanmod; break;;
+            "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
             * ) exit;;
         esac
     done
+}
+
+brother_dcpl2540dw() {
+    read -p "[Input] IP Address of printer: " ip
+    pac install brother-dcpl2540dw-cups brscan4
+    brsaneconfig4 -a name="Brother" model="DCP-L2540DW" ip=$ip
 }
 
 msoffice() {
@@ -228,6 +236,7 @@ postinstallcomm() {
     echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
     sudo systemctl disable NetworkManager-wait-online
     sudo systemctl mask NetworkManager-wait-online
+    sudo sed -i "s|--sort age|--sort rate|g" /etc/xdg/reflector/reflector.conf
 }
 
 adduser() {
