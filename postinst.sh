@@ -42,7 +42,7 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Chaotic AUR" "Linux Xanmod Kernel"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Chaotic AUR" "Linux Xanmod Kernel" "Brother DCP-L2540DW" "JP Input" "RTL8822CE"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
@@ -58,9 +58,22 @@ installstuff() {
             "Chaotic AUR" ) chaoticaur; break;;
             "Linux Xanmod Kernel" ) xanmod; break;;
             "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
+            "JP Input" ) jpmozc; break;;
+            "RTL8822CE" ) rtl8822ce; break;;
             * ) exit;;
         esac
     done
+}
+
+rtl8822ce() {
+    pac install rtw88-dkms-git
+    echo "blacklist rtw88_8822ce" | tee /etc/modprobe.d/blacklist.conf
+}
+
+jpmozc() {
+    pac install fcitx5-im fcitx5-mozc kcm-fcitx5
+    printf "\nGTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment
+    cp /etc/xdg/autostart/org.fcitx.Fcitx5.desktop $HOME/.config/autostart
 }
 
 brother_dcpl2540dw() {
@@ -149,6 +162,53 @@ postinstall() {
     sudo systemctl enable --now nohang-desktop
 }
 
+preparewineprefix() {
+    [[ -n $1 ]] && export WINEPREFIX=$1 || export WINEPREFIX=$HOME/.wine
+    [[ -n $2 ]] && export WINEARCH=$2 || export WINEARCH=win64
+    wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
+    wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
+    cd $WINEPREFIX/drive_c
+    rm -rf ProgramData
+    ln -sf $HOME/AppData ProgramData
+    cd $WINEPREFIX/drive_c/users/$USER
+    rm -rf AppData 'Application Data'
+    ln -sf $HOME/AppData
+    ln -sf $HOME/AppData 'Application Data'
+}
+
+preparelutris() {
+    lutrisver="$1"
+    lutris="lutris-fshack-$lutrisver-x86_64"
+    lutrispath="$HOME/.local/share/lutris/runners/wine"
+    lutrissha1="$2"
+    export PATH=$lutrispath/$lutris/bin:$PATH
+    if [[ $lutrisver == "5.0" ]]; then
+        lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
+    else
+        lutrislink="https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz"
+    fi
+
+    cd $HOME/Programs
+    if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
+        aria2c $lutrislink
+    fi
+
+    lutrissha1L=$(shasum wine-$lutris.tar.xz | awk '{print $1}')
+    if [[ $lutrissha1L != $lutrissha1 ]]; then
+        echo "wine lutris $lutrisver verifying failed"
+        echo "expected $lutrissha1, got $lutrissha1L"
+        [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
+        exit 1
+    fi
+
+    if [[ ! -d $lutrispath/$lutris ]]; then
+        mkdir -p $lutrispath
+        7z x wine-$lutris.tar.xz
+        tar xvf wine-$lutris.tar -C $lutrispath
+        rm -f wine-$lutris.tar
+    fi
+}
+
 postinstallcomm() {
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
@@ -170,26 +230,16 @@ postinstallcomm() {
     
     pac install lib32-gst-plugins-base lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
-    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp9
+    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp11
     $HOME/Documents/dxvk/setup_dxvk.sh install
-    wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
-    cd $HOME/.wine/drive_c
-    rm -rf ProgramData
-    ln -sf $HOME/AppData ProgramData
-    cd $HOME/.wine/drive_c/users/$USER
-    rm -rf AppData 'Application Data'
-    ln -sf $HOME/AppData
-    ln -sf $HOME/AppData 'Application Data'
-    WINEPREFIX=$HOME/.wine_lutris wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    WINEPREFIX=$HOME/.wine_lutris wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
-    cd $HOME/.wine_lutris/drive_c
-    rm -rf ProgramData
-    ln -sf $HOME/AppData ProgramData
-    cd $HOME/.wine_lutris/drive_c/users/$USER
-    rm -rf AppData 'Application Data'
-    ln -sf $HOME/AppData
-    ln -sf $HOME/AppData 'Application Data'
+    preparewineprefix
+
+    preparelutris "6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
+    preparewineprefix "$HOME/.wine_lutris"
+
+    preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
+    preparewineprefix "$HOME/.wine_lutris32" win32
+    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q wmp9 dotnet40 gdiplus
     
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur

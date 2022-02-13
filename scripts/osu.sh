@@ -1,15 +1,43 @@
 #!/bin/bash
 
 export vblank_mode=0
-export WINEPREFIX="$HOME/.wine_osu"
+export WINEPREFIX="$HOME/.wine_lutris32"
 export WINEARCH="win32"
-lutrisver="6.1-3"
+lutrisver="5.0"
 lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-lutrissha1="3a20dfdfa1744811ed51b9fe76c99322cc44033d"
+lutrissha1="736e7499d03d1bc60b13a43efa5fa93450140e9d"
 osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
+
+preparelutris() {
+    lutrisver="$1"
+    lutris="lutris-fshack-$lutrisver-x86_64"
+    lutrispath="$HOME/.local/share/lutris/runners/wine"
+    lutrissha1="$2"
+    lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
+
+    cd $HOME/Programs
+    if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
+        aria2c $lutrislink
+    fi
+
+    lutrissha1L=$(shasum wine-$lutris.tar.xz | awk '{print $1}')
+    if [[ $lutrissha1L != $lutrissha1 ]]; then
+        echo "wine lutris $lutrisver verifying failed"
+        echo "expected $lutrissha1, got $lutrissha1L"
+        [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
+        exit 1
+    fi
+
+    if [[ ! -d $lutrispath/$lutris ]]; then
+        mkdir -p $lutrispath
+        7z x wine-$lutris.tar.xz
+        tar xvf wine-$lutris.tar -C $lutrispath
+        rm -f wine-$lutris.tar
+    fi
+}
 
 osugame() {
     if [[ $1 == "lazer" ]]; then
@@ -111,24 +139,7 @@ osuinstall() {
 
     if [[ $ID == arch ]]; then
         pac install aria2 lib32-alsa-plugins lib32-gnutls lib32-gsm lib32-libpulse lib32-libxcomposite winetricks
-        cd $HOME/Programs
-
-        if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
-            aria2c https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz
-        fi
-
-        if [[ $(shasum wine-$lutris.tar.xz | awk '{print $1}') != $lutrissha1 ]]; then
-            echo "wine lutris verifying failed"
-            [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
-            exit 1
-        fi
-
-        if [[ ! -d $lutrispath/$lutris ]]; then
-            mkdir -p $lutrispath
-            7z x wine-$lutris.tar.xz
-            tar xvf wine-$lutris.tar -C $lutrispath
-            rm -f wine-$lutris.tar
-        fi
+        preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     fi
 
     if [[ -d $WINEPREFIX ]]; then

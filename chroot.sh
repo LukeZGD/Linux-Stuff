@@ -236,7 +236,7 @@ echo "[Log] Installing packages"
 pacman -S --noconfirm $kernel $kernel-headers
 pacman -S --noconfirm --needed "${pacmanpkgs[@]}"
 echo "[Log] Setting locale"
-echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8" > /etc/locale.gen
+echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8\nja_JP.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
 locale-gen
 echo "[Log] Time stuff"
