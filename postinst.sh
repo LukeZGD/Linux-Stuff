@@ -171,9 +171,10 @@ preparewineprefix() {
     rm -rf ProgramData
     ln -sf $HOME/AppData ProgramData
     cd $WINEPREFIX/drive_c/users/$USER
-    rm -rf AppData 'Application Data'
+    rm -rf AppData 'Application Data' 'Saved Games'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
+    ln -sf $HOME/AppData 'Saved Games'
 }
 
 preparelutris() {
@@ -230,12 +231,13 @@ postinstallcomm() {
     
     pac install lib32-gst-plugins-base lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
-    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 wmp11
+    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 win10 wmp11
     $HOME/Documents/dxvk/setup_dxvk.sh install
     preparewineprefix
 
     preparelutris "6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
     preparewineprefix "$HOME/.wine_lutris"
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q win10 wmp11
 
     preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32

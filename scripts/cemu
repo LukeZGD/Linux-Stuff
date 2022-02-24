@@ -36,6 +36,6 @@ preparelutris() {
     fi
 }
 
-preparelutris "6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
+preparelutris "$lutrisver" "$lutrissha1"
 cd $HOME/.cemu
 wine Cemu.exe "$@"

@@ -1,12 +1,10 @@
 #!/bin/bash
 
-mirrorlist='Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
-Server = https://mirror.lty.me/archlinux/$repo/os/$arch
-Server = https://de.arch.mirror.kescher.at/$repo/os/$arch
-Server = https://archlinux.thaller.ws/$repo/os/$arch
-Server = https://mirror.nw-sys.ru/archlinux/$repo/os/$arch
-Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
-Server = https://archlinux.mailtunnel.eu/$repo/os/$arch'
+mirrorlist='Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
+Server = https://arch-mirror.wtako.net/$repo/os/$arch
+Server = http://mirror.guillaumea.fr/archlinux/$repo/os/$arch
+Server = https://mirror.xtom.com.hk/archlinux/$repo/os/$arch
+Server = http://mirrors.hit.edu.cn/archlinux/$repo/os/$arch'
 
 clear
 

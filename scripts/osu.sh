@@ -4,7 +4,7 @@ export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_lutris32"
 export WINEARCH="win32"
 lutrisver="5.0"
-lutris="lutris-$lutrisver-x86_64"
+lutris="lutris-fshack-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
 lutrissha1="736e7499d03d1bc60b13a43efa5fa93450140e9d"
 osupath="$HOME/.osu"
@@ -139,7 +139,7 @@ osuinstall() {
 
     if [[ $ID == arch ]]; then
         pac install aria2 lib32-alsa-plugins lib32-gnutls lib32-gsm lib32-libpulse lib32-libxcomposite winetricks
-        preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
+        preparelutris "$lutrisver" "$lutrissha1"
     fi
 
     if [[ -d $WINEPREFIX ]]; then

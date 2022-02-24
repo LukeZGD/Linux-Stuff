@@ -6,6 +6,7 @@ VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/efi/0/Config/DmiSystemV
 VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct" "Iloveapple"
 VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/smc/0/Config/DeviceKey" "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
 VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC" 1
-VBoxManage setextradata "$macosvm" VBoxInternal2/EfiGopMode 4
+#VBoxManage setextradata "$macosvm" VBoxInternal2/EfiGopMode 4
+VBoxManage modifyvm "$macosvm" --cpu-profile "Intel Core i7-6700K"
 #VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/VMMDev/0/Config/GetHostTimeDisabled" 1
 #VBoxManage modifyvm "$macosvm" --biossystemtimeoffset -60688673000
