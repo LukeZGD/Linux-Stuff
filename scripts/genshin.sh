@@ -53,7 +53,7 @@ Patch() {
 Updater() {
     cd "$GAMEDIR"
     chmod +x "$UPDATER"
-    "$UPDATER" $1
+    "$UPDATER" $1 nodelete
     read -s
 }
 
@@ -86,6 +86,17 @@ Install() {
     Updater install
 }
 
+Dawn() {
+    if [[ ! -d "$GIOLDIR" ]]; then
+        cd "$BASEDIR"
+        git clone https://notabug.org/Krock/dawn
+    else
+        cd "$GIOLDIR"
+        git reset --hard
+        git pull 2>/dev/null
+    fi
+}
+
 Main() {
     running=1
 
@@ -95,14 +106,7 @@ Main() {
         exit 1
     fi
     
-    if [[ ! -d "$GIOLDIR" ]]; then
-        cd "$BASEDIR"
-        git clone https://notabug.org/Krock/dawn
-    else
-        cd "$GIOLDIR"
-        git reset --hard
-        git pull 2>/dev/null
-    fi
+    Dawn
     
     ln -sf "$BASEDIR" "$PROGDIR"
     cd "$GAMEDIR"
@@ -110,13 +114,15 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "(Re-)Install Game" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
             "Install Patch" ) Patch install; read -s; break;;
             "Uninstall Patch" ) Patch uninstall; read -s; break;;
+            "Update Patch" ) Dawn; break;;
             "(Re-)Install Game" ) Install; break;;
+            "Delete Update Files" ) rm -r "$BASEDIR/_update_gi_download"; break;;
             * ) exit;;
         esac
         done

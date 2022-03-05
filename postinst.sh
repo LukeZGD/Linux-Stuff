@@ -16,7 +16,6 @@ portsmf-git
 qdirstat
 qsynth
 qview
-reflector-mirrorlist-update
 shellcheck-bin
 simplescreenrecorder
 tenacity-git
