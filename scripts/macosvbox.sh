@@ -9,4 +9,4 @@ VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/smc/0/Config/GetKeyFrom
 #VBoxManage setextradata "$macosvm" VBoxInternal2/EfiGopMode 4
 VBoxManage modifyvm "$macosvm" --cpu-profile "Intel Core i7-6700K"
 #VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/VMMDev/0/Config/GetHostTimeDisabled" 1
-#VBoxManage modifyvm "$macosvm" --biossystemtimeoffset -60688673000
+#VBoxManage modifyvm "$macosvm" --biossystemtimeoffset -31536000000

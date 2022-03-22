@@ -2,6 +2,8 @@
 BASEDIR="$(dirname $(type -p $0))"
 
 packages=(
+anydesk-bin
+cpu-x
 earlyoom
 f3
 gallery-dl
@@ -16,8 +18,6 @@ portsmf-git
 qdirstat
 qsynth
 qview
-shellcheck-bin
-simplescreenrecorder
 tenacity-git
 ventoy-bin
 waifu2x-ncnn-vulkan-bin
@@ -41,32 +41,25 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM (with GVT-g)" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Chaotic AUR" "Linux Xanmod Kernel" "Brother DCP-L2540DW" "JP Input" "RTL8822CE"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) emulators; break;;
-            "KVM (with GVT-g)" ) kvm; break;;
+            "KVM w/ virt-manager" ) kvmstep1; break;;
             "Plymouth" ) Plymouth; break;;
             "VMware Player install" ) vmwarei; break;;
             "VMware Player update" ) vmwareu; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "MS office" ) msoffice; break;;
             "FL Studio" ) FL; break;;
-            "Chaotic AUR" ) chaoticaur; break;;
-            "Linux Xanmod Kernel" ) xanmod; break;;
             "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
             "JP Input" ) jpmozc; break;;
-            "RTL8822CE" ) rtl8822ce; break;;
+            "Chaotic AUR" ) chaoticaur; break;;
             * ) exit;;
         esac
     done
-}
-
-rtl8822ce() {
-    pac install rtw88-dkms-git
-    echo "blacklist rtw88_8822ce" | tee /etc/modprobe.d/blacklist.conf
 }
 
 jpmozc() {
@@ -97,7 +90,7 @@ FL() {
     mkdir -p "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     cp "$HOME/Documents/FL Studio 20 (32bit).lnk" "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     echo "prepared wineprefix"
-    echo "now run: WINEPREFIX=~/.wine_fl /path/to/flsetup.exe"
+    echo "now run: WINEPREFIX=~/.wine_fl wine /path/to/flsetup.exe"
 }
 
 chaoticaur() {
@@ -105,25 +98,6 @@ chaoticaur() {
     sudo pacman-key --lsign-key FBA220DFC880C036
     sudo pacman -U --noconfirm --needed 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
     printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
-}
-
-xanmod() {
-    echo "[Input] Select current kernel:"
-    select opt in "linux" "linux-lts" "linux-zen"; do
-    case $opt in
-        "linux" ) kernel=linux; break;;
-        "linux-lts" ) kernel=linux-lts; break;;
-        "linux-zen" ) kernel=linux-zen; break;;
-    esac
-    done
-    pac remove $kernel $kernel-headers
-    read -p "Xanmod LTS? (Y/n) " lts
-    [[ $lts != n && $lts != N ]] && lts=-lts
-    pac install linux-xanmod$lts linux-xanmod$lts-headers
-    sudo sed -i "s/$kernel/linux-xanmod-lts/g" /boot/loader/entries/arch.conf
-    if [[ $(pac query nvidia-dkms 2>/dev/null) ]]; then
-        printf "blacklist nouveau\nblacklist nvidiafb\n" | sudo tee /etc/modprobe.d/my_nvidia.conf
-    fi
 }
 
 emulators() {
@@ -228,7 +202,7 @@ postinstallcomm() {
     sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
     sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
-    pac install lib32-gst-plugins-base lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
+    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 win10 wmp11
     $HOME/Documents/dxvk/setup_dxvk.sh install
@@ -349,16 +323,16 @@ kvm() {
 }
 
 kvmstep1() {
-    pac installc iptables-nft
-    pac install virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
+    #pac installc ebtables iptables-nft
+    pac install virt-manager qemu vde2 dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
-    sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
-    sudo mkinitcpio -p linux
-    echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
+    #sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
+    #sudo mkinitcpio -p linux
+    #echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
     sudo usermod -aG kvm,libvirt $USER
-    sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
-    echo
-    echo "Reboot and run this again for GVT-g"
+    #sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
+    #echo
+    #echo "Reboot and run this again for GVT-g"
 }
 
 kvmstep2() {
@@ -426,7 +400,7 @@ excludelist=(
 ".xsession-errors"
 ".zoom"
 "Android"
-"Programs/Genshin Impact"
+"Programs/Games"
 "VMs"
 )
 
@@ -463,15 +437,16 @@ BackupRestore() {
         * ) exit;;
         esac
     done
+    HDDName="LukeHDDWD"
     if [[ $Mode == user ]]; then
-        Paths=("$HOME/" "/media/$USER/LukeHDD2/BackupsP/$USER/"
-               "/mnt/Data/$USER/" "/media/$USER/LukeHDD2/BackupsP/Data/$USER/"
-               "$HOME/.osu/" "/media/$USER/LukeHDD2/BackupsP/Data/osu/")
+        Paths=("$HOME/" "/media/$USER/$HDDName/BackupsP/$USER/"
+               "/mnt/Data/$USER/" "/media/$USER/$HDDName/BackupsP/Data/$USER/"
+               "$HOME/.osu/" "/media/$USER/$HDDName/BackupsP/Data/osu/")
     elif [[ $Mode == pac ]]; then
-        Paths=("/var/cache/pacman/pkg/" "/media/$USER/LukeHDD2/BackupsP/pkg/"
-               "/var/cache/pacman/aur/" "/media/$USER/LukeHDD2/BackupsP/aur/")
+        Paths=("/var/cache/pacman/pkg/" "/media/$USER/$HDDName/BackupsP/pkg/"
+               "/var/cache/pacman/aur/" "/media/$USER/$HDDName/BackupsP/aur/")
     elif [[ $Mode == vm ]]; then
-        Paths=("$HOME/KVM/" "/media/$USER/LukeHDD2/BackupsP/Data/KVM/")
+        Paths=("$HOME/VMs/" "/media/$USER/$HDDName/BackupsP/Data/VMs/")
     fi
     if [[ $Action == Backup ]]; then
         if [[ $Mode == user ]]; then

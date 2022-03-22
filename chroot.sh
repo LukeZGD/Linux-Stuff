@@ -111,6 +111,7 @@ okteta
 
 aria2
 bat
+darkhttpd
 firefox
 gnome-calculator
 gnome-keyring
@@ -134,6 +135,7 @@ v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-kde
+zenity
 )
 
 grubinstall() {

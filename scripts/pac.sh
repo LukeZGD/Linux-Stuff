@@ -7,8 +7,8 @@ if [[ $1 == autoremove* ]]; then
     [[ $? != 0 ]] && echo ' there is nothing to do' || exit $?
 elif [[ $1 == clean* ]]; then
     [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
-elif [[ $1 == install* || $1 == reinstall* ]]; then
-    [[ $1 == install* ]] && needed=--needed || needed=--rebuild
+elif [[ $1 == *install* ]]; then
+    [[ $1 == re* ]] && needed=--rebuild || needed=--needed
     if [[ -f $2 ]]; then
         install=("$2")
         for package in "${@:3}"; do
@@ -42,7 +42,9 @@ elif [[ $1 == reflector ]]; then
     sudo systemctl restart reflector
 elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
-    if [[ $2 == refresh ]]; then
+    if [[ $2 == aur ]]; then
+        paru -Sua $noconfirm --sudoloop --aur
+    elif [[ $2 == refresh ]]; then
         paru -Sy
     else
         paru -Syu $noconfirm --sudoloop $nodevel
@@ -61,13 +63,11 @@ else
     pac {reinstall} [package(s)]
     pac {reflector}
     pac {remove/uninstall} [package(s)]
-    pac {update/upgrade} [all,refresh]
+    pac {update/upgrade} [all,aur,refresh]
     pac {news}"
 fi
 
-if [[ $(pacman -Q linux-xanmod-lts 2>/dev/null) ]]; then
-    kernel=-xanmod-lts
-elif [[ $(pacman -Q linux-zen 2>/dev/null) ]]; then
+if [[ $(pacman -Q linux-zen 2>/dev/null) ]]; then
     kernel=-zen
 elif [[ $(pacman -Q linux-lts 2>/dev/null) ]]; then
     kernel=-lts
