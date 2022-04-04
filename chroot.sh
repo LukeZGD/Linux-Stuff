@@ -131,6 +131,7 @@ qbittorrent
 retext
 samba
 seahorse
+steam
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal

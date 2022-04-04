@@ -15,6 +15,7 @@ mystiq
 ndstrim
 nohang-git
 portsmf-git
+protontricks
 qdirstat
 qsynth
 qview

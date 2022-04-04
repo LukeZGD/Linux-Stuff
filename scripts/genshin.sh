@@ -122,7 +122,7 @@ Main() {
             "Uninstall Patch" ) Patch uninstall; read -s; break;;
             "Update Patch" ) Dawn; break;;
             "(Re-)Install Game" ) Install; break;;
-            "Delete Update Files" ) rm -r "$BASEDIR/_update_gi_download"; break;;
+            "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
             * ) exit;;
         esac
         done

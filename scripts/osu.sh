@@ -1,12 +1,12 @@
 #!/bin/bash
 
 export vblank_mode=0
-export WINEPREFIX="$HOME/.wine_lutris32"
+export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-lutrisver="5.0"
+lutrisver="6.21-6"
 lutris="lutris-fshack-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-lutrissha1="736e7499d03d1bc60b13a43efa5fa93450140e9d"
+lutrissha1="d27a7a23d1081b8090ee5683e59a99519dd77ef0"
 osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH

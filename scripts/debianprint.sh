@@ -42,7 +42,7 @@ sudo smbpasswd -a $USER
 sudo sed -i "s|Listen localhost:631|Port 631|g" /etc/cups/cupsd.conf
 sudo sed -z -i "s|<Location />\n  Order allow,deny|<Location />\n  Order allow,deny\n  Allow @LOCAL|g" /etc/cups/cupsd.conf
 sudo sed -z -i "s|<Location /admin>\n  Order allow,deny|<Location /admin>\n  Order allow,deny\n  Allow @LOCAL|g" /etc/cups/cupsd.conf
-echo '192.168.1.1/24' | sudo tee -a /etc/sane.d/saned.conf
+echo '192.168.0.1/24' | sudo tee -a /etc/sane.d/saned.conf
 sudo systemctl enable --now avahi-daemon cups nmbd smbd saned.socket
 sudo systemctl restart avahi-daemon cups nmbd smbd saned.socket
 sudo usermod -aG lp,scanner $USER
