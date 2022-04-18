@@ -19,7 +19,7 @@ protontricks
 qdirstat
 qsynth
 qview
-tenacity-git
+tenacity-wxgtk3-git
 ventoy-bin
 waifu2x-ncnn-vulkan-bin
 yt-dlp
@@ -42,25 +42,44 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware Player install" "VMware Player update" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR" "Waydroid"; do
         case $opt in
             "Install AUR pkgs paru" ) postinstall; break;;
             "VirtualBox" ) vbox; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) emulators; break;;
-            "KVM w/ virt-manager" ) kvmstep1; break;;
+            "KVM w/ virt-manager" ) kvm; break;;
             "Plymouth" ) Plymouth; break;;
-            "VMware Player install" ) vmwarei; break;;
-            "VMware Player update" ) vmwareu; break;;
+            "VMware" ) vmware; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "MS office" ) msoffice; break;;
             "FL Studio" ) FL; break;;
             "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
             "JP Input" ) jpmozc; break;;
             "Chaotic AUR" ) chaoticaur; break;;
+            "Waydroid" ) waydroid; break;;
             * ) exit;;
         esac
     done
+}
+
+kvm() {
+    pac install virt-manager qemu vde2 dnsmasq bridge-utils openbsd-netcat
+    sudo systemctl enable --now libvirtd
+    sudo usermod -aG kvm,libvirt $USER
+}
+
+waydroid() {
+    pac install lzip waydroid-image weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland plasma-wayland-session
+    echo "waydroid init:
+    sudo waydroid init"
+    echo "install waydroid extras:
+    git clone https://github.com/casualsnek/waydroid_script
+    cd waydroid_script; sudo python3 waydroid_extras.py -n"
+    echo "start waydroid:
+    weston (if on x-session)
+    sudo systemctl start waydroid-container
+    export XDG_SESSION_TYPE='wayland'; export DISPLAY=':1'; waydroid show-full-ui"
 }
 
 jpmozc() {
@@ -102,7 +121,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install cemu dolphin-emu libao melonds mgba-qt nestopia pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    pac install cemu dolphin-emu fceux libao melonds mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
     WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
@@ -255,7 +274,8 @@ postinstallcomm() {
     writable = yes
     printable = no
     follow symlinks = yes
-    wide links = yes" | sudo tee /etc/samba/smb.conf
+    wide links = yes
+    acl allow execute always = True" | sudo tee /etc/samba/smb.conf
     sudo smbpasswd -a $USER
     #sudo systemctl enable --now nmb smb
     
@@ -315,7 +335,7 @@ nvidia() {
     fi
 }
 
-kvm() {
+kvm0() {
     if [[ -e /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types && ! -e /etc/systemd/system/gvtvgpu.service ]]; then
         kvmstep2
     else
@@ -495,16 +515,13 @@ Plymouth() {
     sudo systemctl enable sddm-plymouth
 }
 
-vmwarei() {
-    sudo sh $HOME/Documents/Documents/VMware-Player-16.0.0-17801498.x86_64.bundle --eulas-agreed --console --required
-    vmwareu
-}
-
-vmwareu() {
-    pac install vmware-systemd-services
-    sudo vmware-modconfig --console --install-all
+vmware() {
+    #sudo sh $HOME/Documents/Documents/VMware-Player-Full-16.2.3-19376536.x86_64.bundle --eulas-agreed --console --required
+    pac install vmware-workstation
+    #sudo vmware-modconfig --console --install-all
     sudo modprobe -a vmw_vmci vmmon
-    sudo systemctl enable --now vmware vmware-usbarbitrator
+    sudo systemctl enable --now vmware-networks vmware-usbarbitrator
+    echo 'add mks.vk.allowUnsupportedDevices = "TRUE" in ~/.vmware/preferences'
 }
 
 opentabletdriver() {
