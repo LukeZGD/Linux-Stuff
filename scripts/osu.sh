@@ -132,7 +132,7 @@ update() {
 }
 
 osuinstall() {
-    [[ ! -e /usr/local/bin/osu ]] && sudo ln -sf $(dirname $(type -p $0))/osu.sh /usr/local/bin/osu
+    sudo ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     mkdir -p "$osupath"/wine 2>/dev/null
     cd "$osupath"

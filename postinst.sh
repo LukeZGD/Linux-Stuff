@@ -230,11 +230,11 @@ postinstallcomm() {
 
     preparelutris "6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q win10 wmp11
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
     preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32
-    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q wmp9 dotnet40 gdiplus
+    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q dotnet40 gdiplus quartz wmp9
     
     sudo mkdir /var/cache/pacman/aur
     sudo chown $USER:users /var/cache/pacman/aur
