@@ -10,7 +10,6 @@ gallery-dl
 github-desktop-bin
 legendary
 masterpdfeditor-free
-mkmm
 mystiq
 ndstrim
 nohang-git
@@ -222,7 +221,7 @@ postinstallcomm() {
     sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
     sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
-    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-intel-driver lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
+    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 win10 wmp11
     $HOME/Documents/dxvk/setup_dxvk.sh install
@@ -333,51 +332,6 @@ nvidia() {
         pac install auto-cpufreq bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt
         sudo systemctl enable --now auto-cpufreq
     fi
-}
-
-kvm0() {
-    if [[ -e /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types && ! -e /etc/systemd/system/gvtvgpu.service ]]; then
-        kvmstep2
-    else
-        kvmstep1
-    fi
-}
-
-kvmstep1() {
-    #pac installc ebtables iptables-nft
-    pac install virt-manager qemu vde2 dnsmasq bridge-utils openbsd-netcat
-    sudo systemctl enable --now libvirtd
-    #sudo sed -i "s|MODULES=(i915 ext4)|MODULES=(i915 ext4 kvmgt vfio vfio-iommu-type1)|g" /etc/mkinitcpio.conf
-    #sudo mkinitcpio -p linux
-    #echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-    sudo usermod -aG kvm,libvirt $USER
-    #sudo sed -i '/^    options/ s/$/ iommu=pt intel_iommu=on/' /boot/loader/entries/arch.conf
-    #echo
-    #echo "Reboot and run this again for GVT-g"
-}
-
-kvmstep2() {
-    echo "KVM qemu already installed"
-    read -p "Setup GVT-g? (y/N) " gvtg
-    [[ $gvtg != y && $gvtg != Y ]] && exit
-    sudo sed -i '/^options/ s/$/ i915.enable_gvt=1 kvm.ignore_msrs=1/' /boot/loader/entries/arch.conf
-    UUID=029a88f0-6c3e-4673-8b3c-097fe77d7c97
-    sudo /bin/sh -c "echo $UUID > /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types/i915-GVTg_V5_4/create"
-    echo "[Unit]
-    Description=Create Intel GVT-g vGPU
-
-    [Service]
-    Type=oneshot
-    ExecStart=/bin/sh -c \"echo '$UUID' > /sys/devices/pci0000:00/0000:00:02.0/mdev_supported_types/i915-GVTg_V5_4/create\"
-    ExecStop=/bin/sh -c \"echo '1' > /sys/devices/pci0000:00/0000:00:02.0/$UUID/remove\"
-    RemainAfterExit=yes
-
-    [Install]
-    WantedBy=graphical.target" | sudo tee /etc/systemd/system/gvtvgpu.service
-    echo $UUID | tee gpu_uuid
-    sudo systemctl enable gvtvgpu
-    echo
-    echo "Done! Reboot before continuing"
 }
 
 excludelist=(
@@ -503,9 +457,6 @@ Restoreuser() {
     RSYNC ${Paths[3]} ${Paths[2]}
     RSYNC ${Paths[5]} ${Paths[4]}
     cd $HOME/.cache
-    #ln -sf /mnt/Data/$USER/cache/wine
-    #ln -sf /mnt/Data/$USER/cache/winetricks
-    #ln -sf /mnt/Data/$USER/cache/paru
 }
 
 Plymouth() {
@@ -516,16 +467,14 @@ Plymouth() {
 }
 
 vmware() {
-    #sudo sh $HOME/Documents/Documents/VMware-Player-Full-16.2.3-19376536.x86_64.bundle --eulas-agreed --console --required
     pac install vmware-workstation
-    #sudo vmware-modconfig --console --install-all
     sudo modprobe -a vmw_vmci vmmon
     sudo systemctl enable --now vmware-networks vmware-usbarbitrator
     echo 'add mks.vk.allowUnsupportedDevices = "TRUE" in ~/.vmware/preferences'
 }
 
 opentabletdriver() {
-    pac install dotnet-host dotnet-runtime dotnet-sdk opentabletdriver-git
+    pac install dotnet-host dotnet-runtime dotnet-sdk opentabletdriver
     systemctl --user enable --now opentabletdriver
     #printf "blacklist wacom\nblacklist hid_uclogic\n" | sudo tee /etc/modprobe.d/blacklist.conf
 }

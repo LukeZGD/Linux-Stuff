@@ -6,7 +6,7 @@ base-devel
 dialog
 fish
 git
-intel-ucode
+kernel-modules-hook
 linux-firmware
 nano
 pacman-contrib
@@ -23,13 +23,9 @@ pipewire
 pipewire-alsa
 pipewire-pulse
 
-intel-media-driver
-intel-gpu-tools
-libva-intel-driver
 libva-mesa-driver
 libvdpau-va-gl
 vulkan-icd-loader
-vulkan-intel
 vulkan-radeon
 xorg-server
 xorg-xinit
@@ -50,7 +46,6 @@ exfatprogs
 f2fs-tools
 ntfs-3g
 rsync
-xfsprogs
 
 p7zip
 unzip
@@ -67,6 +62,7 @@ ark
 dolphin
 k3b
 kate
+kdeconnect
 kdegraphics-thumbnailers
 kdesdk-kioslaves
 kdesdk-thumbnailers
@@ -127,6 +123,7 @@ okular
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
+python-pip
 qbittorrent
 retext
 samba
@@ -192,7 +189,6 @@ systemdinstall() {
     echo "title Arch Linux
     linux /vmlinuz-$kernel
     initrd /amd-ucode.img
-    initrd /intel-ucode.img
     initrd /initramfs-$kernel.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     #resume=UUID=$swapuuid resume_offset=$swapoffset
@@ -285,7 +281,7 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth cups fstrim.timer sddm reflector.timer
+systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup sddm reflector.timer
 
 echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend

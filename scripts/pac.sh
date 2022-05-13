@@ -42,6 +42,7 @@ elif [[ $1 == reflector ]]; then
     sudo systemctl restart reflector
 elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
+    paru -Sy $noconfirm --needed archlinux-keyring --sudoloop
     if [[ $2 == aur ]]; then
         paru -Sua $noconfirm --sudoloop --aur
     elif [[ $2 == refresh ]]; then
