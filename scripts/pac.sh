@@ -44,11 +44,9 @@ elif [[ $1 == update* || $1 == upgrade* ]]; then
     [[ $2 == all ]] || nodevel=--nodevel
     paru -Sy $noconfirm --needed archlinux-keyring --sudoloop
     if [[ $2 == aur ]]; then
-        paru -Sua $noconfirm --sudoloop --aur
-    elif [[ $2 == refresh ]]; then
-        paru -Sy
-    else
-        paru -Syu $noconfirm --sudoloop $nodevel
+        paru -Sua $noconfirm --sudoloop --aur $nodevel
+    elif [[ $2 != refresh ]]; then
+        paru -Su $noconfirm --sudoloop $nodevel
     fi
 elif [[ $1 == news ]]; then
     paru -Pw
