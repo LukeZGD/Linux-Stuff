@@ -75,6 +75,7 @@ kmix
 konsole
 ksysguard
 kwalletmanager
+plasma-wayland-session
 qt5-imageformats
 spectacle
 taglib
@@ -109,6 +110,7 @@ aria2
 bat
 darkhttpd
 firefox
+gamescope
 gnome-calculator
 gnome-keyring
 gsmartcontrol
@@ -270,9 +272,9 @@ read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
 echo $hostname > /etc/hostname
 echo "[Log] hosts file"
-echo -e "127.0.0.1 localhost.localdomain localhost
-::1       localhost.localdomain localhost
-127.0.1.1 localhost.localdomain $hostname" >> /etc/hosts
+echo -e "127.0.0.1 localhost
+::1       localhost
+127.0.1.1 $hostname" >> /etc/hosts
 read -p "[Input] Enter username: " username
 echo "[Log] Creating user $username"
 useradd -m -g users -G audio,optical,storage,wheel -s /bin/bash $username
@@ -281,7 +283,7 @@ passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup sddm reflector.timer
+systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup reflector.timer sddm systemd-resolved
 
 echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend

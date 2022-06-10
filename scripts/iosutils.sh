@@ -61,7 +61,7 @@ if [[ $1 == static ]]; then
     tar -zxvf bzip2-1.0.8.tar.gz ; cd bzip2-1.0.8 ; make LDFLAGS="$BEGIN_LDFLAGS" INSTALL_PREFIX=$instdir ; sudo make install ; make clean ; cd ..
     cd zlib ; ./configure --static --prefix="$instdir" ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ..
     tar -zxvf xz-5.2.4.tar.gz ; cd xz-5.2.4 ; ./autogen.sh ; ./configure $STATIC_FLAG --prefix="$instdir" ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ..
-    tar -zxvf libzip-1.5.1.tar.gz ; cd libzip-1.5.1 ; mkdir build ; cd build ; cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX:PATH="$instdir" ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ../..
+    tar -zxvf libzip-1.5.1.tar.gz ; cd libzip-1.5.1 ; rm -rf build ; mkdir build ; cd build ; cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX:PATH="$instdir" ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ../..
     cd libplist ; ./autogen.sh --prefix="$instdir" $STATIC_FLAG ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ..
     cd libimobiledevice-glue ; ./autogen.sh --prefix="$instdir" $STATIC_FLAG ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ..
     cd libusbmuxd ; ./autogen.sh --prefix="$instdir" $STATIC_FLAG ; make LDFLAGS="$BEGIN_LDFLAGS" ; sudo make install ; make clean ; cd ..
@@ -74,7 +74,7 @@ if [[ $1 == static ]]; then
     cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$instdir" ; make CFLAGS="-I$instdir/include" ; sudo make install ; make clean ; cd ..
     cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
     cd partialZipBrowser ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
-    cd tsschecker ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
+    cd tsschecker ; git reset 38dc80a ; git reset --hard ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
 else
     cd libplist ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
     cd libimobiledevice-glue ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
@@ -89,7 +89,7 @@ else
     cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make CFLAGS="-I$instdir/include" ; sudo make install ; make clean ; cd ..
     cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
     cd partialZipBrowser ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
-    cd tsschecker ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
+    cd tsschecker ; git reset 38dc80a ; git reset --hard ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
 fi
 sudo ln -sf $HOME/Programs/AltServer /opt/ios-utils/bin
 sudo ln -sf $HOME/Programs/checkra1n /opt/ios-utils/bin
