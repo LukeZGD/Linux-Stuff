@@ -108,17 +108,20 @@ okteta
 
 aria2
 bat
-darkhttpd
+chromium
+docker
+dosbox
 firefox
+fwupd
 gamescope
 gnome-calculator
 gnome-keyring
-gsmartcontrol
 htop
 jq
 jre-openjdk
 jsoncpp
 libreoffice-fresh
+linssid
 love
 maxcso
 okular
@@ -127,9 +130,9 @@ noto-fonts-cjk
 noto-fonts-emoji
 python-pip
 qbittorrent
+radeontop
 retext
 samba
-seahorse
 steam
 v4l2loopback-dkms
 xdelta3

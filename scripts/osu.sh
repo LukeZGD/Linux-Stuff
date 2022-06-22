@@ -3,10 +3,10 @@
 export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-lutrisver="6.21-6"
+lutrisver="7.2"
 lutris="lutris-fshack-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-lutrissha1="d27a7a23d1081b8090ee5683e59a99519dd77ef0"
+lutrissha1="7c8e9b8f7c8a5149860e4ec11691212da24c0365"
 osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
@@ -16,7 +16,7 @@ preparelutris() {
     lutris="lutris-fshack-$lutrisver-x86_64"
     lutrispath="$HOME/.local/share/lutris/runners/wine"
     lutrissha1="$2"
-    lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
+    lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
 
     cd $HOME/Programs
     if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then

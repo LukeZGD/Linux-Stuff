@@ -7,7 +7,7 @@ FILE="/boot/dtb/sun8i-h3-orangepi-one.dtb"
 BACKUP="$FILE.bak"
 SRC="tmp.dts"
 
-trap "rm $SRC" INT TERM EXIT
+trap 'rm $SRC' INT TERM EXIT
 
 sudo cp "$FILE" "$BACKUP"
 dtc -I dtb -O dts -o "$SRC" "$FILE"

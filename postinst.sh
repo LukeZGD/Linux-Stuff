@@ -17,14 +17,14 @@ portsmf-git
 protontricks
 qdirstat
 qsynth
-qview
+shellcheck-bin
 tenacity-wxgtk3-git
 ventoy-bin
+viber
 waifu2x-ncnn-vulkan-bin
 yt-dlp
 yt-dlp-drop-in
-youtube-dl-gui-git
-zoom
+yt-dlg
 )
 
 MainMenu() {
@@ -120,7 +120,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install cemu dolphin-emu fceux libao melonds mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    pac install cemu dolphin-emu emusak-bin fceux libao melonds mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
     WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
@@ -151,6 +151,7 @@ postinstall() {
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     pac install "${packages[@]}"
     pac install persepolis
+    for pkg in $HOME/Programs/Packages/*; do sudo pacman -U --noconfirm --needed $pkg; done
     sudo systemctl enable --now nohang-desktop
 }
 
@@ -178,7 +179,7 @@ preparelutris() {
     if [[ $lutrisver == "5.0" ]]; then
         lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
     else
-        lutrislink="https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz"
+        lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
     fi
 
     cd $HOME/Programs
@@ -227,7 +228,7 @@ postinstallcomm() {
     $HOME/Documents/dxvk/setup_dxvk.sh install
     preparewineprefix
 
-    preparelutris "6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
+    preparelutris "7.2" "7c8e9b8f7c8a5149860e4ec11691212da24c0365"
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
@@ -389,12 +390,12 @@ RSYNC() {
         for exclude in "${excludelist[@]}"; do
             echo "$exclude" >> /tmp/excludelist
         done
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude-from=/tmp/excludelist $1 $2
+        sudo rsync -va $ArgR $Update --del --info=progress2 --exclude-from=/tmp/excludelist $1 $2
     elif [[ $ArgR == sparse ]]; then
         [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
         sudo rsync -va $ArgR --info=progress2 $1 $2
     else
-        sudo rsync -va $ArgR $Update --delete-after --info=progress2 --exclude "VirtualBox VMs" --exclude "wine" $1 $2
+        sudo rsync -va $ArgR $Update --del --info=progress2 --exclude "VirtualBox VMs" --exclude "wine" $1 $2
     fi
 }
 
