@@ -74,7 +74,7 @@ if [[ $1 == static ]]; then
     cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$instdir" ; make CFLAGS="-I$instdir/include" ; sudo make install ; make clean ; cd ..
     cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
     cd partialZipBrowser ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
-    cd tsschecker ; git reset 38dc80a ; git reset --hard ; git clean -fxd ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
+    cd tsschecker ; git reset --hard 38dc80a ; git clean -fxd ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
 else
     cd libplist ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
     cd libimobiledevice-glue ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
@@ -89,7 +89,7 @@ else
     cd libfragmentzip ; ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make CFLAGS="-I$instdir/include" ; sudo make install ; make clean ; cd ..
     cd img4tool ; LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
     cd partialZipBrowser ; ./autogen.sh --prefix="$instdir"; make ; sudo make install ; make clean ; cd ..
-    cd tsschecker ; git reset 38dc80a ; git reset --hard ; git clean -fxd ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
+    cd tsschecker ; git reset --hard 38dc80a ; git clean -fxd ; ./autogen.sh --prefix="$instdir" ; make ; sudo make install ; make clean ; cd ..
 fi
 sudo ln -sf $HOME/Programs/AltServer /opt/ios-utils/bin
 sudo ln -sf $HOME/Programs/checkra1n /opt/ios-utils/bin

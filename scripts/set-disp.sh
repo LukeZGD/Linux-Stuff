@@ -47,7 +47,7 @@ elif [[ $choice == "epl" ]]; then
 elif [[ $choice == "elp" ]]; then
     #xrandr --output $display1 --primary --right-of $display2
     kscreen-doctor output.$display1.enable output.$display2.enable
-    kscreen-doctor output.$display1.position.0,$width2 output.$display2.position.0,0
+    kscreen-doctor output.$display1.position.$width2,0 output.$display2.position.0,0
     kscreen-doctor output.$display1.primary
 elif [[ $choice == "lpe" ]]; then
     #xrandr --output $display1 --primary --left-of $display2
