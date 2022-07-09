@@ -7,6 +7,8 @@ VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/efi/0/Config/DmiBoardPr
 VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/smc/0/Config/DeviceKey" "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
 VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC" 1
 VBoxManage modifyvm "$macosvm" --cpu-profile "Intel Core i7-6700K"
+#VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct" "MacBookPro15,1"
+#VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct" "Mac-551B86E5744E2388"
 #VBoxManage setextradata "$macosvm" "VBoxInternal/TM/TSCMode" "RealTSCOffset"
 #VBoxManage setextradata "$macosvm" VBoxInternal2/EfiGopMode 4
 #VBoxManage setextradata "$macosvm" "VBoxInternal/Devices/VMMDev/0/Config/GetHostTimeDisabled" 1

@@ -320,6 +320,8 @@ max-zram-size = 8192' > /etc/systemd/zram-generator.conf
 echo '[X11]
 ServerArguments=-dpi 96' >> /etc/sddm.conf.d/kde_settings.conf
 
+echo 'blacklist pcspkr' > /etc/modprobe.d/nobeep.conf
+
 echo 'Section "InputClass"
    Identifier   "ds4-touchpad"
    Driver       "libinput"
