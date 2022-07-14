@@ -226,8 +226,6 @@ setupstuff() {
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
-echo "[Log] archlinux-keyring"
-pacman -S --noconfirm archlinux-keyring
 echo "[Input] Select kernel:"
 select opt in "linux" "linux-lts" "linux-zen"; do
 case $opt in
@@ -236,6 +234,8 @@ case $opt in
     "linux-zen" ) kernel=linux-zen; break;;
 esac
 done
+echo "[Log] archlinux-keyring"
+pacman -S --noconfirm archlinux-keyring
 echo "[Log] Installing packages"
 pacman -S --noconfirm $kernel $kernel-headers
 pacman -S --noconfirm --needed "${pacmanpkgs[@]}"
@@ -264,12 +264,13 @@ else
     fi
 fi
 
-echo "[Log] Edit mkinitcpio.conf"
+echo "[Log] Edit mkinitcpio and dkms"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/" /etc/mkinitcpio.conf
 sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 #echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
-echo "[Log] Run mkinitcpio"
-mkinitcpio -p linux
+mkdir /etc/dkms/framework.conf.d
+echo "sign_file='/usr/lib/modules/\${kernelver}/build/scripts/sign-file'" > /etc/dkms/framework.conf.d/custom.conf
+pacman -S --noconfirm $kernel $kernel-headers
 
 read -p "[Input] Enter hostname: " hostname
 echo "[Log] Creating /etc/hostname"
