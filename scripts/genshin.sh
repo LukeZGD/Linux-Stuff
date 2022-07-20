@@ -6,6 +6,7 @@ BASEDIR="$HOME/Programs/Games/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
+defaultres="1920x1080"
 
 GetVersions() {
     # from update_gi script
@@ -63,6 +64,7 @@ Game() {
     [[ $? != 0 ]] && return
     cd "$GAMEDIR"
     res=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | tail -n1)
+    [[ -z $res ]] && res="$defaultres"
     wine explorer /desktop=anyname,$res cmd /c launcher.bat
     qdbus org.kde.KWin /Compositor resume
     running=0
@@ -123,10 +125,12 @@ Main() {
             "Update Patch" ) Dawn; break;;
             "(Re-)Install Game" ) Install; break;;
             "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
-            * ) exit;;
+            * ) running=0; break;;
         esac
         done
     done
+
+    exit 0
 }
 
 Main

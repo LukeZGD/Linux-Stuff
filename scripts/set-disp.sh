@@ -17,7 +17,17 @@ width2=$(echo $mode2 | cut -c -4)
 if [[ -n $1 ]]; then
     choice=$1
 else
-    choice=$(kdialog --title "Display" --radiolist "Set display configuration" display2 "External only" on display1 "Laptop only" off unify "Unify outputs" off epl "External [P], Laptop" off elp "External, Laptop [P]" off lpe "Laptop [P], External" off lep "Laptop, External [P]" off)
+    choice=$(kdialog \
+        --title "Display" \
+        --radiolist "Set display configuration" \
+        display2 "External only" on     \
+        display1 "Laptop only" off      \
+        unify "Unify outputs" off       \
+        epl "External [P], Laptop" off  \
+        elp "External, Laptop [P]" off  \
+        lpe "Laptop [P], External" off  \
+        lep "Laptop, External [P]" off  \
+        )
 fi
 
 if [[ -z $choice ]]; then

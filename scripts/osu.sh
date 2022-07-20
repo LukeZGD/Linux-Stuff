@@ -1,43 +1,11 @@
 #!/bin/bash
-
 export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-lutrisver="7.2"
-lutris="lutris-fshack-$lutrisver-x86_64"
-lutrispath="$HOME/.local/share/lutris/runners/wine"
-lutrissha1="7c8e9b8f7c8a5149860e4ec11691212da24c0365"
 osupath="$HOME/.osu"
 . /etc/os-release
 [[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
-
-preparelutris() {
-    lutrisver="$1"
-    lutris="lutris-fshack-$lutrisver-x86_64"
-    lutrispath="$HOME/.local/share/lutris/runners/wine"
-    lutrissha1="$2"
-    lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
-
-    cd $HOME/Programs
-    if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
-        aria2c $lutrislink
-    fi
-
-    lutrissha1L=$(shasum wine-$lutris.tar.xz | awk '{print $1}')
-    if [[ $lutrissha1L != $lutrissha1 ]]; then
-        echo "wine lutris $lutrisver verifying failed"
-        echo "expected $lutrissha1, got $lutrissha1L"
-        [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
-        exit 1
-    fi
-
-    if [[ ! -d $lutrispath/$lutris ]]; then
-        mkdir -p $lutrispath
-        7z x wine-$lutris.tar.xz
-        tar xvf wine-$lutris.tar -C $lutrispath
-        rm -f wine-$lutris.tar
-    fi
-}
+. $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 osugame() {
     if [[ $1 == "lazer" ]]; then

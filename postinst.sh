@@ -1,5 +1,6 @@
 #!/bin/bash
 BASEDIR="$(dirname $(type -p $0))"
+. $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 packages=(
 anydesk-bin
@@ -170,39 +171,6 @@ preparewineprefix() {
     ln -sf $HOME/AppData 'Saved Games'
 }
 
-preparelutris() {
-    lutrisver="$1"
-    lutris="lutris-fshack-$lutrisver-x86_64"
-    lutrispath="$HOME/.local/share/lutris/runners/wine"
-    lutrissha1="$2"
-    export PATH=$lutrispath/$lutris/bin:$PATH
-    if [[ $lutrisver == "5.0" ]]; then
-        lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
-    else
-        lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
-    fi
-
-    cd $HOME/Programs
-    if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
-        aria2c $lutrislink
-    fi
-
-    lutrissha1L=$(shasum wine-$lutris.tar.xz | awk '{print $1}')
-    if [[ $lutrissha1L != $lutrissha1 ]]; then
-        echo "wine lutris $lutrisver verifying failed"
-        echo "expected $lutrissha1, got $lutrissha1L"
-        [[ ! -e wine-$lutris.tar.xz.aria2 ]] && rm -f wine-$lutris.tar.xz
-        exit 1
-    fi
-
-    if [[ ! -d $lutrispath/$lutris ]]; then
-        mkdir -p $lutrispath
-        7z x wine-$lutris.tar.xz
-        tar xvf wine-$lutris.tar -C $lutrispath
-        rm -f wine-$lutris.tar
-    fi
-}
-
 postinstallcomm() {
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
@@ -228,11 +196,11 @@ postinstallcomm() {
     $HOME/Documents/dxvk/setup_dxvk.sh install
     preparewineprefix
 
-    preparelutris "7.2" "7c8e9b8f7c8a5149860e4ec11691212da24c0365"
+    preparelutris "$lutrisver" "$lutrissha1"
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
-    preparelutris "5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
+    preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32
     WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q dotnet40 gdiplus quartz wmp9
     
