@@ -26,6 +26,7 @@ waifu2x-ncnn-vulkan-bin
 yt-dlp
 yt-dlp-drop-in
 yt-dlg
+zoom
 )
 
 MainMenu() {
@@ -172,9 +173,10 @@ preparewineprefix() {
 }
 
 postinstallcomm() {
+    balooctl disable
+    setxkbmap -layout us
     sudo timedatectl set-ntp true
     sudo modprobe ohci_hcd
-    setxkbmap -layout us
     sudo rm -rf /media
     sudo ln -sf /run/media /media
     cd $HOME/.local/share
@@ -200,12 +202,18 @@ postinstallcomm() {
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
+    preparelutris "$lutrisver" "$lutrissha1"
+    preparewineprefix "$HOME/.wine_lutris2"
+    WINEPREFIX=$HOME/.wine_lutris2 winetricks -q win10
+    WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/dxvk/setup_dxvk.sh install
+    WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/mf-install/mf-install.sh
+
     preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32
-    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q dotnet40 gdiplus quartz wmp9
+    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q quartz wmp9
     
     sudo mkdir /var/cache/pacman/aur
-    sudo chown $USER:users /var/cache/pacman/aur
+    sudo chown $USER: /var/cache/pacman/aur
     sudo sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
     
     echo "[global]
@@ -256,7 +264,7 @@ postinstallcomm() {
 adduser() {
     read -p "[Input] Enter username: " username2
     echo "[Log] Creating user $username2"
-    sudo useradd -m -g users -G audio,optical,storage -s /usr/bin/fish $username2
+    sudo useradd -m -g users -G audio,optical,storage $username2
     echo "[Log] Running passwd $username2"
     sudo passwd $username2
 }
@@ -351,8 +359,8 @@ excludelist=(
 )
 
 RSYNC() {
-    [[ $ArgR == full ]] && ArgR=
     [[ $ArgR != full && $ArgR != sparse ]] && Update=--update
+    [[ $ArgR == full ]] && ArgR=
     if [[ $3 == user ]]; then
         rm /tmp/excludelist 2>/dev/null
         for exclude in "${excludelist[@]}"; do
@@ -368,6 +376,8 @@ RSYNC() {
 }
 
 BackupRestore() {
+    HDDName="LukeHDDWD"
+
     select opt in "Backup" "Restore"; do
         case $opt in
         "Backup" ) Action=Backup; break;;
@@ -383,7 +393,7 @@ BackupRestore() {
         * ) exit;;
         esac
     done
-    HDDName="LukeHDDWD"
+
     if [[ $Mode == user ]]; then
         Paths=("$HOME/" "/media/$USER/$HDDName/BackupsP/$USER/"
                "/mnt/Data/$USER/" "/media/$USER/$HDDName/BackupsP/Data/$USER/"
@@ -394,6 +404,7 @@ BackupRestore() {
     elif [[ $Mode == vm ]]; then
         Paths=("$HOME/VMs/" "/media/$USER/$HDDName/BackupsP/Data/VMs/")
     fi
+
     if [[ $Action == Backup ]]; then
         if [[ $Mode == user ]]; then
         RSYNC ${Paths[0]} ${Paths[1]} user
@@ -407,18 +418,18 @@ BackupRestore() {
         fi
     elif [[ $Action == Restore ]]; then
         if [[ $Mode == user ]]; then
-        select opt in "Update restore" "Full restore"; do
+            select opt in "Update restore" "Full restore"; do
             case $opt in
-            "Update restore" ) Restoreuser; break;;
-            "Full restore" ) ArgR=full; Restoreuser; break;;
-            * ) exit;;
+                "Update restore" ) Restoreuser; break;;
+                "Full restore" ) ArgR=full; Restoreuser; break;;
+                * ) exit;;
             esac
-        done
+            done
         elif [[ $Mode == pac ]]; then
-        RSYNC ${Paths[1]} ${Paths[0]}
-        RSYNC ${Paths[3]} ${Paths[2]}
+            RSYNC ${Paths[1]} ${Paths[0]}
+            RSYNC ${Paths[3]} ${Paths[2]}
         elif [[ $Mode == vm ]]; then
-        RSYNC ${Paths[1]} ${Paths[0]}
+            RSYNC ${Paths[1]} ${Paths[0]}
         fi
     fi
 }
@@ -427,7 +438,6 @@ Restoreuser() {
     RSYNC ${Paths[1]} ${Paths[0]} user
     RSYNC ${Paths[3]} ${Paths[2]}
     RSYNC ${Paths[5]} ${Paths[4]}
-    cd $HOME/.cache
 }
 
 Plymouth() {
@@ -454,7 +464,7 @@ opentabletdriver() {
 
 . /etc/os-release
 clear
-if [[ -z $UBUNTU_CODENAME && $ID != fedora ]]; then
+if [[ $ID == arch || $ID_LIKE == arch ]]; then
     echo "LukeZGD Arch Post-Install Script"
     echo "This script will assume that you have a working Internet connection"
     echo

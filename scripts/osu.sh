@@ -4,7 +4,6 @@ export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
 osupath="$HOME/.osu"
 . /etc/os-release
-[[ $ID == arch ]] && export PATH=$lutrispath/$lutris/bin:$PATH
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 osugame() {
@@ -90,7 +89,6 @@ update() {
         rm -rf tmp
         chmod +x osu.AppImage
         echo "$latest" > osu.AppImage.version
-        
         echo "Updated osu!lazer to $latest"
     else
         echo "Currently updated, nothing to do"
@@ -102,7 +100,6 @@ update() {
 osuinstall() {
     sudo ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
-    mkdir -p "$osupath"/wine 2>/dev/null
     cd "$osupath"
 
     if [[ $ID == arch ]]; then
@@ -114,40 +111,11 @@ osuinstall() {
         read -p "osu wine folder detected! Delete and reinstall? (y/N) " Confirm
         if [[ $Confirm == y || $Confirm == Y ]]; then
             rm -rf $WINEPREFIX
-            winetricks -q dotnet40 gdiplus
         fi
         Confirm=
-    else
-        winetricks -q dotnet40 gdiplus
     fi
+    winetricks -q dotnet40 gdiplus
     wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-
-    if [[ $ID != arch ]]; then
-        [[ ! -e /etc/security/limits.conf.bak ]] && sudo cp /etc/security/limits.conf /etc/security/limits.conf.bak
-        printf "@audio - nice -20\n@audio - rtprio 99\n" | sudo tee /etc/security/limits.conf
-        sudo usermod -aG audio $USER
-
-        sudo mkdir /etc/pulse/daemon.conf.d 2>/dev/null
-        echo "high-priority = yes
-        nice-level = -15
-
-        realtime-scheduling = yes
-        realtime-priority = 50
-
-        resample-method = speex-float-0
-
-        default-sample-format = s32le
-        default-sample-rate = 48000
-        alternate-sample-rate = 48000
-        default-sample-channels = 2
-
-        default-fragments = 2
-        default-fragment-size-msec = 4" | sudo tee /etc/pulse/daemon.conf.d/10-better-latency.conf
-
-        mkdir $HOME/.config/pulse 2>/dev/null
-        cp -R /etc/pulse/default.pa $HOME/.config/pulse/default.pa
-        sed -i "s/load-module module-udev-detect.*/load-module module-udev-detect tsched=0 fixed_latency_range=yes/" $HOME/.config/pulse/default.pa
-    fi
 
     read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
     if [[ $Confirm == y || $Confirm == Y ]]; then

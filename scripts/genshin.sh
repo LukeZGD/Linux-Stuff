@@ -8,6 +8,10 @@ GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
 
+export WINEPREFIX="$HOME/.wine_lutris2"
+. $HOME/Arch-Stuff/scripts/preparelutris.sh
+preparelutris "$lutrisver" "$lutrissha1"
+
 GetVersions() {
     # from update_gi script
     UPDATE_URL="https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource?key=gcStgarh&launcher_id=10"

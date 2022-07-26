@@ -1,9 +1,8 @@
 #!/bin/bash
 BASEDIR="/mnt/Data/Games/Touhou"
-export WINEPREFIX="$HOME/.wine_lutris"
-export PATH=$lutrispath/$lutris/bin:$PATH
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
 
+export WINEPREFIX="$HOME/.wine_lutris"
+. $HOME/Arch-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver" "$lutrissha1"
 
 if [[ -n "$1" ]]; then
