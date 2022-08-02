@@ -15,9 +15,9 @@ osugame() {
     qdbus org.kde.KWin /Compositor suspend
     [[ -z "$*" ]] && wineserver -k
     cd "$osupath"
-    wine osu!.exe "$@" &> "$osupath"/Logs/osulog1
+    wine osu!.exe "$@" |& tee "$osupath"/Logs/osulog1
     wineserver -w
-    [[ -d _pending ]] && wine osu!.exe "$@" &> "$osupath"/Logs/osulog2
+    [[ -d _pending ]] && wine osu!.exe "$@" |& tee "$osupath"/Logs/osulog2
     wineserver -w
     if [[ -d _cleanup && ! -e osu!.exe ]]; then
         local current
@@ -40,7 +40,7 @@ osugame() {
         cp "$latestfile" osu!.exe
         echo "done"
     fi
-    [[ -d _cleanup ]] && wine osu!.exe "$@" &> "$osupath"/Logs/osulog3
+    [[ -d _cleanup ]] && wine osu!.exe "$@" |& tee "$osupath"/Logs/osulog3
     wineserver -w
     qdbus org.kde.KWin /Compositor resume
 }

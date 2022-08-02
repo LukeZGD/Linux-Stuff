@@ -65,18 +65,18 @@ installstuff() {
 }
 
 kvm() {
-    pac install virt-manager qemu vde2 dnsmasq bridge-utils openbsd-netcat
+    pac install virt-manager qemu-base qemu-ui-gtk vde2 dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo usermod -aG kvm,libvirt $USER
+    echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
 }
 
 waydroid() {
-    pac install lzip waydroid-image weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland plasma-wayland-session
-    echo "waydroid init:
-    sudo waydroid init"
-    echo "install waydroid extras:
-    git clone https://github.com/casualsnek/waydroid_script
-    cd waydroid_script; sudo python3 waydroid_extras.py -n"
+    pac install lzip waydroid-image-gapps weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland plasma-wayland-session
+    sudo waydroid init -s GAPPS -f
+    # https://github.com/casualsnek/waydroid_script
+    cd $HOME/Documents/GitHub/waydroid_script
+    sudo python3 waydroid_extras.py -l
     echo "start waydroid:
     weston (if on x-session)
     sudo systemctl start waydroid-container
@@ -205,7 +205,9 @@ postinstallcomm() {
     preparelutris "$lutrisver" "$lutrissha1"
     preparewineprefix "$HOME/.wine_lutris2"
     WINEPREFIX=$HOME/.wine_lutris2 winetricks -q win10
+    # https://github.com/Sporif/dxvk-async
     WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/dxvk/setup_dxvk.sh install
+    # https://github.com/z0z0z/mf-install
     WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
@@ -316,6 +318,7 @@ excludelist=(
 ".bash_history"
 ".bash_logout"
 ".cache"
+".cargo"
 ".ccache"
 ".cemu"
 ".conan"
@@ -347,6 +350,7 @@ excludelist=(
 ".pam_environment"
 ".pipewire-media-session"
 ".profile"
+".rustup"
 ".steam"
 ".sudo_as_admin_successful"
 ".wine*"

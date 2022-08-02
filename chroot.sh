@@ -114,12 +114,14 @@ dosbox
 firefox
 fwupd
 gamescope
+geoip
 gnome-calculator
 gnome-keyring
 htop
 jq
 jre-openjdk
 jsoncpp
+ktorrent
 libreoffice-fresh
 linssid
 love
@@ -129,7 +131,6 @@ openssh
 noto-fonts-cjk
 noto-fonts-emoji
 python-pip
-qbittorrent
 radeontop
 retext
 samba
@@ -267,7 +268,6 @@ fi
 echo "[Log] Edit mkinitcpio and dkms"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/" /etc/mkinitcpio.conf
 sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
-#echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 mkdir /etc/dkms/framework.conf.d
 echo "sign_file='/usr/lib/modules/\${kernelver}/build/scripts/sign-file'" > /etc/dkms/framework.conf.d/custom.conf
 pacman -S --noconfirm $kernel $kernel-headers
@@ -321,6 +321,7 @@ max-zram-size = 8192' > /etc/systemd/zram-generator.conf
 echo '[X11]
 ServerArguments=-dpi 96' >> /etc/sddm.conf.d/kde_settings.conf
 
+#echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
 echo 'blacklist pcspkr' > /etc/modprobe.d/nobeep.conf
 
 echo 'Section "InputClass"
