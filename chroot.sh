@@ -75,7 +75,6 @@ kmix
 konsole
 ksysguard
 kwalletmanager
-plasma-wayland-session
 qt5-imageformats
 spectacle
 taglib
@@ -113,7 +112,6 @@ docker
 dosbox
 firefox
 fwupd
-gamescope
 geoip
 gnome-calculator
 gnome-keyring

@@ -3,8 +3,7 @@ trap exit INT TERM EXIT
 
 [[ $1 != *c ]] && noconfirm=--noconfirm
 if [[ $1 == autoremove* ]]; then
-    sudo pacman -Rsn $noconfirm "$(pacman -Qdtq)" 2>/dev/null
-    [[ $? != 0 ]] && echo ' there is nothing to do' || exit $?
+    sudo pacman -Rsn $(pacman -Qtdq)
 elif [[ $1 == clean* ]]; then
     [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
 elif [[ $1 == *install* ]]; then

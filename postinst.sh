@@ -72,7 +72,7 @@ kvm() {
 }
 
 waydroid() {
-    pac install lzip waydroid-image-gapps weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland plasma-wayland-session
+    pac install lzip waydroid-image-gapps weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland
     sudo waydroid init -s GAPPS -f
     # https://github.com/casualsnek/waydroid_script
     cd $HOME/Documents/GitHub/waydroid_script
