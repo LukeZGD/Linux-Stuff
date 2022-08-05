@@ -5,6 +5,7 @@ export WINEARCH="win32"
 osupath="$HOME/.osu"
 . /etc/os-release
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
+preparelutris "$lutrisver" "$lutrissha1"
 
 osugame() {
     if [[ $1 == "lazer" ]]; then
@@ -103,8 +104,7 @@ osuinstall() {
     cd "$osupath"
 
     if [[ $ID == arch ]]; then
-        pac install aria2 lib32-alsa-plugins lib32-gnutls lib32-gsm lib32-libpulse lib32-libxcomposite winetricks
-        preparelutris "$lutrisver" "$lutrissha1"
+        pac install aria2 lib32-alsa-plugins lib32-gnutls lib32-libpulse lib32-libxcomposite winetricks
     fi
 
     if [[ -d $WINEPREFIX ]]; then

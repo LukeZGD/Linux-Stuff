@@ -1,10 +1,15 @@
 #!/bin/bash
 
-mirrorlist='Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
-Server = https://arch-mirror.wtako.net/$repo/os/$arch
-Server = http://mirror.guillaumea.fr/archlinux/$repo/os/$arch
-Server = https://mirror.xtom.com.hk/archlinux/$repo/os/$arch
-Server = http://mirrors.hit.edu.cn/archlinux/$repo/os/$arch'
+mirrorlist='Server = https://mirror.telepoint.bg/archlinux/$repo/os/$arch
+Server = https://archlinux.mailtunnel.eu/$repo/os/$arch
+Server = https://at.arch.mirror.kescher.at/$repo/os/$arch
+Server = https://de.arch.mirror.kescher.at/$repo/os/$arch
+Server = https://mirror.chaoticum.net/arch/$repo/os/$arch
+Server = https://mirror.cyberbits.eu/archlinux/$repo/os/$arch
+Server = https://mirrors.wsyu.edu.cn/archlinux/$repo/os/$arch
+Server = https://archlinux.thaller.ws/$repo/os/$arch
+Server = https://mirror.cyberbits.asia/archlinux/$repo/os/$arch
+Server = https://mirror.theash.xyz/arch/$repo/os/$arch'
 
 clear
 
@@ -21,99 +26,98 @@ sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
 echo "[Log] Enabling ntp"
 timedatectl set-ntp true
 
-read -p "[Input] (y) fdisk BIOS/MBR, (N) gdisk UEFI/GPT: " diskprog
-if [[ $diskprog == y || $diskprog == Y ]]; then
-    diskprog=fdisk
-else
-    diskprog=gdisk
-fi
+echo
+while [[ ! -b $disk ]]; do
+    lsblk
+    echo
+    read -p "[Input] Please enter device to be used (/dev/sdX) " disk
+done
 
-echo
-lsblk
-echo
-read -p "[Input] Please enter device to be used (/dev/sdX) " disk
-echo "[Log] Will now enter $diskprog with device $disk"
-echo "Commands: (f) fdisk (g) gdisk
-# Erase: o, (g) y
-# Create boot: n, defaults, last sector +200M, (g) type EF00
-# Create partition: n, defaults, (g) type 8E00
-# Check and write: p, w"
-$diskprog $disk
+while [[ $repeat != 'y' && $repeat != 'Y' ]]; do
+    echo "[Log] Will now enter gdisk with device $disk"
+    echo "Commands:
+    # Erase: o, y
+    # Create boot: n, defaults, last sector +200M, type EF00
+    # Create partition: n, defaults, type 8E00
+    # Check and write: p, w"
+    gdisk $disk
+    read -p "[Input] Is the configuration correct? (y/N): " repeat
+done
+repeat=
 
-clear
-lsblk
-echo
-read -p "[Input] Please enter encrypted/root partition (/dev/sdaX) " rootpart
-read -p "[Input] Please enter boot partition (/dev/sdaX) " bootpart
-read -p "[Input] Please enter swap partition (ia32 ONLY) (/dev/sdaX) " swappart
-[[ -z $swappart ]] && read -p "[Input] Format boot partition? (Y/n) " formatboot
+while [[ $repeat != 'y' && $repeat != 'Y' ]]; do
+    clear
+    lsblk
+    echo
+    read -p "[Input] Please enter encrypted/root partition (/dev/sdaX) " rootpart
+    read -p "[Input] Please enter boot partition (/dev/sdaX) " bootpart
+    read -p "[Input] Format boot partition? (Y/n) " formatboot
+    read -p "[Input] Is the configuration correct? (y/N): " repeat
+done
+repeat=
 
 echo "[Log] Formatting/mounting stuff... (please enter NEW password when prompted)"
-if [[ -n $swappart ]]; then
-    mkfs.ext4 $rootpart
-    mount $rootpart /mnt
-    mkswap $swappart
-    swapon $swappart
-    mkfs.fat -F32 $bootpart
-    mkdir -p /mnt/boot/EFI
-    mount $bootpart /mnt/boot/EFI
-else
-    pvname="lvm"
-    vgname="vg0"
-    lvname="root"
-    cryptsetup luksFormat $rootpart
-    cryptsetup luksOpen $rootpart $pvname
-    pvcreate /dev/mapper/$pvname
-    vgcreate $vgname /dev/mapper/$pvname
-    lvcreate -l 100%FREE $vgname -n $lvname
-fi
-if [[ $formatboot != n && $formatboot != N ]]; then
+pvname="lvm"
+vgname="vg0"
+lvname="root"
+cryptsetup luksFormat $rootpart
+cryptsetup luksOpen $rootpart $pvname
+pvcreate /dev/mapper/$pvname
+vgcreate $vgname /dev/mapper/$pvname
+lvcreate -l 100%FREE $vgname -n $lvname
+
+if [[ $formatboot != 'n' && $formatboot != 'N' ]]; then
     echo "[Log] Formatting boot partition"
-    if [[ $diskprog == y || $diskprog == Y ]]; then
-        mkfs.ext2 $bootpart
-    else
-        mkfs.vfat -F32 $bootpart
-    fi
+    mkfs.vfat -F32 $bootpart
 fi
-if [[ -z $swappart ]]; then
-    rootpart="/dev/mapper/$vgname-$lvname"
-    echo "[Log] Formatting and mounting volumes"
-    #mkfs.btrfs -f $rootpart
-    mkfs.f2fs -f $rootpart
-    mount $rootpart /mnt
-    mkdir /mnt/boot
-    mount $bootpart /mnt/boot
-    : '
-    echo "[Log] Creating subvolumes"
-    btrfs su cr /mnt/root
-    btrfs su cr /mnt/home
-    btrfs su cr /mnt/swap
-    umount /mnt
-    echo "[Log] Mounting subvolumes"
-    mount -o compress=zstd:1,subvol=/root $rootpart /mnt
-    mkdir /mnt/{boot,home,swap}
-    mount $bootpart /mnt/boot
-    mount -o compress=zstd:1,subvol=/home $rootpart /mnt/home
-    mount -o subvol=/swap $rootpart /mnt/swap
-    echo "[Log] Creating swap"
-    touch /mnt/swap/swapfile
-    chmod 600 /mnt/swap/swapfile
-    chattr +C /mnt/swap/swapfile
-    fallocate /mnt/swap/swapfile -l8g
-    mkswap /mnt/swap/swapfile
-    swapon /mnt/swap/swapfile
-    '
-fi
+
+rootpart="/dev/mapper/$vgname-$lvname"
+echo "[Log] Formatting and mounting volumes"
+mkfs.f2fs -f $rootpart
+mount $rootpart /mnt
+mkdir /mnt/boot
+mount $bootpart /mnt/boot
 echo "[Log] Copying stuff to /mnt"
 cp chroot.sh /mnt
-#mkdir -p /mnt/var/cache/pacman /mnt/usr/bin
-#cp -R Backups/pkg /mnt/var/cache/pacman
+
+read -p  "[Input] Include mount data HDD? (Y/n): " mounthdd
+if [[ $mounthdd != 'n' && $mounthdd != 'N' ]]; then
+    echo
+    read -p "[Input] Format and set up data device? (y/N) " formatdata
+    if [[ $formatdata == 'y' || $formatdata == 'Y' ]]; then
+        while [[ ! -b $datadevice ]]; do
+            lsblk
+            echo
+            read -p "[Input] Please enter device to be used (/dev/sdX) " datadevice
+        done
+        while [[ $repeat != 'y' && $repeat != 'Y' ]]; do
+            echo "[Log] Will now enter gdisk with device $disk"
+            echo -e "Commands:\n# Erase: o, y\n# Create partition: n, defaults\n# Check and write: p, w"
+            gdisk $datadevice
+            read -p "[Input] Is the configuration correct? (y/N): " repeat
+        done
+        repeat=
+        lsblk
+        while [[ ! -b $datapart ]]; do
+            read -p "[Input] Please enter data partition (/dev/sdaX) " datapart
+        done
+        echo "[Log] Formatting data partition"
+        echo 'y' | mkfs.ext4 -j $datapart
+    else
+        lsblk
+        while [[ ! -b $datapart ]]; do
+            read -p "[Input] Please enter data partition (/dev/sdaX) " datapart
+        done
+    fi
+    
+    mkdir -p /mnt/mnt/Data
+    mount $datapart /mnt/mnt/Data
+fi
+
 echo "[Log] archlinux-keyring"
-pacman -S --noconfirm archlinux-keyring
+pacman -Sy --noconfirm archlinux-keyring
 echo "[Log] Installing base"
 pacstrap /mnt base
-[[ -n $swappart ]] && touch /mnt/ia32
-[[ $diskprog == fdisk ]] && touch /mnt/fdisk
 echo "[Log] Generating fstab"
 genfstab -pU /mnt > /mnt/etc/fstab
 echo "tmpfs	/tmp	tmpfs	defaults,noatime,mode=1777	0	0" | tee -a /mnt/etc/fstab

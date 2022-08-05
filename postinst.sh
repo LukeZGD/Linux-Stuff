@@ -3,7 +3,6 @@ BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 packages=(
-anydesk-bin
 cpu-x
 earlyoom
 f3
@@ -18,11 +17,13 @@ portsmf-git
 protontricks
 qdirstat
 qsynth
+rustdesk-bin
 shellcheck-bin
 tenacity-wxgtk3-git
 ventoy-bin
 viber
 waifu2x-ncnn-vulkan-bin
+wine-staging
 yt-dlp
 yt-dlp-drop-in
 yt-dlg
@@ -31,36 +32,36 @@ zoom
 
 MainMenu() {
     select opt in "Install stuff" "Run postinstall commands" "Backup and restore" "Add user" "NVIDIA"; do
-        case $opt in
-            "Install stuff" ) installstuff; break;;
-            "Run postinstall commands" ) postinstallcomm; break;;
-            "Backup and restore" ) BackupRestore; break;;
-            "Add user" ) adduser; break;;
-            "NVIDIA" ) nvidia; break;;
-        * ) exit;;
-        esac
+    case $opt in
+        "Install stuff" ) installstuff; break;;
+        "Run postinstall commands" ) postinstallcomm; break;;
+        "Backup and restore" ) BackupRestore; break;;
+        "Add user" ) adduser; break;;
+        "NVIDIA" ) nvidia; break;;
+    * ) exit;;
+    esac
     done
 }
 
 installstuff() {
     select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR" "Waydroid"; do
-        case $opt in
-            "Install AUR pkgs paru" ) postinstall; break;;
-            "VirtualBox" ) vbox; break;;
-            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) emulators; break;;
-            "KVM w/ virt-manager" ) kvm; break;;
-            "Plymouth" ) Plymouth; break;;
-            "VMware" ) vmware; break;;
-            "OpenTabletDriver" ) opentabletdriver; break;;
-            "MS office" ) msoffice; break;;
-            "FL Studio" ) FL; break;;
-            "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
-            "JP Input" ) jpmozc; break;;
-            "Chaotic AUR" ) chaoticaur; break;;
-            "Waydroid" ) waydroid; break;;
-            * ) exit;;
-        esac
+    case $opt in
+        "Install AUR pkgs paru" ) postinstall; break;;
+        "VirtualBox" ) vbox; break;;
+        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "Emulators" ) emulators; break;;
+        "KVM w/ virt-manager" ) kvm; break;;
+        "Plymouth" ) Plymouth; break;;
+        "VMware" ) vmware; break;;
+        "OpenTabletDriver" ) opentabletdriver; break;;
+        "MS office" ) msoffice; break;;
+        "FL Studio" ) FL; break;;
+        "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
+        "JP Input" ) jpmozc; break;;
+        "Chaotic AUR" ) chaoticaur; break;;
+        "Waydroid" ) waydroid; break;;
+        * ) exit;;
+    esac
     done
 }
 
@@ -92,7 +93,7 @@ jpmozc() {
 brother_dcpl2540dw() {
     read -p "[Input] IP Address of printer: " ip
     pac install brother-dcpl2540dw-cups brscan4
-    brsaneconfig4 -a name="Brother" model="DCP-L2540DW" ip=$ip
+    sudo brsaneconfig4 -a name="Brother" model="DCP-L2540DW" ip=$ip
 }
 
 msoffice() {
@@ -122,7 +123,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install cemu dolphin-emu emusak-bin fceux libao melonds mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    pac install cemu dolphin-emu fceux libao melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
     WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
@@ -150,6 +151,11 @@ installpac() {
 }
 
 postinstall() {
+    cd $HOME/.cache
+    ln -sf /mnt/Data/$USER/cache/paru
+    sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
+    sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
+
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     pac install "${packages[@]}"
     pac install persepolis
@@ -175,10 +181,6 @@ preparewineprefix() {
 postinstallcomm() {
     balooctl disable
     setxkbmap -layout us
-    sudo timedatectl set-ntp true
-    sudo modprobe ohci_hcd
-    sudo rm -rf /media
-    sudo ln -sf /run/media /media
     cd $HOME/.local/share
     ln -sf /mnt/Data/$USER/share/citra-emu/
     ln -sf /mnt/Data/$USER/share/dolphin-emu/
@@ -202,7 +204,6 @@ postinstallcomm() {
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
-    preparelutris "$lutrisver" "$lutrissha1"
     preparewineprefix "$HOME/.wine_lutris2"
     WINEPREFIX=$HOME/.wine_lutris2 winetricks -q win10
     # https://github.com/Sporif/dxvk-async
@@ -213,10 +214,6 @@ postinstallcomm() {
     preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32
     WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q quartz wmp9
-    
-    sudo mkdir /var/cache/pacman/aur
-    sudo chown $USER: /var/cache/pacman/aur
-    sudo sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
     
     echo "[global]
     allow insecure wide links = yes
@@ -256,11 +253,6 @@ postinstallcomm() {
     acl allow execute always = True" | sudo tee /etc/samba/smb.conf
     sudo smbpasswd -a $USER
     #sudo systemctl enable --now nmb smb
-    
-    echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
-    sudo systemctl disable NetworkManager-wait-online
-    sudo systemctl mask NetworkManager-wait-online
-    sudo sed -i "s|--sort age|--sort rate|g" /etc/xdg/reflector/reflector.conf
 }
 
 adduser() {
@@ -292,13 +284,13 @@ vbox() {
 
 nvidia() {
     select opt in "NVIDIA Optimus+cpufreq" "NVIDIA Latest" "NVIDIA 470" "NVIDIA 390"; do
-        case $opt in
-            "NVIDIA Optimus+cpufreq" ) nvidia4=optimus; break;;
-            "NVIDIA Latest" ) nvidia4=latest; break;;
-            "NVIDIA 470" ) nvidia4=470; break;;
-            "NVIDIA 390" ) nvidia4=390; break;;
-            * ) exit;;
-        esac
+    case $opt in
+        "NVIDIA Optimus+cpufreq" ) nvidia4=optimus; break;;
+        "NVIDIA Latest" ) nvidia4=latest; break;;
+        "NVIDIA 470" ) nvidia4=470; break;;
+        "NVIDIA 390" ) nvidia4=390; break;;
+        * ) exit;;
+    esac
     done
     
     if [[ $nvidia4 == optimus || $nvidia4 == latest ]]; then
@@ -383,19 +375,19 @@ BackupRestore() {
     HDDName="LukeHDDWD"
 
     select opt in "Backup" "Restore"; do
-        case $opt in
+    case $opt in
         "Backup" ) Action=Backup; break;;
         "Restore" ) Action=Restore; break;;
         * ) exit;;
-        esac
+    esac
     done
     select opt in "$Action home" "$Action pacman" "$Action VMs"; do
-        case $opt in
+    case $opt in
         "$Action home" ) Mode=user; break;;
         "$Action pacman" ) Mode=pac; break;;
         "$Action VMs" ) ArgR=sparse; Mode=vm; break;;
         * ) exit;;
-        esac
+    esac
     done
 
     if [[ $Mode == user ]]; then

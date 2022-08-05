@@ -24,7 +24,6 @@ pipewire-alsa
 pipewire-pulse
 
 libva-mesa-driver
-libvdpau-va-gl
 vulkan-icd-loader
 vulkan-radeon
 xorg-server
@@ -132,49 +131,12 @@ python-pip
 radeontop
 retext
 samba
-steam
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-kde
 zenity
 )
-
-grubinstall() {
-    pacman -S --noconfirm --needed grub
-    lsblk
-    read -p "[Input] Disk? (/dev/sdX) " part
-    read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
-    rootuuid=$(blkid -o value -s UUID $rootpart)
-    #swapuuid=$(findmnt -no UUID -T /swapfile)
-    #swapoffset=$(filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
-    #swapoffset=$(echo ${swapoffset//./})
-    echo "[Log] Got UUID of root $rootpart: $rootuuid"
-    echo "[Log] Got UUID of swap $swappart: $swapuuid"
-    #echo "[Log] Got resume offset: $swapoffset"
-    echo "[Log] Run grub-install"
-    grub-install $part --target=i386-pc
-    echo "[Log] Edit /etc/default/grub"
-    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3\"|g" /etc/default/grub
-    sed -i "s/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$rootuuid:lvm:allow-discards\"/" /etc/default/grub
-    echo "[Log] Run grub-mkconfig"
-    grub-mkconfig -o /boot/grub/grub.cfg
-}
-
-grubinstallia32() {
-    pacman -S --noconfirm --needed grub efibootmgr
-    lsblk
-    read -p "[Input] Disk? (/dev/sdX) " part
-    read -p "[Input] Please enter swap partition (/dev/sdaX) " swappart
-    swapuuid=$(blkid -o value -s UUID $swappart)
-    echo "[Log] Got UUID of $swappart: $swapuuid"
-    echo "[Log] Run grub-install"
-    grub-install $part --target=i386-efi
-    sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 quiet\"|GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 splash nowatchdog rd.udev.log_priority=3 resume=UUID=$swapuuid\"|g" /etc/default/grub
-    sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
-}
 
 systemdinstall() {
     pacman -S --noconfirm --needed efibootmgr
@@ -183,19 +145,13 @@ systemdinstall() {
     lsblk
     read -p "[Input] Please enter encrypted partition (/dev/sdaX) " rootpart
     rootuuid=$(blkid -o value -s UUID $rootpart)
-    #swapuuid=$(findmnt -no UUID -T /swapfile)
-    #swapoffset=$(sudo filefrag -v /swapfile | awk '{ if($1=="0:"){print $4} }')
-    #swapoffset=$(echo ${swapoffset//./})
     echo "[Log] Got UUID of root $rootpart: $rootuuid"
-    #echo "[Log] Got UUID of swap $swappart: $swapuuid"
-    #echo "[Log] Got resume offset: $swapoffset"
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-$kernel
     initrd /amd-ucode.img
     initrd /initramfs-$kernel.img
     options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
-    #resume=UUID=$swapuuid resume_offset=$swapoffset
     echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
@@ -245,27 +201,13 @@ locale-gen
 echo "[Log] Time stuff"
 ln -sf /usr/share/zoneinfo/Asia/Manila /etc/localtime
 hwclock --systohc
+timedatectl set-ntp true
 echo "[Log] Running passwd"
 passwd
-
-if [[ -e /ia32 ]]; then
-    echo "[Log] Setup grub ia32"
-    grubinstallia32
-    rm /ia32
-else
-    if [[ -e /fdisk ]]; then
-        echo "[Log] Setup grub"
-        grubinstall
-        rm /fdisk
-    else
-        echo "[Log] Setup systemd-boot"
-        systemdinstall
-    fi
-fi
-
+echo "[Log] Setup systemd-boot"
+systemdinstall
 echo "[Log] Edit mkinitcpio and dkms"
 sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/" /etc/mkinitcpio.conf
-sed -i "s/MODULES=()/MODULES=(i915 ext4)/" /etc/mkinitcpio.conf
 mkdir /etc/dkms/framework.conf.d
 echo "sign_file='/usr/lib/modules/\${kernelver}/build/scripts/sign-file'" > /etc/dkms/framework.conf.d/custom.conf
 pacman -S --noconfirm $kernel $kernel-headers
@@ -284,8 +226,20 @@ echo "[Log] Running passwd $username"
 passwd $username
 echo "[Log] Running visudo"
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
+
+echo "[Log] do stuff services"
+systemctl disable NetworkManager-wait-online
+systemctl mask NetworkManager-wait-online
+sed -i "s|--sort age|--sort rate|g" /etc/xdg/reflector/reflector.conf
+
 echo "[Log] Enabling services"
 systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup reflector.timer sddm systemd-resolved
+
+if [[ -d /mnt/Data ]]; then
+    chown -R 1000:1000 /mnt/Data
+fi
+rm -rf /media
+ln -sf /run/media /media
 
 echo "[Log] Power management and lock"
 echo 'HandlePowerKey=suspend
@@ -299,8 +253,8 @@ echo "[Log] Terminus font"
 echo 'FONT=ter-p32n
 FONT_MAP=8859-2' | tee /etc/vconsole.conf
 
-read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (y/N) " touchpad
-if [[ $touchpad == y || $touchpad == Y ]]; then
+read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (Y/n) " touchpad
+if [[ $touchpad != 'y' && $touchpad != 'Y' ]]; then
     echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
     echo 'Section "InputClass"
         Identifier "touchpad"
@@ -309,18 +263,16 @@ if [[ $touchpad == y || $touchpad == Y ]]; then
         Option "Tapping" "on"
         Option "TappingButtonMap" "lrm"
         Option "NaturalScrolling" "true"
-    EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
+EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
-echo '[zram0]
-zram-fraction = 1.0
-max-zram-size = 8192' > /etc/systemd/zram-generator.conf
-
-echo '[X11]
-ServerArguments=-dpi 96' >> /etc/sddm.conf.d/kde_settings.conf
-
-#echo "options i915 enable_guc=2" | tee /etc/modprobe.d/i915.conf
-echo 'blacklist pcspkr' > /etc/modprobe.d/nobeep.conf
+echo 'Section "InputClass"
+        Identifier "Mouse"
+        MatchIsPointer "yes"
+        MatchDriver "libinput"
+        Option "AccelProfile" "flat"
+        Option "MiddleEmulation" "on"
+EndSection' > /etc/X11/xorg.conf.d/00-mouse.conf
 
 echo 'Section "InputClass"
    Identifier   "ds4-touchpad"
@@ -328,6 +280,18 @@ echo 'Section "InputClass"
    MatchProduct "Wireless Controller Touchpad"
    Option       "Ignore" "True"
 EndSection' > /etc/X11/xorg.conf.d/30ds4.conf
+
+echo '[zram0]
+zram-fraction = 1.0
+max-zram-size = 8192' > /etc/systemd/zram-generator.conf
+
+echo 'blacklist pcspkr' > /etc/modprobe.d/nobeep.conf
+echo 'ohci_hcd' > /etc/modules-load.d/ohci_hcd.conf
+echo "v4l2loopback" > /etc/modules-load.d/v4l2loopback.conf
+
+mkdir /var/cache/pacman/aur
+chown -R 1000:1000 /var/cache/pacman/aur
+sed -i "s|#PKGDEST=/home/packages|PKGDEST=/var/cache/pacman/aur|" /etc/makepkg.conf
 
 setupstuff
 echo "[Log] chroot script done"
