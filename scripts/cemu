@@ -3,6 +3,7 @@ export WINEPREFIX="$HOME/.cemu/wine"
 export WINEDLLOVERRIDES="mscoree=;mshtml=;cemuhook.dll=n,b"
 export PATH=$lutrispath/$lutris/bin:$PATH
 export R600_DEBUG="nohyperz"
+export AMD_DEBUG="nohyperz"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 preparelutris "$lutrisver" "$lutrissha1"

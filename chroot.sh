@@ -107,7 +107,6 @@ okteta
 aria2
 bat
 chromium
-docker
 dosbox
 firefox
 fwupd

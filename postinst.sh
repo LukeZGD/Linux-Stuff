@@ -8,11 +8,13 @@ earlyoom
 f3
 gallery-dl
 github-desktop-bin
+kde-rounded-corners
 legendary
 masterpdfeditor-free
 mystiq
 ndstrim
 nohang-git
+ocs-url
 portsmf-git
 protontricks
 qdirstat
@@ -44,10 +46,10 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR" "Waydroid"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox+Docker" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR" "Waydroid" "auto-cpufreq"; do
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
-        "VirtualBox" ) vbox; break;;
+        "VirtualBox+Docker" ) vbox; break;;
         "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
@@ -60,9 +62,15 @@ installstuff() {
         "JP Input" ) jpmozc; break;;
         "Chaotic AUR" ) chaoticaur; break;;
         "Waydroid" ) waydroid; break;;
+        "auto-cpufreq" ) autocpufreq; break;;
         * ) exit;;
     esac
     done
+}
+
+autocpufreq() {
+    pac install auto-cpufreq
+    sudo systemctl enable --now auto-cpufreq
 }
 
 kvm() {
@@ -107,12 +115,13 @@ msoffice() {
 
 FL() {
     WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    cd "$HOME/.wine_fl/drive_c/Program Files/"
-    ln -sf ../Program\ Files\ \(x86\)/Image-Line/ .
+    cd "$HOME/.wine_fl/drive_c/Program Files (x86)/"
+    ln -sf "../Program Files/Image-Line/" .
     mkdir -p "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     cp "$HOME/Documents/FL Studio 20 (32bit).lnk" "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
     echo "prepared wineprefix"
     echo "now run: WINEPREFIX=~/.wine_fl wine /path/to/flsetup.exe"
+    echo "also install in Program Files"
 }
 
 chaoticaur() {
@@ -123,16 +132,15 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install cemu dolphin-emu fceux libao melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    pac install dolphin-emu fceux melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
     WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
     cd $HOME/.cemu
-    ln -s /usr/share/cemu/Cemu.exe .
-    ln -s /usr/share/cemu/cemuhook.dll .
-    ln -s /usr/share/cemu/dbghelp.dll .
-    ln -s /usr/share/cemu/keystone.dll .
-    ln -s /usr/share/cemu/sharedFonts/ .
+    #ln -s /usr/share/cemu/Cemu.exe .
+    #ln -s /usr/share/cemu/cemuhook.dll .
+    #ln -s /usr/share/cemu/keystone.dll .
+    #ln -s /usr/share/cemu/sharedFonts/ .
     ln -s /mnt/Data/$USER/cemu/controllerProfiles/ .
     ln -s /mnt/Data/$USER/cemu/graphicPacks/ .
     ln -s /mnt/Data/$USER/cemu/mlc01/ .
@@ -181,10 +189,6 @@ preparewineprefix() {
 postinstallcomm() {
     balooctl disable
     setxkbmap -layout us
-    cd $HOME/.local/share
-    ln -sf /mnt/Data/$USER/share/citra-emu/
-    ln -sf /mnt/Data/$USER/share/dolphin-emu/
-    ln -sf /mnt/Data/$USER/share/osu/
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
@@ -277,9 +281,10 @@ autocreate() {
 }
 
 vbox() {
-    pac install virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-dkms
+    pac install docker virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-dkms
+    sudo usermod -aG docker $USER
     sudo usermod -aG vboxusers $USER
-    sudo modprobe vboxdrv
+    sudo systemctl enable --now docker
 }
 
 nvidia() {
@@ -300,8 +305,7 @@ nvidia() {
     fi
     
     if [[ $nvidia4 == optimus ]]; then
-        pac install auto-cpufreq bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt
-        sudo systemctl enable --now auto-cpufreq
+        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt
     fi
 }
 

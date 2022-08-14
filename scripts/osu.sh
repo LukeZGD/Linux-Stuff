@@ -5,7 +5,7 @@ export WINEARCH="win32"
 osupath="$HOME/.osu"
 . /etc/os-release
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
-preparelutris "$lutrisver" "$lutrissha1"
+preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
 
 osugame() {
     if [[ $1 == "lazer" ]]; then
