@@ -104,9 +104,14 @@ mpv
 obs-studio
 okteta
 
+freerdp
+krdc
+libvncserver
+
 aria2
 bat
 chromium
+corectrl
 dosbox
 firefox
 fwupd
@@ -130,6 +135,7 @@ python-pip
 radeontop
 retext
 samba
+tealdeer
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
@@ -253,23 +259,27 @@ echo 'FONT=ter-p32n
 FONT_MAP=8859-2' | tee /etc/vconsole.conf
 
 read -p "[Input] Create /etc/X11/xorg.conf.d/30-touchpad.conf? (for laptop touchpads) (Y/n) " touchpad
-if [[ $touchpad != 'y' && $touchpad != 'Y' ]]; then
+if [[ $touchpad != 'n' && $touchpad != 'N' ]]; then
     echo "[Log] Creating /etc/X11/xorg.conf.d/30-touchpad.conf"
     echo 'Section "InputClass"
-        Identifier "touchpad"
-        Driver "libinput"
+        Identifier "Touchpad"
         MatchIsTouchpad "on"
+        MatchDriver "libinput"
+        Option "AccelProfile" "adaptive"
+        Option "AccelSpeed" "0.2"
         Option "Tapping" "on"
         Option "TappingButtonMap" "lrm"
         Option "NaturalScrolling" "true"
+        Option "DisableWhileTyping" "false"
 EndSection' > /etc/X11/xorg.conf.d/30-touchpad.conf
 fi
 
 echo 'Section "InputClass"
         Identifier "Mouse"
-        MatchIsPointer "yes"
+        MatchIsPointer "on"
         MatchDriver "libinput"
         Option "AccelProfile" "flat"
+        Option "AccelSpeed" "0.8"
         Option "MiddleEmulation" "on"
 EndSection' > /etc/X11/xorg.conf.d/00-mouse.conf
 

@@ -1,16 +1,26 @@
 #!/bin/bash
+trap 'wineserver -k' INT TERM EXIT
 
+export WINEPREFIX="$HOME/.wine_lutris2"
 export DXVK_ASYNC=1
-PROGDIR="$HOME/.wine/drive_c/Program Files/Genshin Impact"
-BASEDIR="/mnt/Data/Games/Genshin Impact"
+PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
+BASEDIR="$HOME/Programs/Games/Genshin Impact"
+AAGLDIR="$HOME/.local/share/anime-game-launcher/game/drive_c/Program Files"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
 
-export WINEPREFIX="$HOME/.wine_lutris2"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver" "$lutrissha1"
+
+for i in "$@"; do
+    if [[ $1 == "script" ]]; then
+        script=1
+    elif [[ $1 == "skip" ]]; then
+        skip=1
+    fi
+done
 
 GetVersions() {
     # from update_gi script
@@ -98,9 +108,34 @@ Dawn() {
         git clone https://notabug.org/Krock/dawn
     else
         cd "$GIOLDIR"
-        git reset --hard
-        git pull 2>/dev/null
+        if [[ $skip != 1 ]]; then
+            git reset --hard
+            git clean -fxd
+            git pull
+        fi
     fi
+}
+
+highgpu() {
+    status="$(cat /sys/class/drm/card0/device/power_dpm_force_performance_level)"
+    echo "status: $status"
+    if [[ $status == "auto" ]]; then
+        echo "setting high perf gpu to: on"
+        echo manual | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level
+        echo 1 | sudo tee /sys/class/drm/card0/device/pp_power_profile_mode
+    elif [[ $status == "manual" ]]; then
+        echo "setting high perf gpu to: auto"
+        echo auto | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level
+        echo 3 | sudo tee /sys/class/drm/card0/device/pp_power_profile_mode
+    fi
+    read -s
+}
+
+updatelauncher() {
+    mkdir $BASEDIR/tmp
+    curl -LO https://sg-public-api.hoyoverse.com/event/download_porter/link/ys_global/genshinimpactpc/default
+    wine $BASEDIR/tmp/Genshin*.exe
+    rm -rf $BASEDIR/tmp
 }
 
 Main() {
@@ -120,7 +155,7 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
@@ -129,6 +164,10 @@ Main() {
             "Update Patch" ) Dawn; break;;
             "(Re-)Install Game" ) Install; break;;
             "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
+            "Kill Wineserver" ) wineserver -k; break;;
+            "High Perf GPU Toggle" ) highgpu; break;;
+            "Open Launcher for Updating" ) Patch uninstall; wine "$BASEDIR/launcher.exe"; break;;
+            "Update Launcher" ) updatelauncher; break;;
             * ) running=0; break;;
         esac
         done
@@ -137,4 +176,10 @@ Main() {
     exit 0
 }
 
-Main
+if [[ $script == 1 ]]; then
+    Main
+else
+    mkdir -p "$AAGLDIR" 2>/dev/null
+    ln -sf "$BASEDIR" "$AAGLDIR"
+    an-anime-game-launcher-bin
+fi

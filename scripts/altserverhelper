@@ -1,0 +1,62 @@
+#!/bin/bash
+trap 'kill $netmuxdPID 2>/dev/null' EXIT
+trap 'kill $netmuxdPID 2>/dev/null; exit 1' INT TERM
+
+AltServer="$HOME/Programs/AltServer"
+export ALTSERVER_ANISETTE_SERVER=http://127.0.0.1:6969
+
+for i in "$@"; do
+    if [[ $i == "netmuxd" ]]; then
+        echo "netmuxd argument detected"
+        netmuxd="$HOME/Programs/netmuxd"
+        export USBMUXD_SOCKET_ADDRESS=127.0.0.1:27015
+    fi
+done
+
+help() {
+    echo "Usage: $(basename $0) <operation> [...] [netmuxd]"
+    echo "Operations:
+    {help}
+    {install} [Apple ID] [Password] [IPA Path]
+    {pull}
+    {server}"
+}
+
+prepare() {
+    echo "running anisette"
+    docker run -d --rm -p 6969:6969 -it nyamisty/alt_anisette_server
+    while [[ $ready != 1 ]]; do
+        echo "waiting for anisette"
+        [[ $(curl 127.0.0.1:6969) ]] && ready=1
+        sleep 2
+    done
+    [[ -z $netmuxd ]] && return
+    echo "running netmuxd"
+    netmuxd --disable-unix --host 127.0.0.1 &
+    netmuxdPID=$!
+}
+
+pull() {
+    docker pull nyamisty/alt_anisette_server
+}
+
+server() {
+    prepare
+    echo "running altserver"
+    $AltServer
+}
+
+install() {
+    prepare
+    echo "installing: $4"
+    $AltServer -u $(ideviceinfo -k UniqueDeviceID) -a "$2" -p "$3" "$4"
+}
+
+if [[ ! $* ]]; then
+    echo "[Error] No arguments"
+    help
+    exit 1
+fi
+
+echo "Running AltServerHelper in $1 mode"
+$1 "$@"
