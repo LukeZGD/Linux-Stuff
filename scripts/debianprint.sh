@@ -37,7 +37,8 @@ public = no
 writable = yes
 printable = no
 follow symlinks = yes
-wide links = yes" | sudo tee /etc/samba/smb.conf
+wide links = yes
+acl allow execute always = True" | sudo tee /etc/samba/smb.conf
 sudo smbpasswd -a $USER
 sudo sed -i "s|Listen localhost:631|Port 631|g" /etc/cups/cupsd.conf
 sudo sed -z -i "s|<Location />\n  Order allow,deny|<Location />\n  Order allow,deny\n  Allow @LOCAL|g" /etc/cups/cupsd.conf

@@ -7,14 +7,16 @@ lutrissha1="86fe8857c4548c9cec8643ded8697495ba426dc7"
 preparelutris() {
     lutrisver="$1"
     lutris="lutris-$lutrisver-x86_64"
-    lutrispath="$HOME/.local/share/lutris/runners/wine"
-    lutrissha1="$2"
-    export PATH=$lutrispath/$lutris/bin:$PATH
-    if [[ $lutrisver == *"5.0" ]]; then
+    if [[ $lutrisver == *"5."* ]]; then
         lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
+    elif [[ $lutrisver == *"6."* ]]; then
+        lutrislink="https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz"
     else
         lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
     fi
+    lutrispath="$HOME/.local/share/lutris/runners/wine"
+    lutrissha1="$2"
+    export PATH=$lutrispath/$lutris/bin:$PATH
 
     cd $HOME/Programs
     if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then

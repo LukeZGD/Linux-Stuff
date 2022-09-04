@@ -46,7 +46,7 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "Install AUR pkgs paru" "VirtualBox+Docker" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "JP Input" "Chaotic AUR" "Waydroid" "auto-cpufreq"; do
+    select opt in "Install AUR pkgs paru" "VirtualBox+Docker" "osu!" "Emulators" "Plymouth" "OpenTabletDriver" "KVM w/ virt-manager" "VMware" "MS office" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "JP Input" "Chaotic AUR" "Waydroid" "auto-cpufreq"; do
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
@@ -59,6 +59,7 @@ installstuff() {
         "MS office" ) msoffice; break;;
         "FL Studio" ) FL; break;;
         "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
+        "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "JP Input" ) jpmozc; break;;
         "Chaotic AUR" ) chaoticaur; break;;
         "Waydroid" ) waydroid; break;;
@@ -101,7 +102,14 @@ jpmozc() {
 brother_dcpl2540dw() {
     read -p "[Input] IP Address of printer: " ip
     pac install brother-dcpl2540dw-cups brscan4
-    sudo brsaneconfig4 -a name="Brother" model="DCP-L2540DW" ip=$ip
+    sudo brsaneconfig4 -a name="DCP-L2540DW" model="DCP-L2540DW" ip=$ip
+}
+
+brother_dcpt720dw() {
+    read -p "[Input] IP Address of printer: " ip
+    sudo pacman -U --noconfirm $HOME/Programs/Packages/dcpt720dwpdrv-3.5.0-1-x86_64.pkg.tar.zst
+    pac install brscan4
+    sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
 }
 
 msoffice() {
