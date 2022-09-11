@@ -122,7 +122,6 @@ htop
 jq
 jre-openjdk
 jsoncpp
-ktorrent
 libreoffice-fresh
 linssid
 love
@@ -136,6 +135,7 @@ radeontop
 retext
 samba
 tealdeer
+transmission-qt
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal

@@ -108,8 +108,8 @@ brother_dcpl2540dw() {
 brother_dcpt720dw() {
     read -p "[Input] IP Address of printer: " ip
     sudo pacman -U --noconfirm $HOME/Programs/Packages/dcpt720dwpdrv-3.5.0-1-x86_64.pkg.tar.zst
-    pac install brscan4
-    sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
+    pac install brscan5
+    sudo /opt/brother/scanner/brscan5/brsaneconfig5 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
 }
 
 msoffice() {
