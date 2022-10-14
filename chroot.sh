@@ -186,6 +186,7 @@ setupstuff() {
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
+sed -i "s|#IgnorePkg   =|IgnorePkg    = python2|g" /etc/pacman.conf
 echo "[Input] Select kernel:"
 select opt in "linux" "linux-lts" "linux-zen"; do
 case $opt in
@@ -238,7 +239,7 @@ systemctl mask NetworkManager-wait-online
 sed -i "s|--sort age|--sort rate|g" /etc/xdg/reflector/reflector.conf
 
 echo "[Log] Enabling services"
-systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup reflector.timer sddm systemd-resolved
+systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup reflector.timer sddm systemd-resolved systemd-timesyncd
 
 if [[ -d /mnt/Data ]]; then
     chown -R 1000:1000 /mnt/Data

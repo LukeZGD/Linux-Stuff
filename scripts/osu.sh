@@ -12,6 +12,8 @@ osugame() {
         env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
+    echo "Run osu-wine from osu-winello instead"
+    return
 
     qdbus org.kde.KWin /Compositor suspend
     [[ -z "$*" ]] && wineserver -k
@@ -68,11 +70,12 @@ remove() {
 
 update() {
     cd "$osupath"
-    osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
-    current=$(cat osu.AppImage.version 2>/dev/null)
-    [[ ! $current ]] && current='N/A'
-    latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3)
     echo "osu!lazer"
+    echo "Checking for updates..."
+    osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
+    current=$(cat osu.AppImage.version 2>/dev/null | cut -c 3- | cut -c -11 | sed 's/"$//')
+    [[ ! $current ]] && current='N/A'
+    latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3 | cut -c 3- | cut -c -11 | sed 's/"$//')
     echo "* Your current version is: $current"
     echo "* The latest version is:   $latest"
     if [[ $latest != $current ]]; then
@@ -99,6 +102,9 @@ update() {
 }
 
 osuinstall() {
+    echo "Install osu with osu-winello instead"
+    return
+
     sudo ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     cd "$osupath"
@@ -128,17 +134,17 @@ osuinstall() {
 }
 
 if [[ $1 == "random" ]]; then
-    random $2
+    : random $2
 elif [[ $1 == "remove" ]]; then
-    remove
+    : remove
 elif [[ $1 == "update" ]]; then
     update
 elif [[ $1 == "lazer" ]]; then
     osugame lazer
 elif [[ $1 == "kill" ]]; then
-    wineserver -k
+    : 'wineserver -k
     qdbus org.kde.KWin /Compositor resume
-    exit
+    exit'
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"
     echo "Operations:

@@ -8,6 +8,7 @@ earlyoom
 f3
 gallery-dl
 github-desktop-bin
+kde-cdemu-manager
 kde-rounded-corners
 legendary
 masterpdfeditor-free
@@ -23,6 +24,7 @@ rustdesk-bin
 shellcheck-bin
 tenacity-wxgtk3-git
 ventoy-bin
+vhba-module-dkms
 viber
 waifu2x-ncnn-vulkan-bin
 wine-staging
@@ -50,7 +52,7 @@ installstuff() {
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
-        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "osu!" ) bash $HOME/Documents/GitHub/osu-winello/osu-winello.sh; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "Plymouth" ) Plymouth; break;;
@@ -122,6 +124,7 @@ msoffice() {
 }
 
 FL() {
+    preparelutris "fshack-6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
     WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     cd "$HOME/.wine_fl/drive_c/Program Files (x86)/"
     ln -sf "../Program Files/Image-Line/" .
@@ -141,6 +144,7 @@ chaoticaur() {
 
 emulators() {
     pac install dolphin-emu fceux melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    preparelutris "$lutrisver" "$lutrissha1"
     WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
     WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
     mkdir $HOME/.cemu
@@ -208,7 +212,7 @@ postinstallcomm() {
     
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
-    winetricks -q gdiplus vcrun2010 vcrun2013 vcrun2019 win10 wmp11
+    winetricks -q gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 win10 wmp11
     $HOME/Documents/dxvk/setup_dxvk.sh install
     preparewineprefix
 
@@ -226,7 +230,7 @@ postinstallcomm() {
     preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
     preparewineprefix "$HOME/.wine_lutris32" win32
     WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q quartz wmp9
-    
+
     echo "[global]
     allow insecure wide links = yes
     workgroup = WORKGROUP
