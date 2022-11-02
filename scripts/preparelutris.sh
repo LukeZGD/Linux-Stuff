@@ -10,7 +10,7 @@ preparelutris() {
     if [[ $lutrisver == *"5."* ]]; then
         lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris.tar.xz"
     elif [[ $lutrisver == *"6."* ]]; then
-        lutrislink="https://github.com/lutris/wine/releases/download/lutris-$lutrisver/wine-$lutris.tar.xz"
+        lutrislink="https://github.com/lutris/wine/releases/download/lutris-$(echo $lutrisver | cut -c 8-)/wine-$lutris.tar.xz"
     else
         lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris.tar.xz"
     fi

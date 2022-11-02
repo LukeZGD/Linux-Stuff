@@ -5,6 +5,7 @@ trap exit INT TERM EXIT
 if [[ $1 == autoremove* ]]; then
     sudo pacman -Rsn $(pacman -Qtdq)
 elif [[ $1 == clean* ]]; then
+    sudo rm -f /var/cache/pacman/pkg/*.part
     [[ $2 == all ]] && paru -Sc $noconfirm || sudo pacman -Sc $noconfirm
 elif [[ $1 == *install* ]]; then
     [[ $1 == re* ]] && needed=--rebuild || needed=--needed

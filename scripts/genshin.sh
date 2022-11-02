@@ -1,3 +1,4 @@
+
 #!/bin/bash
 trap 'wineserver -k' INT TERM EXIT
 
@@ -15,10 +16,10 @@ defaultres="1920x1080"
 preparelutris "$lutrisver" "$lutrissha1"
 
 for i in "$@"; do
-    if [[ $1 == "script" ]]; then
+    if [[ $1 == "aagl" ]]; then
+        aagl=1
+    elif [[ $1 == "script" ]]; then
         script=1
-    elif [[ $1 == "skip" ]]; then
-        skip=1
     fi
 done
 
@@ -155,7 +156,7 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "Open Base Directory" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
@@ -167,6 +168,7 @@ Main() {
             "Kill Wineserver" ) wineserver -k; break;;
             "High Perf GPU Toggle" ) highgpu; break;;
             "Open Launcher for Updating" ) Patch uninstall; wine "$BASEDIR/launcher.exe"; break;;
+            "Open Base Directory" ) dolphin "$BASEDIR" &; break;;
             "Update Launcher" ) updatelauncher; break;;
             * ) running=0; break;;
         esac
@@ -176,10 +178,10 @@ Main() {
     exit 0
 }
 
-if [[ $script == 1 ]]; then
-    Main
-else
+if [[ $aagl == 1 ]]; then
     mkdir -p "$AAGLDIR" 2>/dev/null
     ln -sf "$BASEDIR" "$AAGLDIR"
     an-anime-game-launcher-bin
+else
+    Main
 fi
