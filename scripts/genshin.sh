@@ -3,6 +3,7 @@
 trap 'wineserver -k' INT TERM EXIT
 
 export WINEPREFIX="$HOME/.wine_lutris2"
+export WINEESYNC=1
 export DXVK_ASYNC=1
 PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
 BASEDIR="$HOME/Programs/Games/Genshin Impact"
@@ -168,7 +169,7 @@ Main() {
             "Kill Wineserver" ) wineserver -k; break;;
             "High Perf GPU Toggle" ) highgpu; break;;
             "Open Launcher for Updating" ) Patch uninstall; wine "$BASEDIR/launcher.exe"; break;;
-            "Open Base Directory" ) dolphin "$BASEDIR" &; break;;
+            "Open Base Directory" ) dolphin "$BASEDIR"; break;;
             "Update Launcher" ) updatelauncher; break;;
             * ) running=0; break;;
         esac
