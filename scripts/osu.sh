@@ -12,7 +12,7 @@ osugame() {
         env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
-    echo "Run osu-wine from osu-winello instead"
+    osu-wine
     return
 
     qdbus org.kde.KWin /Compositor suspend
@@ -102,9 +102,6 @@ update() {
 }
 
 osuinstall() {
-    echo "Install osu with osu-winello instead"
-    return
-
     sudo ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     sudo chmod +x /usr/local/bin/osu
     cd "$osupath"
@@ -142,9 +139,9 @@ elif [[ $1 == "update" ]]; then
 elif [[ $1 == "lazer" ]]; then
     osugame lazer
 elif [[ $1 == "kill" ]]; then
-    : 'wineserver -k
-    qdbus org.kde.KWin /Compositor resume
-    exit'
+    osu-wine --kill
+    #wineserver -k
+    #qdbus org.kde.KWin /Compositor resume
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"
     echo "Operations:
@@ -156,7 +153,8 @@ elif [[ $1 == "help" ]]; then
     osu {remove}
     osu {update}"
 elif [[ $1 == "install" ]]; then
-    osuinstall
+    #osuinstall
+    echo "Install osu with osu-winello instead"
 else
     osugame "$@"
 fi

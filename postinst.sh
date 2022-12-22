@@ -3,6 +3,7 @@ BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 packages=(
+authy
 cpu-x
 earlyoom
 f3
@@ -81,6 +82,7 @@ kvm() {
     sudo systemctl enable --now libvirtd
     sudo usermod -aG kvm,libvirt $USER
     echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
+    echo 'add "iommu=pt amd_iommu=on pcie_acs_override=downstream,multifunction" to /boot/loader/entries/arch.conf'
 }
 
 waydroid() {
@@ -110,8 +112,8 @@ brother_dcpl2540dw() {
 brother_dcpt720dw() {
     read -p "[Input] IP Address of printer: " ip
     sudo pacman -U --noconfirm $HOME/Programs/Packages/dcpt720dwpdrv-3.5.0-1-x86_64.pkg.tar.zst
-    pac install brscan5
-    sudo /opt/brother/scanner/brscan5/brsaneconfig5 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
+    pac install brscan4 brscan5
+    sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
 }
 
 msoffice() {
@@ -140,26 +142,12 @@ chaoticaur() {
     sudo pacman-key --lsign-key FBA220DFC880C036
     sudo pacman -U --noconfirm --needed 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
     printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
+    echo "pac install lib32-libffmpeg"
 }
 
 emulators() {
     pac install dolphin-emu fceux melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
     preparelutris "$lutrisver" "$lutrissha1"
-    WINEPREFIX=$HOME/.cemu/wine wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 144 /f
-    WINEPREFIX=$HOME/.cemu/wine winetricks -q vcrun2017
-    mkdir $HOME/.cemu
-    cd $HOME/.cemu
-    #ln -s /usr/share/cemu/Cemu.exe .
-    #ln -s /usr/share/cemu/cemuhook.dll .
-    #ln -s /usr/share/cemu/keystone.dll .
-    #ln -s /usr/share/cemu/sharedFonts/ .
-    ln -s /mnt/Data/$USER/cemu/controllerProfiles/ .
-    ln -s /mnt/Data/$USER/cemu/graphicPacks/ .
-    ln -s /mnt/Data/$USER/cemu/mlc01/ .
-    ln -s /mnt/Data/$USER/cemu/settings.xml .
-    ln -s /mnt/Data/$USER/cemu/shaderCache/ .
-    cp -r /usr/share/cemu/gameProfiles/ .
-    curl -L https://pastebin.com/raw/GWApZVLa -o keys.txt
 }
 
 installpac() {
