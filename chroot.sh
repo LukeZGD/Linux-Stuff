@@ -63,7 +63,7 @@ k3b
 kate
 kdeconnect
 kdegraphics-thumbnailers
-kdesdk-kioslaves
+kdesdk-kio
 kdesdk-thumbnailers
 kfind
 kimageformats
@@ -181,6 +181,13 @@ pacman -S --noconfirm archlinux-keyring
 echo "[Log] Installing packages"
 pacman -S --noconfirm $kernel $kernel-headers
 pacman -S --noconfirm --needed "${pacmanpkgs[@]}"
+if [[ $? != 0 ]]; then
+    echo "pacman seems to not have completed successfully. please edit chroot.sh. press enter"
+    read -s
+    nano chroot.sh
+    ./chroot.sh
+    exit
+fi
 echo "[Log] Setting locale"
 echo -e "en_CA.UTF-8 UTF-8\nen_US.UTF-8 UTF-8\nja_JP.UTF-8 UTF-8" > /etc/locale.gen
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
@@ -194,8 +201,7 @@ passwd
 echo "[Log] Setup systemd-boot"
 systemdinstall
 echo "[Log] Edit mkinitcpio and dkms"
-sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck)/" /etc/mkinitcpio.conf
-mkdir /etc/dkms/framework.conf.d
+printf "MODULES=()\nBINARIES=()\nFILES=()\nHOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)\n" > /etc/mkinitcpio.conf
 echo "sign_file='/usr/lib/modules/\${kernelver}/build/scripts/sign-file'" > /etc/dkms/framework.conf.d/custom.conf
 pacman -S --noconfirm $kernel $kernel-headers
 
@@ -223,6 +229,7 @@ echo "[Log] Enabling services"
 systemctl enable NetworkManager bluetooth cups fstrim.timer linux-modules-cleanup reflector.timer sddm systemd-resolved systemd-timesyncd
 
 if [[ -d /mnt/Data ]]; then
+    echo "[Log] Running \"chown -R 1000:1000 /mnt/Data\", please wait"
     chown -R 1000:1000 /mnt/Data
 fi
 rm -rf /media

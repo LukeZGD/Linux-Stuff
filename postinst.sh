@@ -9,6 +9,7 @@ earlyoom
 f3
 gallery-dl
 github-desktop-bin
+glfw-x11
 kde-cdemu-manager
 kde-rounded-corners
 legendary
@@ -165,6 +166,7 @@ postinstall() {
     sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
 
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
+    pac update
     pac install "${packages[@]}"
     pac install persepolis
     for pkg in $HOME/Programs/Packages/*; do sudo pacman -U --noconfirm --needed $pkg; done
@@ -198,10 +200,11 @@ postinstallcomm() {
     sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
     sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
+    pac update
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
-    winetricks -q gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 win10 wmp11
-    $HOME/Documents/dxvk/setup_dxvk.sh install
+    winetricks -q dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 win10 wmp11
+    #$HOME/Documents/dxvk/setup_dxvk.sh install
     preparewineprefix
 
     preparelutris "$lutrisver" "$lutrissha1"
@@ -209,9 +212,9 @@ postinstallcomm() {
     WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
 
     preparewineprefix "$HOME/.wine_lutris2"
-    WINEPREFIX=$HOME/.wine_lutris2 winetricks -q win10
+    WINEPREFIX=$HOME/.wine_lutris2 winetricks -q dxvk1103 win10
     # https://github.com/Sporif/dxvk-async
-    WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/dxvk/setup_dxvk.sh install
+    #WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/dxvk/setup_dxvk.sh install
     # https://github.com/z0z0z/mf-install
     WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/mf-install/mf-install.sh
 

@@ -47,7 +47,7 @@ updaterepo libimobiledevice libusbmuxd
 updaterepo libimobiledevice libimobiledevice
 updaterepo lzfse lzfse
 updaterepo libimobiledevice libirecovery
-updaterepo libimobiledevice libideviceactivation
+#updaterepo libimobiledevice libideviceactivation
 updaterepo libimobiledevice ideviceinstaller
 updaterepo libimobiledevice idevicerestore
 updaterepo libimobiledevice ifuse
@@ -118,7 +118,7 @@ compile libimobiledevice-glue $is_static
 compile libusbmuxd $is_static
 compile libimobiledevice $is_static --without-cython
 compile libirecovery $is_static
-compile libideviceactivation $is_static
+#compile libideviceactivation $is_static
 compile ideviceinstaller $is_static
 compile idevicerestore
 compile ifuse $is_static
@@ -158,6 +158,8 @@ make clean
 sudo ln -sf $HOME/Programs/AltServer "$instdir/bin"
 sudo ln -sf $HOME/Programs/checkra1n "$instdir/bin"
 sudo ln -sf $HOME/Programs/futurerestore "$instdir/bin"
+sudo rm $instdir/bin/ideviceactivation
+sudo ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
 sudo ln -sf $HOME/Programs/netmuxd "$instdir/bin"
 sudo ldconfig
 echo "Done"

@@ -11,8 +11,16 @@ Server = https://archlinux.thaller.ws/$repo/os/$arch
 Server = https://mirror.cyberbits.asia/archlinux/$repo/os/$arch
 Server = https://mirror.theash.xyz/arch/$repo/os/$arch'
 
-clear
+# iwctl
+# device list
+# adapter phy0 set-property Powered on
+# device wlan0 set-property Powered on
+# station list
+# station wlan0 scan
+# station wlan0 get-networks
+# station wlan0 connect network_name
 
+clear
 echo "LukeZGD Arch Install Script"
 echo "This script will assume that you have a working Internet connection"
 echo "Press [enter] to continue, or ^C to cancel"
