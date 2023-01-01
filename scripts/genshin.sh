@@ -46,7 +46,7 @@ Patch() {
     GetVersions
     chmod +x $Current/*.sh $Version/*.sh
     cd "$GAMEDIR"
-    if [[ $1 == install ]]; then
+    if [[ $1 == "install" ]]; then
         if (( Version > Current )); then
             Current=$(echo $Current | sed 's/./&./2;s/./&./1')
             Version=$(echo $Version | sed 's/./&./2;s/./&./1')
@@ -61,7 +61,7 @@ Patch() {
         fi
         "$GIOLDIR"/$Current/patch.sh
         "$GIOLDIR"/$Current/patch_anti_logincrash.sh
-    elif [[ $1 == uninstall ]]; then
+    elif [[ $1 == "uninstall" ]]; then
         "$GIOLDIR"/$Current/patch_revert.sh
     fi
     cd "$BASEDIR"
@@ -71,6 +71,9 @@ Updater() {
     cd "$GAMEDIR"
     chmod +x "$UPDATER"
     "$UPDATER" $1 nodelete
+    if [[ $1 != "install" && $? != 0 ]]; then
+        "$UPDATER" predownload
+    fi
     read -s
 }
 
@@ -98,7 +101,7 @@ Install() {
         fi
     fi
     read -p "Game folder will be removed and the full game will be (re-)installed. Continue? (y/N) " opt
-    [[ $opt != y && $opt != Y ]] && return
+    [[ $opt != 'y' && $opt != 'Y' ]] && return
     rm -rf "$GAMEDIR"
     mkdir "$GAMEDIR"
     Updater install

@@ -345,7 +345,6 @@ excludelist=(
 ".nv"
 ".nvidia-settings-rc"
 ".nx"
-".osu"
 ".pam_environment"
 ".pipewire-media-session"
 ".profile"
@@ -358,14 +357,15 @@ excludelist=(
 ".zoom"
 "Android"
 "Programs/Games"
+"osu"
 "VMs"
 )
 
 RSYNC() {
     [[ $ArgR != full && $ArgR != sparse ]] && Update=--update
     [[ $ArgR == full ]] && ArgR=
+    rm /tmp/excludelist 2>/dev/null
     if [[ $3 == user ]]; then
-        rm /tmp/excludelist 2>/dev/null
         for exclude in "${excludelist[@]}"; do
             echo "$exclude" >> /tmp/excludelist
         done
@@ -374,7 +374,7 @@ RSYNC() {
         [[ ! -d $2 ]] && ArgR="--ignore-existing --sparse" || ArgR="--existing --inplace"
         sudo rsync -va $ArgR --info=progress2 $1 $2
     else
-        sudo rsync -va $ArgR $Update --del --info=progress2 --exclude "VirtualBox VMs" --exclude "wine" $1 $2
+        sudo rsync -va $ArgR $Update --del --info=progress2 --exclude "VirtualBox VMs" --exclude "wine" --exclude "files" $1 $2
     fi
 }
 
@@ -400,7 +400,7 @@ BackupRestore() {
     if [[ $Mode == user ]]; then
         Paths=("$HOME/" "/media/$USER/$HDDName/BackupsP/$USER/"
                "/mnt/Data/$USER/" "/media/$USER/$HDDName/BackupsP/Data/$USER/"
-               "$HOME/.osu/" "/media/$USER/$HDDName/BackupsP/Data/osu/")
+               "$HOME/osu/" "/media/$USER/$HDDName/BackupsP/Data/osu/")
     elif [[ $Mode == pac ]]; then
         Paths=("/var/cache/pacman/pkg/" "/media/$USER/$HDDName/BackupsP/pkg/"
                "/var/cache/pacman/aur/" "/media/$USER/$HDDName/BackupsP/aur/")
@@ -410,14 +410,14 @@ BackupRestore() {
 
     if [[ $Action == Backup ]]; then
         if [[ $Mode == user ]]; then
-        RSYNC ${Paths[0]} ${Paths[1]} user
-        RSYNC ${Paths[2]} ${Paths[3]}
-        RSYNC ${Paths[4]} ${Paths[5]}
+            RSYNC ${Paths[0]} ${Paths[1]} user
+            RSYNC ${Paths[2]} ${Paths[3]}
+            RSYNC ${Paths[4]} ${Paths[5]}
         elif [[ $Mode == pac ]]; then
-        RSYNC ${Paths[0]} ${Paths[1]}
-        RSYNC ${Paths[2]} ${Paths[3]}
+            RSYNC ${Paths[0]} ${Paths[1]}
+            RSYNC ${Paths[2]} ${Paths[3]}
         elif [[ $Mode == vm ]]; then
-        RSYNC ${Paths[0]} ${Paths[1]}
+            RSYNC ${Paths[0]} ${Paths[1]}
         fi
     elif [[ $Action == Restore ]]; then
         if [[ $Mode == user ]]; then
