@@ -134,6 +134,7 @@ python-pip
 radeontop
 retext
 samba
+sshfs
 tealdeer
 transmission-qt
 v4l2loopback-dkms

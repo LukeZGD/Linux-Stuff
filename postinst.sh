@@ -82,7 +82,7 @@ kvm() {
     pac install virt-manager qemu-base qemu-ui-gtk vde2 dnsmasq bridge-utils openbsd-netcat
     sudo systemctl enable --now libvirtd
     sudo usermod -aG kvm,libvirt $USER
-    echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
+    #echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
     echo 'add "iommu=pt amd_iommu=on pcie_acs_override=downstream,multifunction" to /boot/loader/entries/arch.conf'
 }
 
@@ -147,7 +147,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install dolphin-emu fceux melonds-bin mgba-qt pcsx2 ppsspp rpcs3-udev snes9x-gtk
+    pac install dolphin-emu fceux melonds-bin mgba-qt ppsspp rpcs3-udev snes9x-gtk
     preparelutris "$lutrisver" "$lutrissha1"
 }
 
