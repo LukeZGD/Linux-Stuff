@@ -71,9 +71,6 @@ Updater() {
     cd "$GAMEDIR"
     chmod +x "$UPDATER"
     "$UPDATER" $1 nodelete
-    if [[ $1 != "install" && $? != 0 ]]; then
-        "$UPDATER" predownload
-    fi
     read -s
 }
 
@@ -160,10 +157,11 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "Open Base Directory" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "Open Base Directory" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
+            "Pre-Installation" ) Updater predownload; break;;
             "Install Patch" ) Patch install; read -s; break;;
             "Uninstall Patch" ) Patch uninstall; read -s; break;;
             "Update Patch" ) Dawn; break;;
