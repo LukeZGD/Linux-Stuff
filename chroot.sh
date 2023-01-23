@@ -33,6 +33,7 @@ xorg-xrandr
 bluez
 bluez-plugins
 bluez-utils
+iwd
 networkmanager
 networkmanager-openvpn
 network-manager-applet
@@ -92,6 +93,7 @@ system-config-printer
 ttf-dejavu
 
 audacious
+audacity
 ffmpeg
 ffmpegthumbs
 ffmpegthumbnailer
@@ -110,9 +112,12 @@ libvncserver
 
 aria2
 bat
+cdrdao
+cdrtools
 chromium
 corectrl
 dosbox
+dvd+rw-tools
 firefox
 fwupd
 geoip
@@ -130,6 +135,7 @@ okular
 openssh
 noto-fonts-cjk
 noto-fonts-emoji
+piper
 python-pip
 radeontop
 retext
@@ -310,5 +316,8 @@ ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0
 ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' | tee /etc/udev/rules.d/60-ioschedulers.rules
 printf "kernel.panic=3\nkernel.sysrq=1\nvm.swappiness=1\n" | tee /etc/sysctl.d/99-sysctl.conf
 sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
+
+echo '[device]
+wifi.backend=iwd' > /etc/NetworkManager/conf.d/wifi_backend.conf
 
 echo "[Log] chroot script done"
