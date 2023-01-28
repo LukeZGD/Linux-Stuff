@@ -9,7 +9,8 @@ if [[ $1 == static ]]; then
     export STATIC_FLAG="--enable-static --disable-shared"
     export BEGIN_LDFLAGS="-all-static -Wl,--allow-multiple-definition"
 fi
-if [[ -f "/etc/lsb-release" || -f "/etc/debian_version" ]]; then
+. /etc/os-release
+if [[ -n $UBUNTU_CODENAME || -f "/etc/debian_version" ]]; then
     sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev git ca-certificates
 fi
 
@@ -56,6 +57,7 @@ updaterepo tihmstar libfragmentzip
 updaterepo tihmstar img4tool
 updaterepo tihmstar partialZipBrowser
 updaterepo 1Conan tsschecker
+updaterepo aburgh bsdiff
 
 if [[ $1 == static ]]; then
     updaterepo madler zlib
@@ -155,10 +157,17 @@ make
 sudo make install
 make clean
 
+cd $compdir/bsdiff
+cd bsdiff
+gcc bsdiff.c $HOME/Programs/libbz2.a -o bsdiff
+sudo cp bsdiff $instdir/bin
+cd ../bspatch
+gcc bspatch.c $HOME/Programs/libbz2.a -o bspatch
+sudo cp bspatch $instdir/bin
+
 sudo ln -sf $HOME/Programs/AltServer "$instdir/bin"
 sudo ln -sf $HOME/Programs/checkra1n "$instdir/bin"
 sudo ln -sf $HOME/Programs/futurerestore "$instdir/bin"
-sudo rm $instdir/bin/ideviceactivation
 sudo ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
 sudo ln -sf $HOME/Programs/netmuxd "$instdir/bin"
 sudo ldconfig

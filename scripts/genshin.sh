@@ -2,9 +2,8 @@
 #!/bin/bash
 trap 'wineserver -k' INT TERM EXIT
 
-export WINEPREFIX="$HOME/.wine_lutris2"
+export WINEPREFIX="$HOME/.wine_lutris"
 export WINEESYNC=1
-export DXVK_ASYNC=1
 PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
 BASEDIR="$HOME/Programs/Games/Genshin Impact"
 AAGLDIR="$HOME/.local/share/anime-game-launcher/game/drive_c/Program Files"
@@ -14,7 +13,7 @@ UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
 
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
-preparelutris "$lutrisver" "$lutrissha1"
+preparelutris "$lutrisver"
 
 for i in "$@"; do
     if [[ $1 == "aagl" ]]; then

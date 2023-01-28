@@ -24,7 +24,6 @@ rustdesk
 shellcheck-bin
 ventoy-bin
 vhba-module-dkms
-waifu2x-ncnn-vulkan-bin
 wine-staging
 yt-dlp
 yt-dlp-drop-in
@@ -79,7 +78,10 @@ kvm() {
     sudo systemctl enable --now libvirtd
     sudo usermod -aG kvm,libvirt $USER
     #echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
-    echo 'add "iommu=pt amd_iommu=on pcie_acs_override=downstream,multifunction" to /boot/loader/entries/arch.conf'
+    echo 'add "iommu=pt amd_iommu=on" to /boot/loader/entries/arch.conf'
+    echo 'optionally add: pcie_acs_override=downstream,multifunction'
+    echo 'for intel: iommu=pt intel_iommu=on'
+    echo 'for endeavouros add kernel params to /etc/kernel/cmdline'
 }
 
 waydroid() {
@@ -144,7 +146,7 @@ chaoticaur() {
 
 emulators() {
     pac install dolphin-emu fceux melonds-bin mgba-qt ppsspp rpcs3-udev snes9x-gtk
-    preparelutris "$lutrisver" "$lutrissha1"
+    preparelutris
 }
 
 installpac() {
@@ -199,24 +201,12 @@ postinstallcomm() {
     pac update
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
+    preparewineprefix "$HOME/.wine"
     winetricks -q dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 win10 wmp11
-    #$HOME/Documents/dxvk/setup_dxvk.sh install
-    preparewineprefix
 
-    preparelutris "$lutrisver" "$lutrissha1"
+    preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q quartz win10 wmp11
-
-    preparewineprefix "$HOME/.wine_lutris2"
-    WINEPREFIX=$HOME/.wine_lutris2 winetricks -q dxvk1103 win10
-    # https://github.com/Sporif/dxvk-async
-    #WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/dxvk/setup_dxvk.sh install
-    # https://github.com/z0z0z/mf-install
-    WINEPREFIX=$HOME/.wine_lutris2 $HOME/Documents/mf-install/mf-install.sh
-
-    preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
-    preparewineprefix "$HOME/.wine_lutris32" win32
-    WINEPREFIX=$HOME/.wine_lutris32 WINEARCH=win32 winetricks -q quartz wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q dxvk1103 win10 quartz wmp9
 
     echo "[global]
     allow insecure wide links = yes
