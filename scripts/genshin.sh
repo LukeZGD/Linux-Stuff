@@ -1,4 +1,3 @@
-
 #!/bin/bash
 trap 'wineserver -k' INT TERM EXIT
 
@@ -176,8 +175,6 @@ Main() {
         esac
         done
     done
-
-    exit 0
 }
 
 if [[ $aagl == 1 ]]; then

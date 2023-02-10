@@ -49,14 +49,14 @@ installstuff() {
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
-        "osu!" ) bash $HOME/Documents/GitHub/osu-winello/osu-winello.sh; break;;
+        "osu!" ) $HOME/Documents/GitHub/osu-winello/osu-winello.sh; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "Plymouth" ) Plymouth; break;;
         "VMware" ) vmware; break;;
         "OpenTabletDriver" ) opentabletdriver; break;;
         "MS office" ) msoffice; break;;
-        "FL Studio" ) FL; break;;
+        "FL Studio" ) $HOME/.local/bin/flstudio install; break;;
         "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
         "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "JP Input" ) jpmozc; break;;
@@ -124,18 +124,6 @@ msoffice() {
     echo "also add the kwinrule"
 }
 
-FL() {
-    preparelutris "fshack-6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
-    WINEPREFIX=$HOME/.wine_fl wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    cd "$HOME/.wine_fl/drive_c/Program Files (x86)/"
-    ln -sf "../Program Files/Image-Line/" .
-    mkdir -p "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
-    cp "$HOME/Documents/FL Studio 20 (32bit).lnk" "$HOME/.wine_fl/drive_c/users/$USER/Start Menu/Programs/Image-Line/"
-    echo "prepared wineprefix"
-    echo "now run: WINEPREFIX=~/.wine_fl wine /path/to/flsetup.exe"
-    echo "also install in Program Files"
-}
-
 chaoticaur() {
     sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
     sudo pacman-key --lsign-key FBA220DFC880C036
@@ -146,7 +134,6 @@ chaoticaur() {
 
 emulators() {
     pac install dolphin-emu fceux melonds-bin mgba-qt ppsspp rpcs3-udev snes9x-gtk
-    preparelutris
 }
 
 installpac() {

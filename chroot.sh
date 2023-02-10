@@ -175,7 +175,6 @@ systemdinstall() {
 echo "[Log] pacman.conf"
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf
-sed -i "s|#IgnorePkg   =|IgnorePkg    = python2|g" /etc/pacman.conf
 echo "[Input] Select kernel:"
 select opt in "linux" "linux-lts" "linux-zen"; do
 case $opt in
