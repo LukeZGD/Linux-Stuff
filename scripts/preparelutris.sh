@@ -1,26 +1,49 @@
 #!/bin/bash
-lutrisver="GE-Proton7-35"
+lutrisver="GE-Proton7-36"
 lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
-#lutrissha1="86fe8857c4548c9cec8643ded8697495ba426dc7"
 
 preparelutris() {
     lutrisver="$1"
     lutris="lutris-$lutrisver-x86_64"
+    lutrispath="$HOME/.local/share/lutris/runners/wine"
+    lutrissha1="$2"
     if [[ $lutrisver == *"5."* ]]; then
         lutrislink="https://lutris.nyc3.cdn.digitaloceanspaces.com/runners/wine/wine-$lutris"
     elif [[ $lutrisver == *"6."* ]]; then
         lutrislink="https://github.com/lutris/wine/releases/download/lutris-$(echo $lutrisver | cut -c 8-)/wine-$lutris"
+        lutrispath+="2"
     elif [[ $lutrisver == "GE"* ]]; then
         lutrislink="https://github.com/GloriousEggroll/wine-ge-custom/releases/download/$lutrisver/wine-$lutris"
     else
         lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris"
     fi
-    lutrispath="$HOME/.local/share/lutris/runners/wine"
-    lutrissha1="$2"
+    mkdir -p $lutrispath 2>/dev/null
     export PATH=$lutrispath/$lutris/bin:$PATH
 
     cd $HOME/Programs
+
+    if [[ $lutrissha1 == "proton" ]]; then
+        lutrislink="https://github.com/GloriousEggroll/proton-ge-custom/releases/download/$lutrisver/$lutrisver"
+        if [[ ! -e $lutrisver.tar.gz || -e $lutrisver.tar.gz.aria2 ]]; then
+            aria2c "$lutrislink.tar.gz"
+        fi
+        if [[ ! -e $lutrisver.sha512sum ]]; then
+            curl -LO "$lutrislink.sha512sum"
+        fi
+        sha512sum -c $lutrisver.sha512sum
+        if [[ $? != 0 ]]; then
+            echo "wine proton $lutrisver verifying failed"
+            [[ ! -e $lutris.tar.gz.aria2 ]] && rm -f $lutris.tar.gz
+            exit 1
+        fi
+        lutrispath+="2"
+        if [[ ! -d $lutrispath/$lutrisver ]]; then
+            tar -xzvf $lutrisver.tar -C $lutrispath
+        fi
+        return
+    fi
+
     if [[ ! -e wine-$lutris.tar.xz || -e wine-$lutris.tar.xz.aria2 ]]; then
         aria2c "$lutrislink.tar.xz"
     fi
@@ -52,4 +75,3 @@ preparelutris() {
         rm -f wine-$lutris.tar
     fi
 }
-

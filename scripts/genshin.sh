@@ -4,6 +4,7 @@ trap 'wineserver -k' INT TERM EXIT
 
 export WINEPREFIX="$HOME/.wine_lutris"
 export WINEESYNC=1
+export WINEFSYNC=1
 PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
 BASEDIR="$HOME/Programs/Games/Genshin Impact"
 AAGLDIR="$HOME/.local/share/anime-game-launcher/game/drive_c/Program Files"
@@ -142,7 +143,7 @@ updatelauncher() {
 Main() {
     running=1
 
-    ping -c1 8.8.8.8 >/dev/null
+    ping -c1 google.com >/dev/null
     if [[ $? != 0 ]]; then
         echo "Please check your Internet connection before proceeding."
         exit 1

@@ -2,10 +2,7 @@
 export vblank_mode=0
 export WINEPREFIX="$HOME/.wine_osu"
 export WINEARCH="win32"
-osupath="$HOME/.osu"
-. /etc/os-release
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
-preparelutris "fshack-5.0" "736e7499d03d1bc60b13a43efa5fa93450140e9d"
+osupath="$HOME/osu"
 
 osugame() {
     if [[ $1 == "lazer" ]]; then
@@ -73,20 +70,31 @@ update() {
     echo "osu!lazer"
     echo "Checking for updates..."
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
-    current=$(cat osu.AppImage.version 2>/dev/null | cut -c 3- | cut -c -11 | sed 's/"$//')
+    current=$(cat osu.AppImage.version)
     [[ ! $current ]] && current='N/A'
-    latest=$(echo "$osuapi" | grep "tag_name" | cut -d : -f 2,3 | cut -c 3- | cut -c -11 | sed 's/"$//')
+    latest=$(echo "$osuapi" | jq -j '.tag_name')
+    url=$(echo "$osuapi" | jq -j '.assets[] | select(.name == "osu.AppImage") | .browser_download_url')
     echo "* Your current version is: $current"
     echo "* The latest version is:   $latest"
     if [[ $latest != $current ]]; then
         echo "There is a newer version available!"
-        read -p "Continue to update? (y/N) " continue
-        [[ $continue != y && $continue != Y ]] && exit
+        read -p "Continue to update? (Y/n) " continue
+        [[ $continue == 'N' || $continue == 'n' ]] && exit
         rm -rf tmp
         mkdir tmp
         cd tmp
-        echo "$osuapi" | grep "/osu.AppImage" | cut -d : -f 2,3 | tr -d \" | wget -nv --show-progress -i -
-        [[ ! -e osu.AppImage ]] && echo "Update failed" && exit
+        if [[ -e ../osu.AppImage.aria2 ]]; then
+            mv ../osu.AppImage.aria2 .
+            mv ../osu.AppImage.tmp osu.AppImage
+        fi
+        aria2c $url
+        if [[ -e osu.AppImage.aria2 ]]; then
+            echo "Update failed"
+            echo "Run the update again to continue download"
+            mv osu.AppImage.aria2 ..
+            mv osu.AppImage ../osu.AppImage.tmp
+            exit 1
+        fi
         rm -f ../osu.AppImage*
         mv osu.AppImage* ..
         cd ..

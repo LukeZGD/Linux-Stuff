@@ -190,9 +190,10 @@ postinstallcomm() {
     balooctl disable
     setxkbmap -layout us
     cd $HOME/.cache
+    rm -rf paru wine winetricks
+    ln -sf /mnt/Data/$USER/cache/paru
     ln -sf /mnt/Data/$USER/cache/wine
     ln -sf /mnt/Data/$USER/cache/winetricks
-    ln -sf /mnt/Data/$USER/cache/paru
     cd $BASEDIR
 
     sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
@@ -202,11 +203,13 @@ postinstallcomm() {
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"
-    winetricks -q dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 win10 wmp11
+    winetricks -q dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
+    WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q dxvk1103 win10 quartz wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q dxvk1103 quartz vkd3d win10 wmp9
+    cp -R $HOME/.wine_lutris $HOME/.wine_lutris.bak
 
     echo "[global]
     allow insecure wide links = yes
