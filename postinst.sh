@@ -20,7 +20,7 @@ ocs-url
 protontricks
 qdirstat
 qsynth
-rustdesk
+rustdesk-bin
 shellcheck-bin
 ventoy-bin
 vhba-module-dkms
@@ -190,12 +190,12 @@ postinstallcomm() {
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"
-    winetricks -q dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
+    winetricks -q corefonts dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q dxvk1103 quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
     cp -R $HOME/.wine_lutris $HOME/.wine_lutris.bak
 
     echo "[global]

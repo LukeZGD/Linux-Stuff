@@ -24,7 +24,7 @@ help() {
 
 prepare() {
     echo "running anisette"
-    docker run -d --rm -p 6969:6969 -it nyamisty/alt_anisette_server
+    docker run -d -v lib_cache:/opt/lib/ --restart=always -p 6969:6969 --name anisette dadoum/anisette-server:latest
     while [[ $ready != 1 ]]; do
         echo "waiting for anisette"
         [[ $(curl 127.0.0.1:6969) ]] && ready=1

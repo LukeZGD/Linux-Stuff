@@ -37,7 +37,7 @@ compile() {
     else
         make
     fi
-    sudo make install
+    make install
     make clean
 }
 
@@ -56,8 +56,14 @@ updaterepo tihmstar libgeneral
 updaterepo tihmstar libfragmentzip
 updaterepo tihmstar img4tool
 updaterepo tihmstar partialZipBrowser
-updaterepo 1Conan tsschecker
+#updaterepo 1Conan tsschecker
 updaterepo aburgh bsdiff
+
+is_static=$1
+[[ -z $1 ]] && is_static=0
+sudo rm -rf $instdir
+sudo mkdir $instdir
+sudo chown -R $USER: $instdir
 
 if [[ $1 == static ]]; then
     updaterepo madler zlib
@@ -68,20 +74,20 @@ if [[ $1 == static ]]; then
 
     cd $compdir/lzfse
     make LDFLAGS="$BEGIN_LDFLAGS"
-    sudo make install INSTALL_PREFIX="$instdir"
+    make install INSTALL_PREFIX="$instdir"
     make clean
 
     cd $compdir/
     tar -zxvf bzip2-1.0.8.tar.gz
     cd $compdir/bzip2-1.0.8
     make LDFLAGS="$BEGIN_LDFLAGS" INSTALL_PREFIX="$instdir"
-    sudo make install
+    make install
     make clean
 
     cd $compdir/zlib
     ./configure --static --prefix="$instdir"
     make LDFLAGS="$BEGIN_LDFLAGS"
-    sudo make install
+    make install
     make clean
 
     cd $compdir/
@@ -90,7 +96,7 @@ if [[ $1 == static ]]; then
     ./autogen.sh
     ./configure $STATIC_FLAG --prefix="$instdir"
     make LDFLAGS="$BEGIN_LDFLAGS"
-    sudo make install
+    make install
     make clean
 
     cd $compdir/
@@ -101,18 +107,13 @@ if [[ $1 == static ]]; then
     cd new
     cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX:PATH="$instdir"
     make LDFLAGS="$BEGIN_LDFLAGS"
-    sudo make install
+    make install
     make clean
 fi
 
-is_static=$1
-[[ -z $1 ]] && is_static=0
-sudo rm -rf $instdir
-sudo mkdir $instdir
-
 cd $compdir/lzfse
 make LDFLAGS="$BEGIN_LDFLAGS"
-sudo make install INSTALL_PREFIX="$instdir"
+make install INSTALL_PREFIX="$instdir"
 make clean
 
 compile libplist $is_static --without-cython
@@ -128,47 +129,50 @@ compile ifuse $is_static
 cd $compdir/libgeneral
 ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
 make
-sudo make install
+make install
 make clean
 
 cd $compdir/libfragmentzip
 ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
 make CFLAGS="-I$instdir/include"
-sudo make install
+make install
 make clean
 
 cd $compdir/img4tool
 env LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
 make
-sudo make install
+make install
 make clean
 
 cd $compdir/partialZipBrowser
 ./autogen.sh --prefix="$instdir"
 make
-sudo make install
+make install
 make clean
-
+: '
 cd $compdir/tsschecker
 git reset --hard 38dc80a
 git clean -fxd
 ./autogen.sh --prefix="$instdir"
 make
-sudo make install
+make install
 make clean
-
+'
 cd $compdir/bsdiff
 cd bsdiff
 gcc bsdiff.c $HOME/Programs/libbz2.a -o bsdiff
-sudo cp bsdiff $instdir/bin
+cp bsdiff $instdir/bin
 cd ../bspatch
 gcc bspatch.c $HOME/Programs/libbz2.a -o bspatch
-sudo cp bspatch $instdir/bin
+cp bspatch $instdir/bin
 
-sudo ln -sf $HOME/Programs/AltServer "$instdir/bin"
-sudo ln -sf $HOME/Programs/checkra1n "$instdir/bin"
-sudo ln -sf $HOME/Programs/futurerestore "$instdir/bin"
-sudo ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
-sudo ln -sf $HOME/Programs/netmuxd "$instdir/bin"
+ln -sf $HOME/Programs/AltServer "$instdir/bin"
+ln -sf $HOME/Programs/checkra1n "$instdir/bin"
+ln -sf $HOME/Programs/futurerestore "$instdir/bin"
+ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
+ln -sf $HOME/Programs/netmuxd "$instdir/bin"
+ln -sf $HOME/Programs/palera1n "$instdir/bin"
+ln -sf $HOME/Programs/tsschecker "$instdir/bin"
+echo "running ldconfig"
 sudo ldconfig
 echo "Done"
