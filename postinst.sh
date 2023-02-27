@@ -109,10 +109,13 @@ brother_dcpl2540dw() {
 }
 
 brother_dcpt720dw() {
-    read -p "[Input] IP Address of printer: " ip
+    #read -p "[Input] IP Address of printer: " ip
     sudo pacman -U --noconfirm $HOME/Programs/Packages/dcpt720dwpdrv-3.5.0-1-x86_64.pkg.tar.zst
     pac install brscan4 brscan5
-    sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
+    #sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
+    if [[ ! $(cat /etc/sane.d/dll.conf | grep "brother5") ]]; then
+        echo "brother5" | sudo tee -a /etc/sane.d/dll.conf
+    fi
 }
 
 msoffice() {
@@ -154,7 +157,7 @@ postinstall() {
     pac update
     pac install "${packages[@]}"
     pac install persepolis
-    for pkg in $HOME/Programs/Packages/*; do sudo pacman -U --noconfirm --needed $pkg; done
+    for pkg in $HOME/Programs/Packages/*.tar.zst; do sudo pacman -U --noconfirm --needed $pkg; done
     sudo systemctl enable --now nohang-desktop
 }
 
@@ -197,6 +200,13 @@ postinstallcomm() {
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
     cp -R $HOME/.wine_lutris $HOME/.wine_lutris.bak
+
+    preparelutris "GE-Proton7-49" "proton"
+    preparewineprefix "$HOME/.wine_proton"
+    mkdir -p $WINEPREFIX/drive_c/users/steamuser
+    cd $WINEPREFIX/drive_c/users/steamuser
+    rm -rf 'Saved Games'
+    ln -sf $HOME/AppData 'Saved Games'
 
     echo "[global]
     allow insecure wide links = yes

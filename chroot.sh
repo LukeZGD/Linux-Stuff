@@ -58,6 +58,7 @@ gutenprint
 hplip
 
 plasma
+plasma-meta
 ark
 dolphin
 k3b
