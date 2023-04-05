@@ -201,7 +201,7 @@ postinstallcomm() {
     WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
     cp -R $HOME/.wine_lutris $HOME/.wine_lutris.bak
 
-    preparelutris "GE-Proton7-49" "proton"
+    preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"
     mkdir -p $WINEPREFIX/drive_c/users/steamuser
     cd $WINEPREFIX/drive_c/users/steamuser
@@ -246,6 +246,8 @@ postinstallcomm() {
     acl allow execute always = True" | sudo tee /etc/samba/smb.conf
     sudo smbpasswd -a $USER
     #sudo systemctl enable --now nmb smb
+
+    rm -rf $HOME/.local/share/applications/wine*
 }
 
 adduser() {
