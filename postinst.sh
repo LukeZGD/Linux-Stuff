@@ -199,7 +199,9 @@ postinstallcomm() {
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
     WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
-    cp -R $HOME/.wine_lutris $HOME/.wine_lutris.bak
+
+    preparewineprefix "$HOME/.wine_lutris-2"
+    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
 
     preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"
