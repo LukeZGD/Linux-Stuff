@@ -144,7 +144,7 @@ retext
 samba
 sshfs
 tealdeer
-transmission-qt
+transmission-gtk
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
