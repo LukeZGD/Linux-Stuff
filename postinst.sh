@@ -369,7 +369,7 @@ RSYNC() {
 }
 
 BackupRestore() {
-    HDDName="LukeHDDWD"
+    HDDName="LukeHDDWDB"
 
     select opt in "Backup" "Restore"; do
     case $opt in
