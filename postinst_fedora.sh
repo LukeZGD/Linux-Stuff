@@ -10,6 +10,7 @@ audacious-plugins-freeworld
 audacity
 cpu-x
 dialog
+'dnf-command(versionlock)'
 f3
 ffmpeg
 ffmpegthumbs
@@ -81,7 +82,7 @@ installstuff() {
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) emulatorsinstall; break;;
             "samba" ) sambainstall; break;;
-            "FL Studio" ) $HOME/.local/bin/flstudio install; break;;
+            "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
             "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
             "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
             "VBox Extension Pack" ) vboxextension; break;;
@@ -169,10 +170,11 @@ postinstall() {
     sudo dnf install -y "${packages[@]}"
     sudo dnf group install -y kde-desktop-environment
     sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
-    sudo dnf install -y $HOME/Programs/Packages/*.rpm
+    sudo dnf reinstall -y $HOME/Programs/Packages/*.rpm
     sudo dnf autoremove -y
-    LINE='exclude=qview'
-    sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
+    #LINE='exclude=qview, xorg-x11-server-Xwayland'
+    #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
+    sudo dnf versionlock add qview xorg-x11-server-Xwayland
 
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

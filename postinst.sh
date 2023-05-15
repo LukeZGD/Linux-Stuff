@@ -50,14 +50,14 @@ installstuff() {
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
-        "osu!" ) $HOME/Documents/GitHub/osu-winello/osu-winello.sh; break;;
+        "osu!" ) $HOME/Documents/GitHub/osu-winello/osu-winello.sh --no-deps; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "Plymouth" ) Plymouth; break;;
         "VMware" ) vmware; break;;
         "OpenTabletDriver" ) opentabletdriver; break;;
         "MS office" ) msoffice; break;;
-        "FL Studio" ) $HOME/.local/bin/flstudio install; break;;
+        "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
         "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
         "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "JP Input" ) jpmozc; break;;

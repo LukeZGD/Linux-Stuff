@@ -1,14 +1,15 @@
 #!/bin/bash
 export vblank_mode=0
-export WINEPREFIX="$HOME/.wine_osu"
-#export WINEARCH="win32"
-export WINEFSYNC=1
-export DISPLAY=''
 osupath="$HOME/osu"
 winepath="$osupath/wine-wayland-staging-8.0-rc4"
+: '
+export WINEPREFIX="$HOME/.wine_osu"
+export WINEFSYNC=1
+export DISPLAY=''
 export PATH="$winepath/bin:$PATH"
 export LD_LIBRARY_PATH="${winepath}/lib/wine/x86_64-unix:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${winepath}/lib32/wine/i386-unix:${LD_LIBRARY_PATH}"
+'
 . /etc/os-release
 
 osugame() {
@@ -16,8 +17,8 @@ osugame() {
         env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
-    #osu-wine
-    #return
+    osu-wine
+    return
     #winetricks -q dotnet40
     pushd "$osupath"
     wine "osu!.exe" "$@"
@@ -69,21 +70,22 @@ update() {
 }
 
 osuinstall() {
-    #echo "Install osu with osu-winello instead"
-    #return
+    echo "Install osu with osu-winello instead"
+    $HOME/Documents/GitHub/osu-winello/osu-winello.sh --no-deps
+    return
     ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then
-        read -p "osu wineprefix detected! Delete and reinstall? (y/N) " Confirm
-        if [[ $Confirm == y || $Confirm == Y ]]; then
+        read -p "osu wineprefix detected! Delete and reinstall? (y/N) " opt
+        if [[ $opt == y || $opt == Y ]]; then
             rm -rf $WINEPREFIX
         fi
-        Confirm=
+        opt=
     fi
     winetricks -q dotnet40 gdiplus
     wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    read -p "Preparations complete. Download and install osu! now? (y/N) " Confirm
-    if [[ $Confirm == y || $Confirm == Y ]]; then
+    read -p "Preparations complete. Download and install osu! now? (y/N) " opt
+    if [[ $opt == y || $opt == Y ]]; then
         curl -L 'https://m1.ppy.sh/r/osu!install.exe' -o osuinstall.exe
         wine "osuinstall.exe"
     fi
