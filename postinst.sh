@@ -1,4 +1,5 @@
 #!/bin/bash
+trap "exit 1" INT TERM EXIT
 BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
@@ -161,21 +162,6 @@ postinstall() {
     sudo systemctl enable --now nohang-desktop
 }
 
-preparewineprefix() {
-    [[ -n $1 ]] && export WINEPREFIX=$1 || export WINEPREFIX=$HOME/.wine
-    [[ -n $2 ]] && export WINEARCH=$2 || export WINEARCH=win64
-    wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
-    wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
-    cd $WINEPREFIX/drive_c
-    rm -rf ProgramData
-    ln -sf $HOME/AppData ProgramData
-    cd $WINEPREFIX/drive_c/users/$USER
-    rm -rf AppData 'Application Data' 'Saved Games'
-    ln -sf $HOME/AppData
-    ln -sf $HOME/AppData 'Application Data'
-    ln -sf $HOME/AppData 'Saved Games'
-}
-
 postinstallcomm() {
     balooctl disable
     setxkbmap -layout us
@@ -229,7 +215,7 @@ postinstallcomm() {
     create mode = 0700
     write list = root @adm @wheel $USER
 
-    [print$]
+    [print\$]
     comment = Printer Drivers
     path = /var/lib/samba/printers
     browseable = yes
@@ -242,6 +228,7 @@ postinstallcomm() {
     valid users = $USER
     public = no
     writable = yes
+    force user = $USER
     printable = no
     follow symlinks = yes
     wide links = yes
@@ -330,6 +317,7 @@ excludelist=(
 ".local/share/NuGet"
 ".local/share/Steam"
 ".local/share/Trash"
+".next"
 ".npm"
 ".nuget"
 ".nv"
@@ -346,6 +334,7 @@ excludelist=(
 ".xsession-errors"
 ".zoom"
 "Android"
+"node_modules"
 "Programs/Games"
 "osu"
 "VMs"

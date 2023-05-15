@@ -1,12 +1,10 @@
 #!/bin/bash
 trap 'wineserver -k' INT TERM EXIT
 
-export WINEPREFIX="$HOME/.wine_lutris"
-export WINEESYNC=1
 export WINEFSYNC=1
-PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
 BASEDIR="/mnt/Data/Games/Genshin Impact"
-AAGLDIR="$HOME/.local/share/anime-game-launcher/game/drive_c/Program Files"
+export WINEPREFIX="$BASEDIR/prefix"
+PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
 GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
@@ -14,14 +12,6 @@ defaultres="1920x1080"
 
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver"
-
-for i in "$@"; do
-    if [[ $1 == "aagl" ]]; then
-        aagl=1
-    elif [[ $1 == "script" ]]; then
-        script=1
-    fi
-done
 
 GetVersions() {
     # from update_gi script
@@ -117,21 +107,6 @@ Dawn() {
     fi
 }
 
-highgpu() {
-    status="$(cat /sys/class/drm/card0/device/power_dpm_force_performance_level)"
-    echo "status: $status"
-    if [[ $status == "auto" ]]; then
-        echo "setting high perf gpu to: on"
-        echo manual | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level
-        echo 1 | sudo tee /sys/class/drm/card0/device/pp_power_profile_mode
-    elif [[ $status == "manual" ]]; then
-        echo "setting high perf gpu to: auto"
-        echo auto | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level
-        echo 3 | sudo tee /sys/class/drm/card0/device/pp_power_profile_mode
-    fi
-    read -s
-}
-
 updatelauncher() {
     mkdir $BASEDIR/tmp
     curl -LO https://sg-public-api.hoyoverse.com/event/download_porter/link/ys_global/genshinimpactpc/default
@@ -156,7 +131,7 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "High Perf GPU Toggle" "Open Base Directory" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "Open Base Directory" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
@@ -167,7 +142,6 @@ Main() {
             "(Re-)Install Game" ) Install; break;;
             "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
             "Kill Wineserver" ) wineserver -k; break;;
-            "High Perf GPU Toggle" ) highgpu; break;;
             "Open Launcher for Updating" ) Patch uninstall; wine "$BASEDIR/launcher.exe"; break;;
             "Open Base Directory" ) dolphin "$BASEDIR"; break;;
             "Update Launcher" ) updatelauncher; break;;
@@ -177,10 +151,4 @@ Main() {
     done
 }
 
-if [[ $aagl == 1 ]]; then
-    mkdir -p "$AAGLDIR" 2>/dev/null
-    ln -sf "$BASEDIR" "$AAGLDIR"
-    an-anime-game-launcher-bin
-else
-    Main
-fi
+Main

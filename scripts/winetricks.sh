@@ -26,14 +26,14 @@ chmod +x winetricks
 
 # Move the winetricks script to a location which will be in the standard user PATH. See:
 #   https://www.tldp.org/LDP/abs/html/internalvariables.html
-sudo mv winetricks /usr/bin
+mv winetricks /usr/local/bin
 
 # Download the latest winetricks BASH completion script (master="latest version") from Github.
 wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks.bash-completion
 
 # Move the winetricks BASH completion script to a standard location for BASH completion modules. See:
 #   https://www.tldp.org/LDP/abs/html/tabexpansion.html
-sudo mv winetricks.bash-completion /usr/share/bash-completion/completions/winetricks
+mv winetricks.bash-completion /usr/local/share/bash-completion/completions/winetricks
 _EOF_SCRIPT
 ###### create update_winetricks FINISH ########
 
@@ -42,4 +42,4 @@ _EOF_SCRIPT
 chmod +x update_winetricks
 
 # We must escalate privileges to root, as regular Linux users do not have write access to '/usr/bin'.
-sudo mv update_winetricks /usr/local/bin
+mv update_winetricks /usr/local/bin
