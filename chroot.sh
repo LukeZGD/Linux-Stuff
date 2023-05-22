@@ -127,7 +127,6 @@ linssid
 love
 mame-tools
 maxcso
-npm
 okular
 openssh
 noto-fonts-cjk

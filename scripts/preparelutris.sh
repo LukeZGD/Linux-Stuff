@@ -1,6 +1,6 @@
 #!/bin/bash
-lutrisver="GE-Proton7-43"
-protonver="GE-Proton7-55"
+lutrisver="GE-Proton8-7"
+protonver="GE-Proton8-3"
 lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
 
@@ -31,6 +31,9 @@ preparelutris() {
         lutrispath+="2"
     elif [[ $lutrisver == "GE"* ]]; then
         lutrislink="https://github.com/GloriousEggroll/wine-ge-custom/releases/download/$lutrisver/wine-$lutris"
+        if [[ $lutrissha1 == "proton" ]]; then
+            lutrispath+="2"
+        fi
     else
         lutrislink="https://github.com/lutris/wine/releases/download/lutris-wine-$lutrisver/wine-$lutris"
     fi
@@ -53,9 +56,8 @@ preparelutris() {
             [[ ! -e $lutris.tar.gz.aria2 ]] && rm -f $lutris.tar.gz
             exit 1
         fi
-        lutrispath+="2"
         if [[ ! -d $lutrispath/$lutrisver ]]; then
-            tar -xzvf $lutrisver.tar -C $lutrispath
+            tar -xzvf $lutrisver.tar.gz -C $lutrispath
         fi
         return
     fi

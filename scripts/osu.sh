@@ -17,8 +17,8 @@ osugame() {
         env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
-    #osu-wine
-    #return
+    osu-wine
+    return
     pushd "$osupath"
     wine "osu!.exe" "$@"
     popd
@@ -69,11 +69,9 @@ update() {
 }
 
 osuinstall() {
-    : '
     echo "Install osu with osu-winello instead"
     $HOME/Documents/GitHub/osu-winello/osu-winello.sh --no-deps
     return
-    '
     ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then

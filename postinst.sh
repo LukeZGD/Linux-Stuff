@@ -155,9 +155,10 @@ postinstall() {
     ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
 
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
+    chaoticaur
     pac update
     pac install "${packages[@]}"
-    pac install persepolis
+    pac install npm persepolis
     for pkg in $HOME/Programs/Packages/*.tar.zst; do sudo pacman -U --noconfirm --needed $pkg; done
     sudo systemctl enable --now nohang-desktop
 }
@@ -180,15 +181,15 @@ postinstallcomm() {
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
+    winetricks -q corefonts dxvk gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
 
     preparewineprefix "$HOME/.wine_lutris-2"
-    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
 
     preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"
@@ -196,6 +197,8 @@ postinstallcomm() {
     cd $WINEPREFIX/drive_c/users/steamuser
     rm -rf 'Saved Games'
     ln -sf $HOME/AppData 'Saved Games'
+
+    rm -rf $HOME/.local/share/applications/wine*
 
     echo "[global]
     allow insecure wide links = yes
@@ -236,8 +239,6 @@ postinstallcomm() {
     acl allow execute always = True" | sudo tee /etc/samba/smb.conf
     sudo smbpasswd -a $USER
     #sudo systemctl enable --now nmb smb
-
-    rm -rf $HOME/.local/share/applications/wine*
 }
 
 adduser() {

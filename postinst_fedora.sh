@@ -143,15 +143,15 @@ wineprefixes() {
 
     winetricks --self-update
     preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts dxvk1103 gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
+    winetricks -q corefonts dxvk gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
 
     preparewineprefix "$HOME/.wine_lutris-2"
-    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk1103 quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
 
     preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"
