@@ -18,12 +18,9 @@ mystiq
 ndstrim
 nohang-git
 ocs-url
-protontricks
 qdirstat
 qsynth
 rustdesk-bin
-shellcheck-bin
-ventoy-bin
 vhba-module-dkms
 wine-staging
 yt-dlp
@@ -50,7 +47,7 @@ installstuff() {
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
-        "osu!" ) $HOME/Documents/GitHub/osu-winello/osu-winello.sh --no-deps; break;;
+        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "Plymouth" ) Plymouth; break;;
@@ -99,7 +96,9 @@ waydroid() {
 
 jpmozc() {
     pac install fcitx5-im fcitx5-mozc kcm-fcitx5
-    printf "\nGTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment
+    if [[ $(cat /etc/environment | grep -c 'GTK_IM_MODULE=fcitx' == 0) ]]; then
+        printf "\nGTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment
+    fi
     cp /etc/xdg/autostart/org.fcitx.Fcitx5.desktop $HOME/.config/autostart
 }
 
@@ -151,8 +150,9 @@ installpac() {
 postinstall() {
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/paru
-    sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
-    sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
+    sudo chown -R $USER: /usr/local
+    ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
+    ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
 
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     pac update
@@ -172,8 +172,9 @@ postinstallcomm() {
     ln -sf /mnt/Data/$USER/cache/winetricks
     cd $BASEDIR
 
-    sudo ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
-    sudo ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
+    sudo chown -R $USER: /usr/local
+    ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
+    ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
     pac update
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
@@ -264,7 +265,7 @@ vbox() {
     pac install docker virtualbox virtualbox-ext-oracle virtualbox-guest-iso virtualbox-host-dkms
     sudo usermod -aG docker $USER
     sudo usermod -aG vboxusers $USER
-    sudo systemctl enable --now docker
+    #sudo systemctl enable --now docker
 }
 
 nvidia() {

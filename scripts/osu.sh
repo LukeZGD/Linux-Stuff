@@ -1,10 +1,10 @@
 #!/bin/bash
 export vblank_mode=0
 osupath="$HOME/osu"
-winepath="$osupath/wine-wayland-staging-8.0-rc4"
+export WINEPREFIX="$osupath/prefix"
 : '
-export WINEPREFIX="$HOME/.wine_osu"
-export WINEFSYNC=1
+winepath="$osupath/wine-wl-tkg-fsync-git-7.22.r746.g622bd916a7f"
+export WINEESYNC=1
 export DISPLAY=''
 export PATH="$winepath/bin:$PATH"
 export LD_LIBRARY_PATH="${winepath}/lib/wine/x86_64-unix:${LD_LIBRARY_PATH}"
@@ -17,9 +17,8 @@ osugame() {
         env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
         return
     fi
-    osu-wine
-    return
-    #winetricks -q dotnet40
+    #osu-wine
+    #return
     pushd "$osupath"
     wine "osu!.exe" "$@"
     popd
@@ -70,9 +69,11 @@ update() {
 }
 
 osuinstall() {
+    : '
     echo "Install osu with osu-winello instead"
     $HOME/Documents/GitHub/osu-winello/osu-winello.sh --no-deps
     return
+    '
     ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then

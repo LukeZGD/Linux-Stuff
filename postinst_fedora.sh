@@ -32,8 +32,10 @@ nodejs-npm
 obs-studio
 okteta
 persepolis
+piper
 python3-pip
 python3-wxpython4
+radeontop
 qdirstat
 simple-scan
 tealdeer
@@ -120,6 +122,8 @@ sambainstall() {
     sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bak
     sudo cp /etc/samba/smb.conf.example /etc/samba/smb.conf
     sudo setsebool -P samba_enable_home_dirs=on use_samba_home_dirs=on samba_export_all_rw=on
+    sudo sed -i 's|writable = yes|writable = yes\n\tfollow symlinks = yes\n\twide links = yes\n\tacl allow execute always = True|g' /etc/samba/smb.conf
+    sudo sed -i 's|workgroup = MYGROUP|workgroup = MYGROUP\n\tallow insecure wide links = yes|g' /etc/samba/smb.conf
     sudo smbpasswd -a $USER
 }
 
@@ -183,13 +187,13 @@ postinstall() {
     export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
     grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
 
+    echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
     sudo systemctl disable firewalld sddm
     sudo systemctl enable gdm
     sudo usermod -aG vboxusers $USER
     sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Arch-Stuff/postinst_fedora.sh /usr/local/bin/postinst
-    ln -sf $HOME/Programs/ventoy/Ventoy2Disk.sh /usr/local/bin/ventoy
     printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
     chmod +x /usr/local/bin/youtube-dl
     sudo rm -rf /media

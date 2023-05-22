@@ -83,11 +83,9 @@ taglib
 breeze-gtk
 ccache
 gnome-disk-utility
-gparted
 kdialog
 nano-syntax-highlighting
 neofetch
-plasma-browser-integration
 print-manager
 simple-scan
 system-config-printer
@@ -112,18 +110,14 @@ krdc
 libvncserver
 
 aria2
-bat
 cdrdao
 cdrtools
-chromium
 corectrl
 dosbox
 dvd+rw-tools
 firefox
 fwupd
-geoip
 gnome-calculator
-gnome-keyring
 htop
 jq
 jre-openjdk
@@ -133,6 +127,7 @@ linssid
 love
 mame-tools
 maxcso
+npm
 okular
 openssh
 noto-fonts-cjk
@@ -140,7 +135,6 @@ noto-fonts-emoji
 piper
 python-pip
 radeontop
-retext
 samba
 sshfs
 tealdeer
@@ -319,5 +313,7 @@ sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/b
 
 echo '[device]
 wifi.backend=iwd' > /etc/NetworkManager/conf.d/wifi_backend.conf
+
+echo 'KWIN_DRM_NO_AMS=1' > /etc/environment
 
 echo "[Log] chroot script done"
