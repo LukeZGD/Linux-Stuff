@@ -136,7 +136,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install dolphin-emu fceux melonds-bin mgba-qt ppsspp rpcs3-udev snes9x-gtk
+    pac install dolphin-emu duckstation-qt-bin fceux melonds-bin mgba-qt pcsx2-bin ppsspp rpcs3-bin rpcs3-udev ryujinx-bin snes9x-gtk
 }
 
 installpac() {
