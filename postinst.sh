@@ -83,11 +83,13 @@ kvm() {
 }
 
 waydroid() {
-    pac install lzip waydroid-image-gapps weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq xorg-xwayland
+    pac install lzip waydroid-image-gapps weston waydroid python-gbinder python-tqdm libgbinder lxc cython nftables dnsmasq sqlite
     sudo waydroid init -s GAPPS -f
     # https://github.com/casualsnek/waydroid_script
     cd $HOME/Documents/GitHub/waydroid_script
-    sudo python3 waydroid_extras.py -l
+    git pull
+    sudo python3 -m pip install -r requirements.txt
+    sudo python3 main.py -n
     echo "start waydroid:
     weston (if on x-session)
     sudo systemctl start waydroid-container
@@ -131,8 +133,11 @@ chaoticaur() {
     sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
     sudo pacman-key --lsign-key FBA220DFC880C036
     sudo pacman -U --noconfirm --needed 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-    printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
-    echo "pac install lib32-libffmpeg"
+    if [[ $(cat /etc/pacman.conf | grep -c chaotic) == 0 ]]; then
+        printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
+    fi
+    pac update
+    pac install lib32-libffmpeg
 }
 
 emulators() {
@@ -156,7 +161,6 @@ postinstall() {
 
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     chaoticaur
-    pac update
     pac install "${packages[@]}"
     pac install npm persepolis
     for pkg in $HOME/Programs/Packages/*.tar.zst; do sudo pacman -U --noconfirm --needed $pkg; done
@@ -177,7 +181,7 @@ postinstallcomm() {
     ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
     ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
-    pac update
+    chaoticaur
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"

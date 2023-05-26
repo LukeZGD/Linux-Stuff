@@ -1,6 +1,6 @@
 #!/bin/bash
 
-card='$card'
+card='/sys/class/drm/card0'
 if [[ ! -e $card ]]; then
     card='/sys/class/drm/card1'
 fi
