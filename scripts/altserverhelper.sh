@@ -2,8 +2,8 @@
 trap 'kill $netmuxdPID 2>/dev/null' EXIT
 trap 'kill $netmuxdPID 2>/dev/null; exit 1' INT TERM
 
-AltServer="$HOME/Programs/AltServer"
 export ALTSERVER_ANISETTE_SERVER=http://127.0.0.1:6969
+AltServer="env ALTSERVER_ANISETTE_SERVER=$ALTSERVER_ANISETTE_SERVER $HOME/Programs/AltServer"
 
 for i in "$@"; do
     if [[ $i == "netmuxd" ]]; then
@@ -48,8 +48,10 @@ server() {
 
 install() {
     prepare
-    echo "installing: $4"
-    $AltServer -u $(ideviceinfo -k UniqueDeviceID) -a "$2" -p "$3" "$4"
+    echo "Installing: $3"
+    echo "Apple ID: $2"
+    read -s -p "Password: " password
+    $AltServer -u $(ideviceinfo -k UniqueDeviceID) -a "$2" -p "$password" "$3"
 }
 
 if [[ ! $* ]]; then

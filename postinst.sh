@@ -137,7 +137,8 @@ chaoticaur() {
         printf "[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n" | sudo tee -a /etc/pacman.conf
     fi
     pac update
-    pac install lib32-libffmpeg
+    pac install lib32-libffmpeg lib32-libmpeg2
+    #pac install lib32-gst-libav
 }
 
 emulators() {
@@ -185,15 +186,15 @@ postinstallcomm() {
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
     sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts dxvk gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
+    winetricks -q corefonts gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts quartz vkd3d win10 wmp9
 
     preparewineprefix "$HOME/.wine_lutris-2"
-    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts dxvk quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts quartz vkd3d win10 wmp9
 
     preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"

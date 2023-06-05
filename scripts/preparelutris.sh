@@ -5,18 +5,21 @@ lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
 
 preparewineprefix() {
-    [[ -n $1 ]] && export WINEPREFIX=$1 || export WINEPREFIX=$HOME/.wine
-    [[ -n $2 ]] && export WINEARCH=$2 || export WINEARCH=win64
+    [[ -n $1 ]] && export WINEPREFIX="$1" || export WINEPREFIX=$HOME/.wine
+    [[ -n $2 ]] && export WINEARCH="$2" || export WINEARCH=win64
     wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /t REG_SZ /v dsdmo /f
-    cd $WINEPREFIX/drive_c
+    cd "$WINEPREFIX/drive_c"
     rm -rf ProgramData
     ln -sf $HOME/AppData ProgramData
-    cd $WINEPREFIX/drive_c/users/$USER
+    cd "$WINEPREFIX/drive_c/users/$USER"
     rm -rf AppData 'Application Data' 'Saved Games'
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
     ln -sf $HOME/AppData 'Saved Games'
+    pushd $HOME/Documents/dxvk-gplasync-2.2-1/x64
+    ./setup_symlink_dxvk.sh
+    popd
 }
 
 preparelutris() {
