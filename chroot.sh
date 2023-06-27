@@ -137,7 +137,7 @@ radeontop
 samba
 sshfs
 tealdeer
-transmission-gtk
+transmission-qt
 v4l2loopback-dkms
 xdelta3
 xdg-desktop-portal
