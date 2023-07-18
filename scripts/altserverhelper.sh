@@ -51,6 +51,7 @@ install() {
     echo "Installing: $3"
     echo "Apple ID: $2"
     read -s -p "Password: " password
+    cd $HOME
     $AltServer -u $(ideviceinfo -k UniqueDeviceID) -a "$2" -p "$password" "$3"
 }
 

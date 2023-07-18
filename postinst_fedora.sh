@@ -78,7 +78,7 @@ MainMenu() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack"; do
+    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager"; do
         case $opt in
             "wine prefixes" ) wineprefixes; break;;
             "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
@@ -91,6 +91,15 @@ installstuff() {
             * ) exit;;
         esac
     done
+}
+
+kvm() {
+    sudo dnf install -y bridge-utils libvirt virt-install qemu-kvm libvirt-devel virt-top libguestfs-tools guestfs-tools virt-manager
+    sudo usermod -aG kvm,libvirt $USER
+    #echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
+    echo 'add "iommu=pt" and "amd_iommu=on" or "intel_iommu=on" to GRUB_CMDLINE_LINUX in /etc/default/grub'
+    echo 'optionally add: "pcie_acs_override=downstream,multifunction"'
+    echo "then run: sudo bash -c 'grub2-mkconfig -o \"\$(readlink -e /etc/grub2.cfg)\"'"
 }
 
 vboxextension() {

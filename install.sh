@@ -45,7 +45,7 @@ while [[ $repeat != 'y' && $repeat != 'Y' ]]; do
     echo "[Log] Will now enter gdisk with device $disk"
     echo "Commands:
     # Erase: o, y
-    # Create boot: n, defaults, last sector +200M, type EF00
+    # Create boot: n, defaults, last sector +500M, type EF00
     # Create partition: n, defaults, type 8E00
     # Check and write: p, w"
     gdisk $disk

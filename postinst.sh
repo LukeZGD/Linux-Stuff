@@ -76,9 +76,8 @@ kvm() {
     sudo systemctl enable --now libvirtd
     sudo usermod -aG kvm,libvirt $USER
     #echo 'options kvm_amd nested=1' | sudo tee /etc/modprobe.d/kvm.conf
-    echo 'add "iommu=pt amd_iommu=on" to /boot/loader/entries/arch.conf'
-    echo 'optionally add: pcie_acs_override=downstream,multifunction'
-    echo 'for intel: iommu=pt intel_iommu=on'
+    echo 'add "iommu=pt" and "amd_iommu=on" or "intel_iommu=on" to /boot/loader/entries/arch.conf'
+    echo 'optionally add: "pcie_acs_override=downstream,multifunction"'
     echo 'for endeavouros add kernel params to /etc/kernel/cmdline'
 }
 

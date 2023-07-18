@@ -50,7 +50,7 @@ updaterepo libimobiledevice libusbmuxd
 updaterepo libimobiledevice libimobiledevice
 updaterepo lzfse lzfse
 updaterepo libimobiledevice libirecovery
-#updaterepo libimobiledevice libideviceactivation
+updaterepo libimobiledevice libideviceactivation
 updaterepo libimobiledevice ideviceinstaller
 updaterepo libimobiledevice idevicerestore
 updaterepo libimobiledevice ifuse
@@ -123,7 +123,7 @@ compile libimobiledevice-glue $is_static
 compile libusbmuxd $is_static
 compile libimobiledevice $is_static --without-cython
 compile libirecovery $is_static
-#compile libideviceactivation $is_static
+compile libideviceactivation $is_static
 compile ideviceinstaller $is_static
 compile idevicerestore
 compile ifuse $is_static
@@ -171,7 +171,7 @@ cp bspatch $instdir/bin
 ln -sf $HOME/Programs/AltServer "$instdir/bin"
 ln -sf $HOME/Programs/checkra1n "$instdir/bin"
 ln -sf $HOME/Programs/futurerestore "$instdir/bin"
-ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
+#ln -sf $HOME/Programs/ideviceactivation "$instdir/bin"
 ln -sf $HOME/Programs/netmuxd "$instdir/bin"
 ln -sf $HOME/Programs/palera1n "$instdir/bin"
 ln -sf $HOME/Programs/tsschecker "$instdir/bin"
