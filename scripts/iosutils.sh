@@ -48,6 +48,7 @@ updaterepo libimobiledevice libplist
 updaterepo libimobiledevice libimobiledevice-glue
 updaterepo libimobiledevice libusbmuxd
 updaterepo libimobiledevice libimobiledevice
+updaterepo libimobiledevice usbmuxd
 updaterepo lzfse lzfse
 updaterepo libimobiledevice libirecovery
 updaterepo libimobiledevice libideviceactivation
@@ -70,9 +71,9 @@ sudo chown -R $USER: $instdir
 if [[ $1 == static ]]; then
     updaterepo madler zlib
     cd $compdir/
-    aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-    aria2c https://tukaani.org/xz/xz-5.2.4.tar.gz
-    aria2c https://libzip.org/download/libzip-1.5.1.tar.gz
+    wget -nc https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
+    wget -nc https://tukaani.org/xz/xz-5.2.4.tar.gz
+    wget -nc https://libzip.org/download/libzip-1.5.1.tar.gz
 
     cd $compdir/lzfse
     make LDFLAGS="$BEGIN_LDFLAGS"
@@ -82,7 +83,7 @@ if [[ $1 == static ]]; then
     cd $compdir/
     tar -zxvf bzip2-1.0.8.tar.gz
     cd $compdir/bzip2-1.0.8
-    make LDFLAGS="$BEGIN_LDFLAGS" INSTALL_PREFIX="$instdir"
+    make LDFLAGS="--static -Wl,--allow-multiple-definition" INSTALL_PREFIX="$instdir"
     make install
     make clean
 
@@ -122,6 +123,7 @@ compile libplist $is_static --without-cython
 compile libimobiledevice-glue $is_static
 compile libusbmuxd $is_static
 compile libimobiledevice $is_static --without-cython
+compile usbmuxd $is_static
 compile libirecovery $is_static
 compile libideviceactivation $is_static
 compile ideviceinstaller $is_static

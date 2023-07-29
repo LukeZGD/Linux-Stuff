@@ -21,6 +21,7 @@ ocs-url
 qdirstat
 qsynth
 rustdesk-bin
+ryzenadj-git
 vhba-module-dkms
 wine-staging
 yt-dlp
