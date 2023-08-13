@@ -6,6 +6,7 @@ BASEDIR="$(dirname $(type -p $0))"
 packages=(
 authy
 cpu-x
+downgrade
 earlyoom
 f3
 gallery-dl
@@ -142,7 +143,7 @@ chaoticaur() {
 }
 
 emulators() {
-    pac install dolphin-emu duckstation-qt-bin fceux melonds-bin mgba-qt pcsx2-latest-bin ppsspp rpcs3-bin rpcs3-udev ryujinx-bin snes9x-gtk
+    pac install dolphin-emu duckstation-qt-bin fceux melonds-bin mgba-qt pcsx2-latest-bin ppsspp rmg rpcs3-bin rpcs3-udev ryujinx-bin snes9x-gtk
 }
 
 installpac() {

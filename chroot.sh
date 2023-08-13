@@ -22,6 +22,7 @@ pavucontrol-qt
 pipewire
 pipewire-alsa
 pipewire-pulse
+wireplumber
 
 libva-mesa-driver
 vulkan-icd-loader
@@ -109,6 +110,12 @@ freerdp
 krdc
 libvncserver
 
+calf
+easyeffects
+lsp-plugins
+mda.lvm2
+zam-plugins-v2
+
 aria2
 cdrdao
 cdrtools
@@ -122,6 +129,7 @@ htop
 jq
 jre-openjdk
 jsoncpp
+kamoso
 libreoffice-fresh
 linssid
 love
