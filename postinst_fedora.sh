@@ -88,6 +88,7 @@ installstuff() {
             "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
             "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
             "VBox Extension Pack" ) vboxextension; break;;
+            "KVM w/ virt-manager" ) kvm; break;;
             * ) exit;;
         esac
     done
