@@ -70,12 +70,12 @@ Updater() {
 
 Game() {
     qdbus org.kde.KWin /Compositor suspend
-    Patch install
+    #Patch install
     [[ $? != 0 ]] && return
     cd "$GAMEDIR"
     res=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | tail -n1)
     [[ -z $res ]] && res="$defaultres"
-    wine explorer /desktop=anyname,$res cmd /c launcher.bat
+    wine explorer /desktop=anyname,$res GenshinImpact.exe
     qdbus org.kde.KWin /Compositor resume
     running=0
 }

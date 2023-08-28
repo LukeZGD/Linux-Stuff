@@ -28,7 +28,7 @@ prepare() {
     while [[ $ready != 1 ]]; do
         echo "waiting for anisette"
         [[ $(curl 127.0.0.1:6969) ]] && ready=1
-        sleep 2
+        sleep 1
     done
     [[ -z $netmuxd ]] && return
     echo "running netmuxd"
