@@ -4,6 +4,7 @@ BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 packages=(
+amd-disable-c6-git
 authy
 cpu-x
 downgrade
@@ -19,6 +20,7 @@ mystiq
 ndstrim
 nohang-git
 ocs-url
+puddletag
 qdirstat
 qsynth
 rustdesk-bin
@@ -166,7 +168,7 @@ postinstall() {
     pac install "${packages[@]}"
     pac install npm persepolis
     for pkg in $HOME/Programs/Packages/*.tar.zst; do sudo pacman -U --noconfirm --needed $pkg; done
-    sudo systemctl enable --now nohang-desktop
+    sudo systemctl enable --now nohang-desktop amd-disable-c6
 }
 
 postinstallcomm() {

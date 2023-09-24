@@ -166,7 +166,7 @@ systemdinstall() {
     linux /vmlinuz-$kernel
     initrd /amd-ucode.img
     initrd /initramfs-$kernel.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 splash nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 nowatchdog rd.udev.log_priority=3 amd_pstate=active" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
