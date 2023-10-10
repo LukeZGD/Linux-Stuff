@@ -4,7 +4,6 @@ BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
 
 packages=(
-amd-disable-c6-git
 authy
 cpu-x
 downgrade
@@ -24,7 +23,6 @@ puddletag
 qdirstat
 qsynth
 rustdesk-bin
-ryzenadj-git
 vhba-module-dkms
 wine-staging
 yt-dlp
@@ -168,7 +166,7 @@ postinstall() {
     pac install "${packages[@]}"
     pac install npm persepolis
     for pkg in $HOME/Programs/Packages/*.tar.zst; do sudo pacman -U --noconfirm --needed $pkg; done
-    sudo systemctl enable --now nohang-desktop amd-disable-c6
+    sudo systemctl enable --now nohang-desktop
 }
 
 postinstallcomm() {
@@ -186,8 +184,8 @@ postinstallcomm() {
     ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
     
     chaoticaur
-    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-radeon lutris wine-staging winetricks
-    sudo winetricks --self-update
+    pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks
+    #sudo winetricks --self-update
     preparewineprefix "$HOME/.wine"
     winetricks -q corefonts gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
@@ -314,6 +312,7 @@ excludelist=(
 ".config/GitHub Desktop/Cache"
 ".config/google-chrome/Default/File System"
 ".config/google-chrome/Default/Service Worker/CacheStorage"
+".darling"
 ".Genymobile/Genymotion/deployed"
 ".gitconfig"
 ".gradle"
@@ -336,6 +335,7 @@ excludelist=(
 ".pam_environment"
 ".pipewire-media-session"
 ".profile"
+".pyenv"
 ".rustup"
 ".steam"
 ".sudo_as_admin_successful"

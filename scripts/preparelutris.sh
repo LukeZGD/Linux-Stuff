@@ -1,6 +1,6 @@
 #!/bin/bash
-lutrisver="GE-Proton8-7"
-protonver="GE-Proton8-3"
+lutrisver="GE-Proton8-17"
+protonver="GE-Proton8-16"
 lutris="lutris-$lutrisver-x86_64"
 lutrispath="$HOME/.local/share/lutris/runners/wine"
 

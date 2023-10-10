@@ -1,11 +1,11 @@
 #!/bin/bash
 
 pacmanpkgs=(
-amd-ucode
 base-devel
 dialog
 fish
 git
+intel-ucode
 kernel-modules-hook
 linux-firmware
 nano
@@ -24,8 +24,10 @@ pipewire-alsa
 pipewire-pulse
 wireplumber
 
+intel-media-driver
 libva-mesa-driver
 vulkan-icd-loader
+vulkan-intel
 vulkan-radeon
 xorg-server
 xorg-xinit
@@ -164,9 +166,9 @@ systemdinstall() {
     echo "[Log] Creating arch.conf entry"
     echo "title Arch Linux
     linux /vmlinuz-$kernel
-    initrd /amd-ucode.img
+    initrd /intel-ucode.img
     initrd /initramfs-$kernel.img
-    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 nowatchdog rd.udev.log_priority=3 amd_pstate=active" > /boot/loader/entries/arch.conf
+    options cryptdevice=UUID=$rootuuid:lvm:allow-discards root=/dev/mapper/vg0-root rw loglevel=3 nowatchdog rd.udev.log_priority=3" > /boot/loader/entries/arch.conf
     echo "timeout 0
     default arch
     editor 0" > /boot/loader/loader.conf
@@ -318,8 +320,8 @@ ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/scheduler}="bfq
 printf "kernel.panic=3\nkernel.sysrq=1\nvm.swappiness=1\n" | tee /etc/sysctl.d/99-sysctl.conf
 sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
 
-echo '[device]
-wifi.backend=iwd' > /etc/NetworkManager/conf.d/wifi_backend.conf
+#echo '[device]
+#wifi.backend=iwd' > /etc/NetworkManager/conf.d/wifi_backend.conf
 
 echo 'KWIN_DRM_NO_AMS=1' > /etc/environment
 
