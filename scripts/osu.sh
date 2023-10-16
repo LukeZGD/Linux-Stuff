@@ -97,8 +97,8 @@ if [[ $1 == "update" ]]; then
 elif [[ $1 == "lazer" ]]; then
     osugame lazer
 elif [[ $1 == "kill" ]]; then
-    #osu-wine --kill
-    wineserver -k
+    osu-wine --kill
+    #wineserver -k
 elif [[ $1 == "help" ]]; then
     echo "Usage: $0 <operation> [...]"
     echo "Operations:

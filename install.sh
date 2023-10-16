@@ -81,7 +81,8 @@ fi
 
 rootpart="/dev/mapper/$vgname-$lvname"
 echo "[Log] Formatting and mounting volumes"
-mkfs.f2fs -f $rootpart
+#mkfs.f2fs -f $rootpart
+echo 'y' | mkfs.ext4 -j $rootpart
 mount $rootpart /mnt
 mkdir /mnt/boot
 mount $bootpart /mnt/boot

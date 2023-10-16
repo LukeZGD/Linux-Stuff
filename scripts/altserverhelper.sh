@@ -23,6 +23,10 @@ help() {
 }
 
 prepare() {
+    if [[ ! $(systemctl is-active --quiet docker) ]]; then
+        echo "docker is not running. starting docker"
+        sudo systemctl start docker
+    fi
     echo "running anisette"
     docker run -d -v lib_cache:/opt/lib/ --restart=always -p 6969:6969 --name anisette dadoum/anisette-server:latest
     while [[ $ready != 1 ]]; do

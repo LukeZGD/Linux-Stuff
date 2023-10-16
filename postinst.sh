@@ -276,25 +276,29 @@ vbox() {
 }
 
 nvidia() {
-    select opt in "NVIDIA Optimus+cpufreq" "NVIDIA Latest" "NVIDIA 470" "NVIDIA 390"; do
+    select opt in "optimus" "latest" "470" "390" "disable"; do
     case $opt in
-        "NVIDIA Optimus+cpufreq" ) nvidia4=optimus; break;;
-        "NVIDIA Latest" ) nvidia4=latest; break;;
-        "NVIDIA 470" ) nvidia4=470; break;;
-        "NVIDIA 390" ) nvidia4=390; break;;
-        * ) exit;;
+        '' ) return;;
+        "disable" )
+            echo '# Remove NVIDIA USB xHCI Host Controller devices, if present
+            ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{power/control}="auto", ATTR{remove}="1"
+
+            # Remove NVIDIA USB Type-C UCSI devices, if present
+            ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{power/control}="auto", ATTR{remove}="1"
+
+            # Remove NVIDIA Audio devices, if present
+            ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto", ATTR{remove}="1"
+
+            # Remove NVIDIA VGA/3D controller devices
+            ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"' | sudo tee /etc/udev/rules.d/00-remove-nvidia.rules
+            printf 'blacklist nouveau\noptions nouveau modeset=0' | sudo tee /etc/modprobe.d/blacklist-nouveau.conf
+            return
+        ;;
+        "optimus" | "latest" ) pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia;;
+        * ) nvidia4=$opt; pac install nvidia-${nvidia4}xx-dkms lib32-nvidia-${nvidia4}xx-utils nvidia-${nvidia4}xx-settings opencl-nvidia-${nvidia4}xx lib32-opencl-nvidia-${nvidia4}xx;;&
+        "optimus" ) pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt;;
     esac
     done
-    
-    if [[ $nvidia4 == optimus || $nvidia4 == latest ]]; then
-        pac install nvidia-dkms lib32-nvidia-utils nvidia-settings opencl-nvidia lib32-opencl-nvidia
-    elif [[ -n $nvidia4 ]]; then
-        pac install nvidia-${nvidia4}xx-dkms lib32-nvidia-${nvidia4}xx-utils nvidia-${nvidia4}xx-settings opencl-nvidia-${nvidia4}xx lib32-opencl-nvidia-${nvidia4}xx
-    fi
-    
-    if [[ $nvidia4 == optimus ]]; then
-        pac install bbswitch-dkms nvidia-prime optimus-manager optimus-manager-qt
-    fi
 }
 
 excludelist=(
