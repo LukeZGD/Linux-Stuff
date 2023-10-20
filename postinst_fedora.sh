@@ -1,6 +1,7 @@
 #!/bin/bash
 trap "exit 1" INT TERM EXIT
 . $HOME/Arch-Stuff/scripts/preparelutris.sh
+. $HOME/Arch-Stuff/postinst_shared.sh
 
 packages=(
 aria2
@@ -46,51 +47,32 @@ xdelta
 yt-dlp
 )
 
-flatpkgs=(
-com.authy.Authy
-org.gtk.Gtk3theme.Breeze
-us.zoom.Zoom
-)
-
-flatemus=(
-ca._0ldsk00l.Nestopia
-com.snes9x.Snes9x
-io.mgba.mGBA
-net.kuribo64.melonDS
-net.pcsx2.PCSX2
-net.rpcs3.RPCS3
-org.DolphinEmu.dolphin-emu
-org.duckstation.DuckStation
-org.ppsspp.PPSSPP
-org.ryujinx.Ryujinx
-)
-
 MainMenu() {
     select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore"; do
-        case $opt in
-            "Install stuff" ) installstuff; break;;
-            "Run postinstall commands" ) postinstall; break;;
-            "pip install/update" ) pipinstall; break;;
-            "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
-            * ) exit;;
-        esac
+    case $opt in
+        "Install stuff" ) installstuff; break;;
+        "Run postinstall commands" ) postinst; break;;
+        "pip install/update" ) pipinst; break;;
+        "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
+        * ) exit;;
+    esac
     done
 }
 
 installstuff() {
     select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager"; do
-        case $opt in
-            "wine prefixes" ) wineprefixes; break;;
-            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
-            "Emulators" ) emulatorsinstall; break;;
-            "samba" ) sambainstall; break;;
-            "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
-            "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
-            "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
-            "VBox Extension Pack" ) vboxextension; break;;
-            "KVM w/ virt-manager" ) kvm; break;;
-            * ) exit;;
-        esac
+    case $opt in
+        "wine prefixes" ) wineprefixes; break;;
+        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "Emulators" ) emulatorsinst; break;;
+        "samba" ) sambainstall; break;;
+        "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
+        "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
+        "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
+        "VBox Extension Pack" ) vboxextension; break;;
+        "KVM w/ virt-manager" ) kvm; break;;
+        * ) exit;;
+    esac
     done
 }
 
@@ -101,17 +83,6 @@ kvm() {
     echo 'add "iommu=pt" and "amd_iommu=on" or "intel_iommu=on" to GRUB_CMDLINE_LINUX in /etc/default/grub'
     echo 'optionally add: "pcie_acs_override=downstream,multifunction"'
     echo "then run: sudo bash -c 'grub2-mkconfig -o \"\$(readlink -e /etc/grub2.cfg)\"'"
-}
-
-vboxextension() {
-    vboxversion=$(curl -L https://download.virtualbox.org/virtualbox/LATEST-STABLE.TXT)
-    vboxextpack="Oracle_VM_VirtualBox_Extension_Pack-$vboxversion.vbox-extpack"
-    wget https://www.virtualbox.org/download/hashes/$vboxversion/SHA256SUMS
-    wget https://download.virtualbox.org/virtualbox/$vboxversion/$vboxextpack
-    sha256sum -c --ignore-missing SHA256SUMS
-    [[ $? != 0 ]] && echo "Failed" && rm $vboxextpack SHA256SUMS && exit
-    sudo VBoxManage extpack install --replace $vboxextpack
-    rm $vboxextpack SHA256SUMS
 }
 
 brother_dcpl2540dw() {
@@ -137,12 +108,9 @@ sambainstall() {
     sudo smbpasswd -a $USER
 }
 
-pipinstall() {
-    python3 -m pip install -U gallery-dl yt-dlg
-}
-
-emulatorsinstall() {
-    flatpak install -y flathub "${flatemus[@]}"
+emulatorsinst() {
+    flatpakemusinst
+    flatpak install -y flathub ca._0ldsk00l.Nestopia
 }
 
 wineprefixes() {
@@ -171,7 +139,7 @@ wineprefixes() {
     ln -sf $HOME/AppData 'Saved Games'
 }
 
-postinstall() {
+postinst() {
     LINE='fastestmirror=True'
     FILE='/etc/dnf/dnf.conf'
     #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
@@ -189,13 +157,6 @@ postinstall() {
     #LINE='exclude=qview, xorg-x11-server-Xwayland'
     #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     sudo dnf versionlock add qview xorg-x11-server-Xwayland
-
-    sudo flatpak override --filesystem=xdg-config/gtk-3.0
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    flatpak install -y flathub "${flatpkgs[@]}"
-    export LINE='enableWaylandShare=true'
-    export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
-    grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
 
     echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
     sudo systemctl disable firewalld sddm
@@ -215,8 +176,16 @@ postinstall() {
 
     sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract lutris winehq-staging
-    $HOME/Arch-Stuff/scripts/winetricks.sh
-    update_winetricks
+
+    pipinst
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak override --filesystem=xdg-config/gtk-3.0
+    sudo flatpak override --filesystem=xdg-config/gtk-4.0
+    flatpak install -y flathub "${flatpkgs[@]}"
+    export LINE='enableWaylandShare=true'
+    export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
+    grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
 }
 
 # ----------------------------------
@@ -228,8 +197,8 @@ echo
 
 if [[ $1 == "update" ]]; then
     sudo dnf update -y
+    pipinst
     flatpak update -y
-    pipinstall
     exit
 fi
 

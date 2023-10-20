@@ -1,2 +1,2 @@
-# Arch-Stuff
- Linux scripts I made for personal use
+# Linux-Stuff
+ Scripts I made for personal use on Linux
