@@ -1,7 +1,7 @@
 #!/bin/bash
 trap "exit 1" INT TERM EXIT
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
-. $HOME/Arch-Stuff/postinst_shared.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/postinst_shared.sh
 . /etc/os-release
 
 packages=(
@@ -12,6 +12,7 @@ cpu-x
 curl
 default-jre
 f3
+filezilla
 fish
 flatpak
 gnome-disk-utility
@@ -21,13 +22,17 @@ gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
 hplip
 k3b
+kamoso
 kdenlive
+krdc
 libadwaita-1-0
 libgtk-4-1
+linssid
 mesa-vulkan-drivers
 mpv
 neofetch
 network-manager-openvpn
+obs-studio
 okteta
 persepolis
 piper
@@ -37,8 +42,10 @@ python3-pip
 python3-wxgtk4.0
 qdirstat
 samba
+shellcheck
 simple-scan
 system-config-printer
+tealdeer
 transmission-qt
 unrar
 xdelta3
@@ -56,7 +63,7 @@ postinst() {
     sudo apt install -y $HOME/Programs/Packages/*.deb
 
     sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Arch-Stuff/postinst_debian.sh /usr/local/bin/postinst
+    ln -sf $HOME/Linux-Stuff/postinst_debian.sh /usr/local/bin/postinst
     printf '#!/bin/sh\nyt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
     printf '#!/bin/sh\nsystemctl poweroff' > /usr/local/bin/poweroff
     printf '#!/bin/sh\nsystemctl reboot' > /usr/local/bin/reboot
@@ -66,6 +73,9 @@ postinst() {
         sudo chown $USER: /mnt/Data
     fi
     sudo usermod -aG vboxusers $USER
+    sudo cp /usr/share/samba/smb.conf /etc/samba/smb.conf
+    sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
+    sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
 
     sudo mkdir -pm755 /etc/apt/keyrings
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
@@ -82,8 +92,8 @@ postinst() {
 }
 
 emulatorsinst() {
-    flatpakemusinst
     sudo apt install -y nestopia
+    flatpakemusinst
 }
 
 kvm() {
@@ -96,7 +106,7 @@ main() {
     case $opt in
         "postinst" ) postinst; break;;
         "install stuff" ) installstuff; break;;
-        "backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
+        "backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
     esac
     done
 }
@@ -105,9 +115,9 @@ installstuff() {
     select opt in "wine prefixes" "osu!" "Emulators" "FL Studio" "VBox Extension Pack" "KVM w/ virt-manager"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
-        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulatorsinst; break;;
-        "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
+        "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         * ) exit;;
@@ -119,9 +129,8 @@ if [[ $(groups | grep -c 'sudo') == 0 ]]; then
     echo "$USER is not in sudo group. add $USER to sudo first:"
     echo "    su -"
     echo "    <enter root pass>"
-    echo "    usermod -aG sudo \$USER"
-    echo "    exit"
-    echo "then reboot and try again"
+    echo "    usermod -aG sudo $USER"
+    echo "    systemctl reboot"
     exit 1
 fi
 

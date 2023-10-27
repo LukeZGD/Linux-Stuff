@@ -59,7 +59,7 @@ update() {
 }
 
 osuinstall() {
-    ln -sf $HOME/Arch-Stuff/scripts/osu.sh /usr/local/bin/osu
+    ln -sf $HOME/Linux-Stuff/scripts/osu.sh /usr/local/bin/osu
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then
         read -p "osu wineprefix detected! Delete and reinstall? (y/N) " opt
@@ -68,7 +68,7 @@ osuinstall() {
         fi
         opt=
     fi
-    winetricks -q corefonts dotnet40
+    winetricks -q cjkfonts dotnet40
     wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     read -p "Preparations complete. Download and install osu! now? (y/N) " opt
     if [[ $opt == y || $opt == Y ]]; then

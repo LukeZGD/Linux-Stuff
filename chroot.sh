@@ -296,7 +296,7 @@ max-zram-size = 8192' > /etc/systemd/zram-generator.conf
 
 echo 'blacklist pcspkr' > /etc/modprobe.d/nobeep.conf
 echo 'ohci_hcd' > /etc/modules-load.d/ohci_hcd.conf
-echo "v4l2loopback" > /etc/modules-load.d/v4l2loopback.conf
+echo 'v4l2loopback' > /etc/modules-load.d/v4l2loopback.conf
 
 sed -i "s|#DefaultTimeoutStopSec=90s|DefaultTimeoutStopSec=15s|" /etc/systemd/system.conf
 

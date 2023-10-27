@@ -1,7 +1,7 @@
 #!/bin/bash
 trap "exit 1" INT TERM EXIT
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
-. $HOME/Arch-Stuff/postinst_shared.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/postinst_shared.sh
 
 packages=(
 aria2
@@ -53,7 +53,7 @@ MainMenu() {
         "Install stuff" ) installstuff; break;;
         "Run postinstall commands" ) postinst; break;;
         "pip install/update" ) pipinst; break;;
-        "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
+        "Backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
         * ) exit;;
     esac
     done
@@ -63,10 +63,10 @@ installstuff() {
     select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
-        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulatorsinst; break;;
         "samba" ) sambainstall; break;;
-        "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
+        "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
         "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
         "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "VBox Extension Pack" ) vboxextension; break;;
@@ -109,8 +109,7 @@ sambainstall() {
 }
 
 emulatorsinst() {
-    flatpakemusinst
-    flatpak install -y flathub ca._0ldsk00l.Nestopia
+    flatpakemusinst ca._0ldsk00l.Nestopia
 }
 
 wineprefixes() {
@@ -164,7 +163,7 @@ postinst() {
     sudo usermod -aG vboxusers $USER
     sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
     sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Arch-Stuff/postinst_fedora.sh /usr/local/bin/postinst
+    ln -sf $HOME/Linux-Stuff/postinst_fedora.sh /usr/local/bin/postinst
     printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
     chmod +x /usr/local/bin/youtube-dl
     sudo rm -rf /media

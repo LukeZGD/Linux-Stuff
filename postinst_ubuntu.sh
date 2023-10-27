@@ -91,7 +91,7 @@ MainMenu() {
             "Install stuff" ) installstuff; break;;
             "Run postinstall commands" ) postinstall; break;;
             "pip install/update" ) pip3 install -U gallery-dl tartube youtube-dl; break;;
-            "Backup and restore" ) $HOME/Arch-Stuff/postinst.sh BackupRestore; break;;
+            "Backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
             "NVIDIA" ) nvidia; break;;
             "(Re-)Add PPAs" ) AddPPAs; break;;
             * ) exit;;
@@ -104,7 +104,7 @@ installstuff() {
         case $opt in
             "VirtualBox" ) vbox; break;;
             "wine" ) wineinstall; break;;
-            "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+            "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
             "Emulators" ) sudo apt install nestopia pcsx2; sudo flatpak install flathub "${flatemus[@]}"; break;;
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
@@ -143,7 +143,7 @@ system76power() {
     sudo apt dist-upgrade -y
     sudo apt autoremove -y
     sudo apt install -y system76-power tlp
-    sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep/
+    sudo cp $HOME/Linux-Stuff/scripts/discrete /lib/systemd/system-sleep/
 }
 
 opentabletdriver() {
@@ -191,7 +191,7 @@ wineinstall() {
     sudo add-apt-repository -y "deb https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main"
     sudo apt update
     sudo apt install -y winehq-stable cabextract fuseiso libmspack0
-    $HOME/Arch-Stuff/scripts/winetricks.sh
+    $HOME/Linux-Stuff/scripts/winetricks.sh
     update_winetricks
     winetricks -q dxvk gdiplus vcrun2013 vcrun2015 vcrun2019 wmp9
     cd $HOME/.wine/drive_c/users/$USER
@@ -216,7 +216,7 @@ postinstall() {
     sudo dpkg -i $HOME/Programs/Packages/*.deb
     sudo apt install -yf
     
-    sudo ln -sf $HOME/Arch-Stuff/postinst_ubuntu.sh /usr/local/bin/postinst
+    sudo ln -sf $HOME/Linux-Stuff/postinst_ubuntu.sh /usr/local/bin/postinst
     
     LINE='0.0.0.0 get.code-industry.net'
     FILE='/etc/hosts'
@@ -247,7 +247,7 @@ HandleLidSwitchExternalPower=suspend
 HandleLidSwitchDocked=suspend
 IdleAction=suspend
 IdleActionSec=15min' | sudo tee -a /etc/systemd/logind.conf
-    sudo cp $HOME/Arch-Stuff/scripts/discrete /lib/systemd/system-sleep
+    sudo cp $HOME/Linux-Stuff/scripts/discrete /lib/systemd/system-sleep
     
     sudo sed -i "s|ExecStart=/usr/lib/bluetooth/bluetoothd|ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp|g" /etc/systemd/system/bluetooth.target.wants/bluetooth.service
     

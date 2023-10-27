@@ -1,7 +1,7 @@
 #!/bin/bash
 trap "exit 1" INT TERM EXIT
 BASEDIR="$(dirname $(type -p $0))"
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
 
 packages=(
 authy
@@ -49,14 +49,14 @@ installstuff() {
     case $opt in
         "Install AUR pkgs paru" ) postinstall; break;;
         "VirtualBox+Docker" ) vbox; break;;
-        "osu!" ) $HOME/Arch-Stuff/scripts/osu.sh install; break;;
+        "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulators; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "Plymouth" ) Plymouth; break;;
         "VMware" ) vmware; break;;
         "OpenTabletDriver" ) opentabletdriver; break;;
         "MS office" ) msoffice; break;;
-        "FL Studio" ) $HOME/Arch-Stuff/scripts/flstudio.sh install; break;;
+        "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
         "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
         "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "JP Input" ) jpmozc; break;;
@@ -158,8 +158,8 @@ postinstall() {
     cd $HOME/.cache
     ln -sf /mnt/Data/$USER/cache/paru
     sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
-    ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
+    ln -sf $HOME/Linux-Stuff/postinst.sh /usr/local/bin/postinst
+    ln -sf $HOME/Linux-Stuff/scripts/pac.sh /usr/local/bin/pac
 
     echo "keyserver keyserver.ubuntu.com" | tee $HOME/.gnupg/gpg.conf
     chaoticaur
@@ -180,8 +180,8 @@ postinstallcomm() {
     cd $BASEDIR
 
     sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Arch-Stuff/postinst.sh /usr/local/bin/postinst
-    ln -sf $HOME/Arch-Stuff/scripts/pac.sh /usr/local/bin/pac
+    ln -sf $HOME/Linux-Stuff/postinst.sh /usr/local/bin/postinst
+    ln -sf $HOME/Linux-Stuff/scripts/pac.sh /usr/local/bin/pac
     
     chaoticaur
     pac install lib32-gst-plugins-base lib32-gst-plugins-good lib32-libva-mesa-driver lib32-vulkan-icd-loader lib32-vulkan-intel lib32-vulkan-radeon lutris wine-staging winetricks

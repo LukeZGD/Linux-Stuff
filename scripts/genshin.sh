@@ -2,7 +2,7 @@
 trap 'wineserver -k' INT TERM EXIT
 
 export WINEFSYNC=1
-BASEDIR="/mnt/Data/Games/Genshin Impact"
+BASEDIR="$HOME/Programs/Games/Genshin Impact"
 export WINEPREFIX="$BASEDIR/prefix"
 export DXVK_ASYNC=1
 PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
@@ -11,7 +11,7 @@ GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
 
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver"
 if [[ ! -d "$WINEPREFIX" ]]; then
     preparewineprefix "$WINEPREFIX"

@@ -2,7 +2,7 @@
 BASEDIR="/mnt/Data/Games/Touhou"
 
 export WINEPREFIX="$HOME/.wine_lutris"
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver"
 
 if [[ -n "$1" ]]; then

@@ -1,5 +1,5 @@
 #!/bin/bash
-. $HOME/Arch-Stuff/scripts/preparelutris.sh
+. $HOME/Linux-Stuff/scripts/preparelutris.sh
 preparelutris "fshack-6.21-6" "d27a7a23d1081b8090ee5683e59a99519dd77ef0"
 export WINEPREFIX=$HOME/.wine_fl
 

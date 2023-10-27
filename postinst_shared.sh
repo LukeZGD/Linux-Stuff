@@ -2,6 +2,7 @@
 
 flatpkgs=(
 com.authy.Authy
+com.discordapp.Discord
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )
@@ -25,7 +26,7 @@ pipinst() {
 }
 
 flatpakemusinst() {
-    flatpak install -y flathub "${flatemus[@]}"
+    flatpak install -y flathub "${flatemus[@]}" "$@"
 }
 
 vboxextension() {
