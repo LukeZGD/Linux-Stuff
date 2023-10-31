@@ -23,9 +23,18 @@ help() {
 }
 
 prepare() {
+    if [[ $(groups | grep -c 'docker') != 1 ]]; then
+        echo "[error] user is not in docker group"
+        echo "add user in docker group: sudo usermod -aG docker $USER"
+        exit 1
+    fi
     if [[ ! $(systemctl is-active --quiet docker) ]]; then
         echo "docker is not running. starting docker"
         sudo systemctl start docker
+        if [[ $? != 0 ]]; then
+            echo "[error] failed to start docker"
+            exit 1
+        fi
     fi
     echo "running anisette"
     docker run -d -v lib_cache:/opt/lib/ --restart=always -p 6969:6969 --name anisette dadoum/anisette-server:latest

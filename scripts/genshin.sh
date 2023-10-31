@@ -10,6 +10,10 @@ GAMEDIR="$BASEDIR/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
+if [[ $(lspci | grep -E "VGA|3D" | grep -c NVIDIA) != 0 ]]; then
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+fi
 
 . $HOME/Linux-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver"

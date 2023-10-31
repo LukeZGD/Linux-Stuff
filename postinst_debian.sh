@@ -11,6 +11,7 @@ cabextract
 cpu-x
 curl
 default-jre
+docker.io
 f3
 filezilla
 fish
@@ -34,7 +35,6 @@ neofetch
 network-manager-openvpn
 obs-studio
 okteta
-persepolis
 piper
 power-profiles-daemon
 python-is-python3
@@ -47,6 +47,7 @@ simple-scan
 system-config-printer
 tealdeer
 transmission-qt
+uget
 unrar
 xdelta3
 )

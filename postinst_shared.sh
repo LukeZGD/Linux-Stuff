@@ -2,7 +2,6 @@
 
 flatpkgs=(
 com.authy.Authy
-com.discordapp.Discord
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )
@@ -16,7 +15,7 @@ net.rpcs3.RPCS3
 org.DolphinEmu.dolphin-emu
 org.duckstation.DuckStation
 org.ppsspp.PPSSPP
-org.ryujinx.Ryujinx
+org.yuzu_emu.yuzu
 )
 
 pipinst() {
