@@ -45,12 +45,12 @@ wineprefixes() {
     curl -L https://github.com/Winetricks/winetricks/raw/20230212/src/winetricks -o /usr/local/bin/winetricks
     chmod +x /usr/local/bin/winetricks
     preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts quartz mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp9
+    winetricks -q corefonts devenum quartz qasf mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp9 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
 
     preparelutris "$lutrisver"
     preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts quartz vkd3d win10 wmp9
+    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts devenum quartz qasf vkd3d win10 wmp9 wmp11
 
     preparelutris "$protonver" "proton"
     preparewineprefix "$HOME/.wine_proton"
