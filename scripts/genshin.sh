@@ -1,5 +1,5 @@
 #!/bin/bash
-trap 'wineserver -k' INT TERM EXIT
+trap 'wineserver -k; exit' INT TERM EXIT
 
 export WINEFSYNC=1
 BASEDIR="$HOME/Programs/Games/Genshin Impact"
@@ -19,8 +19,9 @@ fi
 preparelutris "$lutrisver"
 if [[ ! -d "$WINEPREFIX" ]]; then
     preparewineprefix "$WINEPREFIX"
-    winetricks -q corefonts quartz vkd3d win10 wmp9
+    winetricks -q corefonts win10
 fi
+#export DXVK_HUD=version,devinfo,fps
 
 GetVersions() {
     # from update_gi script
@@ -117,10 +118,12 @@ Dawn() {
 }
 
 updatelauncher() {
-    mkdir $BASEDIR/tmp
-    curl -LO https://sg-public-api.hoyoverse.com/event/download_porter/link/ys_global/genshinimpactpc/default
-    wine $BASEDIR/tmp/Genshin*.exe
-    rm -rf $BASEDIR/tmp
+    mkdir "$BASEDIR/tmp"
+    pushd "$BASEDIR/tmp"
+    aria2c https://sg-public-api.hoyoverse.com/event/download_porter/link/ys_global/genshinimpactpc/default
+    wine "$BASEDIR/tmp/Genshin"*".exe"
+    popd
+    rm -rf "$BASEDIR/tmp"
 }
 
 Main() {
@@ -131,16 +134,14 @@ Main() {
         echo "Please check your Internet connection before proceeding."
         exit 1
     fi
-    
-    Dawn
-    
+
     ln -sf "$BASEDIR" "$PROGDIR"
     cd "$GAMEDIR"
     
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Update Patch" "(Re-)Install Game" "Delete Update Files" "Kill Wineserver" "Open Base Directory" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Open Launcher" "Update Launcher" "Kill Wineserver" "Open Base Directory" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;
@@ -151,7 +152,7 @@ Main() {
             "(Re-)Install Game" ) Install; break;;
             "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
             "Kill Wineserver" ) wineserver -k; break;;
-            "Open Launcher for Updating" ) Patch uninstall; wine "$BASEDIR/launcher.exe"; break;;
+            "Open Launcher" ) wine "$BASEDIR/launcher.exe"; break;;
             "Open Base Directory" ) dolphin "$BASEDIR"; break;;
             "Update Launcher" ) updatelauncher; break;;
             * ) running=0; break;;
