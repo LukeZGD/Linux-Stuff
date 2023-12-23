@@ -5,6 +5,7 @@ trap "exit 1" INT TERM EXIT
 . /etc/os-release
 
 packages=(
+aria2
 audacious
 audacity
 cabextract
@@ -16,6 +17,7 @@ f3
 filezilla
 fish
 flatpak
+gnome-calculator
 gnome-disk-utility
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-base
@@ -53,13 +55,15 @@ xdelta3
 )
 
 postinst() {
-    sudo apt update
-    sudo apt upgrade -y
-    sudo apt install -y software-properties-common
     sudo dpkg --add-architecture i386
     sudo add-apt-repository -y contrib
     sudo add-apt-repository -y non-free
+    #if [[ $(cat /etc/apt/sources.list | grep -c 'backports main') == 0 ]]; then
+    #    echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-free" | sudo tee -a /etc/apt/sources.list
+    #fi
     sudo apt update
+    sudo apt upgrade -y
+    #sudo apt -t bookworm-backports install linux-image-amd64
     sudo apt install -y "${packages[@]}"
     sudo apt install -y $HOME/Programs/Packages/*.deb
 
@@ -77,6 +81,10 @@ postinst() {
     sudo cp /usr/share/samba/smb.conf /etc/samba/smb.conf
     sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
     sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
+    fc-cache -f -v
+    #echo '#!/bin/sh' | sudo tee /etc/rc.local
+    #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
+    #sudo chmod 700 /etc/rc.local
 
     sudo mkdir -pm755 /etc/apt/keyrings
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
@@ -86,7 +94,7 @@ postinst() {
 
     pipinst
 
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
