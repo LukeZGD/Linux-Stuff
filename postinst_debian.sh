@@ -24,6 +24,7 @@ gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
 hplip
+intel-media-va-driver-non-free
 k3b
 kamoso
 kdenlive
