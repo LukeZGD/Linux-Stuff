@@ -2,6 +2,7 @@
 
 flatpkgs=(
 com.authy.Authy
+com.github.tchx84.Flatseal
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )

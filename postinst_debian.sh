@@ -8,6 +8,7 @@ packages=(
 aria2
 audacious
 audacity
+ca-certificates
 cabextract
 cpu-x
 curl
@@ -19,6 +20,7 @@ fish
 flatpak
 gnome-calculator
 gnome-disk-utility
+gnupg
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
@@ -86,16 +88,22 @@ postinst() {
     #echo '#!/bin/sh' | sudo tee /etc/rc.local
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
     #sudo chmod 700 /etc/rc.local
+    echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
 
     sudo mkdir -pm755 /etc/apt/keyrings
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
     sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
+
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    NODE_MAJOR=20 echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
     sudo apt update
+    sudo apt install -y nodejs
     sudo apt install -y --install-recommends winehq-staging lutris winbind mesa-vulkan-drivers:i386 gstreamer1.0-plugins-bad:i386 gstreamer1.0-plugins-base:i386 gstreamer1.0-plugins-good:i386 gstreamer1.0-plugins-ugly:i386
 
     pipinst
 
-    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
