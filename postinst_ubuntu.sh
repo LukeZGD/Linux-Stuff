@@ -109,17 +109,17 @@ installstuff() {
             "system76-power" ) system76power; break;;
             "OpenTabletDriver" ) opentabletdriver; break;;
             "Intel non-free" ) sudo apt install i965-va-driver-shaders intel-media-va-driver-non-free; break;;
-            "KVM" ) KVM; break;;
+            "KVM" ) kvm; break;;
             * ) exit;;
         esac
     done
 }
 
-KVM() {
-    sudo apt install qemu-kvm qemu-utils libvirt-daemon-system libvirt-clients bridge-utils virt-manager ovmf
+kvm() {
+    sudo apt install qemu-system-x86 qemu-utils libvirt-daemon-system libvirt-clients bridge-utils virt-manager ovmf
     sudo usermod -aG kvm,libvirt $USER
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-    echo "add 'iommu=pt intel-iommu=on' (or amd-iommu) to /etc/default/grub' then press enter"
+    echo "add 'iommu=pt intel-iommu=on' (or amd-iommu) to /etc/default/grub then press enter"
     read -s
     sudo update-grub
 }

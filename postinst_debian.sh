@@ -10,6 +10,7 @@ audacious
 audacity
 ca-certificates
 cabextract
+clinfo
 cpu-x
 curl
 default-jre
@@ -27,12 +28,14 @@ gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
 hplip
 intel-media-va-driver-non-free
+intel-opencl-icd
 k3b
 kamoso
 kdenlive
 krdc
 libadwaita-1-0
 libgtk-4-1
+libspa-0.2-bluetooth
 linssid
 mesa-vulkan-drivers
 mpv
@@ -40,7 +43,9 @@ neofetch
 network-manager-openvpn
 obs-studio
 okteta
+pavucontrol
 piper
+pipewire
 power-profiles-daemon
 python-is-python3
 python3-pip
@@ -54,6 +59,7 @@ tealdeer
 transmission-qt
 uget
 unrar
+wayland-utils
 xdelta3
 )
 
@@ -89,33 +95,54 @@ postinst() {
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
     #sudo chmod 700 /etc/rc.local
     echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
+    systemctl --user enable --now pipewire
 
     sudo mkdir -pm755 /etc/apt/keyrings
+    # winehq repo
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
     sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
-
+    # node repo
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
     NODE_MAJOR=20 echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    # mozilla repo
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+    gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+    echo '
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000
+' | sudo tee /etc/apt/preferences.d/mozilla
+    # lutris repo
+    echo "deb [signed-by=/etc/apt/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/Debian_12/ ./" | sudo tee /etc/apt/sources.list.d/lutris.list > /dev/null
+    wget -q -O- https://download.opensuse.org/repositories/home:/strycore/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/lutris.gpg > /dev/null
 
     sudo apt update
-    sudo apt install -y nodejs
-    sudo apt install -y --install-recommends winehq-staging lutris winbind mesa-vulkan-drivers:i386 gstreamer1.0-plugins-bad:i386 gstreamer1.0-plugins-base:i386 gstreamer1.0-plugins-good:i386 gstreamer1.0-plugins-ugly:i386
+    sudo apt install -y firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386 nodejs
+    sudo apt install -y --install-recommends winehq-stable lutris winbind mesa-vulkan-drivers:i386
+    sudo apt remove -y firefox-esr gwenview konqueror pulseaudio
+    sudo apt autoremove -y
 
     pipinst
 
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
 }
 
 emulatorsinst() {
-    sudo apt install -y nestopia
+    #sudo apt install -y nestopia
     flatpakemusinst
 }
 
 kvm() {
-    :
+    sudo apt install qemu-system-x86 qemu-utils libvirt-daemon-system libvirt-clients bridge-utils virt-manager ovmf
+    sudo usermod -aG kvm,libvirt $USER
+    echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
+    echo "add 'iommu=pt intel-iommu=on' (or amd-iommu) to /etc/default/grub then press enter"
+    read -s
+    sudo update-grub
 }
 
 main() {

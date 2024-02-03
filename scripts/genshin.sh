@@ -142,7 +142,7 @@ Main() {
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
-        select opt in "Launch Game" "Update Game" "Pre-Installation" "Install Patch" "Uninstall Patch" "Open Launcher" "Update Launcher" "Kill Wineserver" "Open Base Directory" "(Any other key to exit)"; do
+        select opt in "Launch Game" "Open Launcher" "Update Launcher" "Kill Wineserver" "Open Base Directory" "(Any other key to exit)"; do
         case $opt in
             "Launch Game" ) Game; break;;
             "Update Game" ) Updater; break;;

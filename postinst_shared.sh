@@ -7,7 +7,8 @@ org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )
 
-flatemus=(
+flatemus=(net.retrodeck.retrodeck)
+: '
 com.snes9x.Snes9x
 io.mgba.mGBA
 net.kuribo64.melonDS
@@ -17,7 +18,7 @@ org.DolphinEmu.dolphin-emu
 org.duckstation.DuckStation
 org.ppsspp.PPSSPP
 org.yuzu_emu.yuzu
-)
+) '
 
 pipinst() {
     mkdir ~/.config/pip 2>/dev/null

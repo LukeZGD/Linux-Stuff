@@ -143,6 +143,8 @@ make install
 make clean
 
 cd $compdir/img4tool
+git reset aca6cf0 --hard
+git clean -fxd
 env LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
 make
 make install

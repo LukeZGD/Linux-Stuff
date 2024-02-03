@@ -1,12 +1,17 @@
 #!/bin/bash
-export vblank_mode=0
-osupath="$HOME/osu"
+osupath="$HOME/osu-stable"
+osupathlazer="$HOME/.local/share/osu"
 export WINEPREFIX="$osupath/prefix"
 . /etc/os-release
+#export vblank_mode=0
+#export WINEARCH=win32
+#export WINEFSYNC=1
+#. $HOME/Linux-Stuff/scripts/preparelutris.sh
+#preparelutris "$lutrisver"
 
 osugame() {
-    if [[ $1 == "lazer" ]]; then
-        env APPIMAGELAUNCHER_DISABLE=TRUE "$osupath"/osu.AppImage
+    if [[ $1 != "stable" ]]; then
+        env APPIMAGELAUNCHER_DISABLE=TRUE "$osupathlazer"/osu.AppImage
         return
     fi
     pushd "$osupath"
@@ -15,7 +20,7 @@ osugame() {
 }
 
 update() {
-    cd "$osupath"
+    cd "$osupathlazer"
     echo "osu!lazer"
     echo "Checking for updates..."
     osuapi=$(curl -s https://api.github.com/repos/ppy/osu/releases/latest)
@@ -68,7 +73,7 @@ osuinstall() {
         fi
         opt=
     fi
-    winetricks -q cjkfonts dotnet40
+    winetricks -q dotnet40
     wine reg add 'HKEY_CURRENT_USER\Control Panel\Desktop' /t REG_DWORD /v LogPixels /d 120 /f
     read -p "Preparations complete. Download and install osu! now? (y/N) " opt
     if [[ $opt == y || $opt == Y ]]; then
@@ -81,8 +86,8 @@ osuinstall() {
 
 if [[ $1 == "update" ]]; then
     update
-elif [[ $1 == "lazer" ]]; then
-    osugame lazer
+elif [[ $1 == "stable" ]]; then
+    osugame stable
 elif [[ $1 == "kill" ]]; then
     wineserver -k
 elif [[ $1 == "help" ]]; then
@@ -91,7 +96,7 @@ elif [[ $1 == "help" ]]; then
     osu {help}
     osu {install}
     osu {kill}
-    osu {lazer}
+    osu {stable}
     osu {update}"
 elif [[ $1 == "install" ]]; then
     osuinstall

@@ -109,7 +109,8 @@ sambainstall() {
 }
 
 emulatorsinst() {
-    flatpakemusinst ca._0ldsk00l.Nestopia
+    #flatpakemusinst ca._0ldsk00l.Nestopia
+    flatpakemusinst
 }
 
 wineprefixes() {
