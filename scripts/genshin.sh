@@ -2,7 +2,7 @@
 trap 'wineserver -k; exit' INT TERM EXIT
 
 export WINEFSYNC=1
-BASEDIR="/mnt/Data/Games/Genshin Impact"
+BASEDIR="/mnt/Data/GamesS/Genshin Impact"
 export WINEPREFIX="$BASEDIR/prefix"
 export DXVK_ASYNC=1
 PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"

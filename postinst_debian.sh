@@ -18,6 +18,7 @@ docker.io
 f3
 filezilla
 fish
+flac
 flatpak
 gnome-calculator
 gnome-disk-utility
@@ -32,6 +33,8 @@ intel-opencl-icd
 k3b
 kamoso
 kdenlive
+kio-audiocd
+kio-fuse
 krdc
 libadwaita-1-0
 libgtk-4-1
@@ -43,6 +46,7 @@ neofetch
 network-manager-openvpn
 obs-studio
 okteta
+okular-extra-backends
 pavucontrol
 piper
 pipewire

@@ -80,7 +80,7 @@ excludelist=(
 ".zoom"
 "Android"
 "node_modules"
-"Programs/Games"
+"Games"
 "osu"
 "VMs"
 )
@@ -393,8 +393,8 @@ BackupRestore() {
 
     if [[ $Mode == user ]]; then
         Paths=("$HOME/" "/media/$USER/$HDDName/BackupsP/$USER/"
-               "/mnt/Data/$USER/" "/media/$USER/$HDDName/BackupsP/Data/$USER/"
-               "$HOME/osu/" "/media/$USER/$HDDName/BackupsP/Data/osu/")
+               "/mnt/Data/$USER/" "/media/$USER/$HDDName/BackupsP/Data/$USER/")
+               #"$HOME/osu/" "/media/$USER/$HDDName/BackupsP/Data/osu/")
     elif [[ $Mode == pac ]]; then
         Paths=("/var/cache/pacman/pkg/" "/media/$USER/$HDDName/BackupsP/pkg/"
                "/var/cache/pacman/aur/" "/media/$USER/$HDDName/BackupsP/aur/")
@@ -406,7 +406,7 @@ BackupRestore() {
         if [[ $Mode == user ]]; then
             RSYNC ${Paths[0]} ${Paths[1]} user
             RSYNC ${Paths[2]} ${Paths[3]}
-            RSYNC ${Paths[4]} ${Paths[5]}
+            #RSYNC ${Paths[4]} ${Paths[5]}
         elif [[ $Mode == pac ]]; then
             RSYNC ${Paths[0]} ${Paths[1]}
             RSYNC ${Paths[2]} ${Paths[3]}
@@ -434,7 +434,7 @@ BackupRestore() {
 Restoreuser() {
     RSYNC ${Paths[1]} ${Paths[0]} user
     RSYNC ${Paths[3]} ${Paths[2]}
-    RSYNC ${Paths[5]} ${Paths[4]}
+    #RSYNC ${Paths[5]} ${Paths[4]}
 }
 
 Plymouth() {
