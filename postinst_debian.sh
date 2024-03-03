@@ -78,7 +78,7 @@ postinst() {
     sudo apt upgrade -y
     #sudo apt -t bookworm-backports install linux-image-amd64
     sudo apt install -y "${packages[@]}"
-    sudo apt install -y $HOME/Programs/Packages/*.deb
+    sudo apt install -y $HOME/Programs/Packages/deb/*.deb
 
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Linux-Stuff/postinst_debian.sh /usr/local/bin/postinst

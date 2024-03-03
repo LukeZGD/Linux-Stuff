@@ -9,23 +9,24 @@ audacious
 audacious-plugins-amidi
 audacious-plugins-freeworld
 audacity
+audiocd-kio
 cpu-x
 dialog
-'dnf-command(versionlock)'
 f3
 ffmpeg
 ffmpegthumbs
 fish
-gdm
 gimp
 git
 gnome-calculator
 gnome-disk-utility
 google-noto-sans-fonts
 hplip
+intel-media-driver
 k3b
 kate
 kdenlive
+kio-fuse
 ksysguard
 mpv
 neofetch
@@ -36,7 +37,6 @@ persepolis
 piper
 python3-pip
 python3-wxpython4
-radeontop
 qdirstat
 simple-scan
 tealdeer
@@ -113,32 +113,6 @@ emulatorsinst() {
     flatpakemusinst
 }
 
-wineprefixes() {
-    cd $HOME/.cache
-    rm -rf wine winetricks
-    ln -sf /mnt/Data/$USER/cache/wine
-    ln -sf /mnt/Data/$USER/cache/winetricks
-
-    winetricks --self-update
-    preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts gdiplus mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp11
-    WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
-
-    preparelutris "$lutrisver"
-    preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts quartz vkd3d win10 wmp9
-
-    preparewineprefix "$HOME/.wine_lutris-2"
-    WINEPREFIX=$HOME/.wine_lutris-2 winetricks -q corefonts quartz vkd3d win10 wmp9
-
-    preparelutris "$protonver" "proton"
-    preparewineprefix "$HOME/.wine_proton"
-    mkdir -p $WINEPREFIX/drive_c/users/steamuser
-    cd $WINEPREFIX/drive_c/users/steamuser
-    rm -rf 'Saved Games'
-    ln -sf $HOME/AppData 'Saved Games'
-}
-
 postinst() {
     LINE='fastestmirror=True'
     FILE='/etc/dnf/dnf.conf'
@@ -146,23 +120,26 @@ postinst() {
     LINE='max_parallel_downloads=10'
     sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     
-    sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf config-manager --enable fedora-cisco-openh264
+    sudo dnf groupupdate core -y
     sudo dnf upgrade -y
     sudo dnf install -y --best --allowerasing ffmpeg-libs
     sudo dnf install -y "${packages[@]}"
     sudo dnf group install -y kde-desktop-environment
     sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
-    sudo dnf reinstall -y $HOME/Programs/Packages/*.rpm
+    sudo dnf reinstall -y $HOME/Programs/Packages/rpm/*.rpm
     sudo dnf autoremove -y
     #LINE='exclude=qview, xorg-x11-server-Xwayland'
     #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
-    sudo dnf versionlock add qview xorg-x11-server-Xwayland
+    #sudo dnf versionlock add qview xorg-x11-server-Xwayland
 
-    echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
-    sudo systemctl disable firewalld sddm
-    sudo systemctl enable gdm
+    #echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
+    #sudo systemctl disable firewalld sddm
+    #sudo systemctl enable gdm
+    #sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
+    sudo systemctl disable --now firewalld
     sudo usermod -aG vboxusers $USER
-    sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Linux-Stuff/postinst_fedora.sh /usr/local/bin/postinst
     printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
@@ -176,6 +153,8 @@ postinst() {
 
     sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract lutris winehq-staging
+    sudo dnf groupinstall -y 'Japanese Support'
+    sudo dnf install -y gstreamer1-{plugins-{good,ugly},libav}.i686 hanazono-fonts mona-*-fonts
 
     pipinst
 
