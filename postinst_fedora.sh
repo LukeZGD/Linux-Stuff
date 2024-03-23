@@ -16,6 +16,7 @@ f3
 ffmpeg
 ffmpegthumbs
 fish
+gamescope
 gimp
 git
 gnome-calculator
@@ -28,6 +29,7 @@ kate
 kdenlive
 kio-fuse
 ksysguard
+mangohud
 mpv
 neofetch
 nodejs-npm
@@ -162,9 +164,9 @@ postinst() {
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
-    export LINE='enableWaylandShare=true'
-    export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
-    grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
+    #export LINE='enableWaylandShare=true'
+    #export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
+    #grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
 }
 
 # ----------------------------------

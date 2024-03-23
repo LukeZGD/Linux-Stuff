@@ -20,6 +20,7 @@ filezilla
 fish
 flac
 flatpak
+gamescope
 gnome-calculator
 gnome-disk-utility
 gnupg
@@ -40,6 +41,7 @@ libadwaita-1-0
 libgtk-4-1
 libspa-0.2-bluetooth
 linssid
+mangohud
 mesa-vulkan-drivers
 mpv
 neofetch
@@ -94,7 +96,7 @@ postinst() {
     sudo cp /usr/share/samba/smb.conf /etc/samba/smb.conf
     sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
     sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
-    fc-cache -f -v
+    fc-cache -rv
     #echo '#!/bin/sh' | sudo tee /etc/rc.local
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
     #sudo chmod 700 /etc/rc.local

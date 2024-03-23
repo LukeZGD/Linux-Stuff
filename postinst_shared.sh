@@ -1,7 +1,6 @@
 #!/bin/bash
 
 flatpkgs=(
-com.authy.Authy
 com.github.tchx84.Flatseal
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
@@ -17,7 +16,7 @@ net.rpcs3.RPCS3
 org.DolphinEmu.dolphin-emu
 org.duckstation.DuckStation
 org.ppsspp.PPSSPP
-org.yuzu_emu.yuzu
+org.ryujinx.Ryujinx
 ) '
 
 pipinst() {
