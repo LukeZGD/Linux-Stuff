@@ -20,6 +20,9 @@ osugame() {
 }
 
 update() {
+    if [[ ! -d "$osupathlazer" ]]; then
+        mkdir -p "$osupathlazer"
+    fi
     cd "$osupathlazer"
     echo "osu!lazer"
     echo "Checking for updates..."
@@ -65,6 +68,7 @@ update() {
 
 osuinstall() {
     ln -sf $HOME/Linux-Stuff/scripts/osu.sh /usr/local/bin/osu
+    return
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then
         read -p "osu wineprefix detected! Delete and reinstall? (y/N) " opt

@@ -13,7 +13,7 @@ fi
 if [[ -n $UBUNTU_CODENAME || -f "/etc/debian_version" ]]; then
     sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev libxml2-dev git ca-certificates
 elif [[ $ID == "fedora" ]]; then
-    sudo dnf install -y fuse-devel libcurl-devel libusb1-devel libtool libzip-devel readline-devel
+    sudo dnf install -y fuse-devel libcurl-devel libusb1-devel libtool libzip-devel readline-devel bzip2-devel
 fi
 
 updaterepo() {

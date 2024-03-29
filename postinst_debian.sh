@@ -100,6 +100,7 @@ postinst() {
     #echo '#!/bin/sh' | sudo tee /etc/rc.local
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
     #sudo chmod 700 /etc/rc.local
+    echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
     echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
     systemctl --user enable --now pipewire
 

@@ -2,6 +2,7 @@
 
 flatpkgs=(
 com.github.tchx84.Flatseal
+com.github.unrud.VideoDownloader
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )
@@ -22,7 +23,7 @@ org.ryujinx.Ryujinx
 pipinst() {
     mkdir ~/.config/pip 2>/dev/null
     printf "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf
-    python3 -m pip install -U gallery-dl yt-dlg yt-dlp
+    python3 -m pip install -U gallery-dl yt-dlp
 }
 
 flatpakemusinst() {

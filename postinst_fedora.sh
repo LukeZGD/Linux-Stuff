@@ -28,7 +28,6 @@ k3b
 kate
 kdenlive
 kio-fuse
-ksysguard
 mangohud
 mpv
 neofetch
@@ -40,9 +39,12 @@ piper
 python3-pip
 python3-wxpython4
 qdirstat
+qview
 simple-scan
+shellcheck
 tealdeer
 transmission-qt
+uget
 unrar
 VirtualBox
 xdelta
@@ -116,30 +118,29 @@ emulatorsinst() {
 }
 
 postinst() {
-    LINE='fastestmirror=True'
-    FILE='/etc/dnf/dnf.conf'
-    #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     LINE='max_parallel_downloads=10'
+    FILE='/etc/dnf/dnf.conf'
     sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     
     sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
     sudo dnf config-manager --enable fedora-cisco-openh264
     sudo dnf groupupdate core -y
-    sudo dnf upgrade -y
+    sudo dnf update -y --refresh
     sudo dnf install -y --best --allowerasing ffmpeg-libs
     sudo dnf install -y "${packages[@]}"
     sudo dnf group install -y kde-desktop-environment
     sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
-    sudo dnf reinstall -y $HOME/Programs/Packages/rpm/*.rpm
+    sudo dnf install -y $HOME/Programs/Packages/rpm/*.rpm
     sudo dnf autoremove -y
+
     #LINE='exclude=qview, xorg-x11-server-Xwayland'
     #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
     #sudo dnf versionlock add qview xorg-x11-server-Xwayland
-
     #echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
     #sudo systemctl disable firewalld sddm
     #sudo systemctl enable gdm
     #sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
+
     sudo systemctl disable --now firewalld
     sudo usermod -aG vboxusers $USER
     sudo chown -R $USER: /usr/local
@@ -152,11 +153,11 @@ postinst() {
         sudo mkdir -p /mnt/Data
         sudo chown $USER: /mnt/Data
     fi
+    fc-cache -rv
+    echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
 
     sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
-    sudo dnf install -y cabextract lutris winehq-staging
-    sudo dnf groupinstall -y 'Japanese Support'
-    sudo dnf install -y gstreamer1-{plugins-{good,ugly},libav}.i686 hanazono-fonts mona-*-fonts
+    sudo dnf install -y cabextract lutris winehq-staging gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
 
     pipinst
 
@@ -164,20 +165,15 @@ postinst() {
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
-    #export LINE='enableWaylandShare=true'
-    #export FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
-    #grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
+    LINE='enableWaylandShare=true'
+    FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
+    grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
 }
 
 # ----------------------------------
 
-clear
-echo "LukeZGD Fedora Post-Install Script"
-echo "This script will assume that you have a working Internet connection"
-echo
-
 if [[ $1 == "update" ]]; then
-    sudo dnf update -y
+    sudo dnf update -y --refresh
     pipinst
     flatpak update -y
     exit
