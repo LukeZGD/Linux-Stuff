@@ -60,6 +60,7 @@ qdirstat
 samba
 shellcheck
 simple-scan
+stress
 system-config-printer
 tealdeer
 transmission-qt

@@ -15,6 +15,7 @@ dialog
 f3
 ffmpeg
 ffmpegthumbs
+filezilla
 fish
 gamescope
 gimp
@@ -40,8 +41,9 @@ python3-pip
 python3-wxpython4
 qdirstat
 qview
-simple-scan
 shellcheck
+simple-scan
+stress
 tealdeer
 transmission-qt
 uget
@@ -156,8 +158,8 @@ postinst() {
     fc-cache -rv
     echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
 
-    sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
-    sudo dnf install -y cabextract lutris winehq-staging gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
+    #sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
+    sudo dnf install -y cabextract lutris wine gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
 
     pipinst
 
