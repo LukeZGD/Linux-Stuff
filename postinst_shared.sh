@@ -3,6 +3,8 @@
 flatpkgs=(
 com.github.tchx84.Flatseal
 com.github.unrud.VideoDownloader
+com.protonvpn.www
+fr.handbrake.ghb
 org.gtk.Gtk3theme.Breeze
 us.zoom.Zoom
 )

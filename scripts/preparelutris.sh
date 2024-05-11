@@ -17,10 +17,10 @@ preparewineprefix() {
     ln -sf $HOME/AppData
     ln -sf $HOME/AppData 'Application Data'
     ln -sf $HOME/AppData 'Saved Games'
-    pushd $HOME/Documents/dxvk-gplasync-v2.3-1/x32
+    pushd $HOME/Documents/dxvk-gplasync-v2.3.1-1/x32
     WINEPREFIX="$WINEPREFIX" ./setup_symlink_dxvk.sh
     popd
-    pushd $HOME/Documents/dxvk-gplasync-v2.3-1/x64
+    pushd $HOME/Documents/dxvk-gplasync-v2.3.1-1/x64
     WINEPREFIX="$WINEPREFIX" ./setup_symlink_dxvk.sh
     popd
 }

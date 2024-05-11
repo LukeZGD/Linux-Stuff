@@ -20,7 +20,7 @@ filezilla
 fish
 flac
 flatpak
-gamescope
+git
 gnome-calculator
 gnome-disk-utility
 gnupg
@@ -29,6 +29,7 @@ gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
 hplip
+intel-gpu-tools
 intel-media-va-driver-non-free
 intel-opencl-icd
 k3b
@@ -72,8 +73,13 @@ xdelta3
 
 postinst() {
     sudo dpkg --add-architecture i386
-    sudo add-apt-repository -y contrib
-    sudo add-apt-repository -y non-free
+    if [[ -n $UBUNTU_CODENAME ]]; then
+        sudo add-apt-repository -y universe
+        sudo add-apt-repository -y multiverse
+    else
+        sudo add-apt-repository -y contrib
+        sudo add-apt-repository -y non-free
+    fi
     #if [[ $(cat /etc/apt/sources.list | grep -c 'backports main') == 0 ]]; then
     #    echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-free" | sudo tee -a /etc/apt/sources.list
     #fi
@@ -82,6 +88,9 @@ postinst() {
     #sudo apt -t bookworm-backports install linux-image-amd64
     sudo apt install -y "${packages[@]}"
     sudo apt install -y $HOME/Programs/Packages/deb/*.deb
+    if [[ -n $UBUNTU_CODENAME ]]; then
+        sudo apt install -y virtualbox virtualbox-guest-additions-iso
+    fi
 
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Linux-Stuff/postinst_debian.sh /usr/local/bin/postinst
@@ -101,33 +110,30 @@ postinst() {
     #echo '#!/bin/sh' | sudo tee /etc/rc.local
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
     #sudo chmod 700 /etc/rc.local
-    echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
-    echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
-    systemctl --user enable --now pipewire
+    #echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
+    #echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
+    #systemctl --user enable --now pipewire
 
     sudo mkdir -pm755 /etc/apt/keyrings
-    # winehq repo
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
-    # node repo
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-    NODE_MAJOR=20 echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-    # mozilla repo
-    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-    gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
-    echo '
-Package: *
-Pin: origin packages.mozilla.org
-Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla
-    # lutris repo
-    echo "deb [signed-by=/etc/apt/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/Debian_12/ ./" | sudo tee /etc/apt/sources.list.d/lutris.list > /dev/null
-    wget -q -O- https://download.opensuse.org/repositories/home:/strycore/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/lutris.gpg > /dev/null
+    if [[ -n $UBUNTU_CODENAME ]]; then
+        sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/$UBUNTU_CODENAME/winehq-$UBUNTU_CODENAME.sources
+    else
+        # winehq repo
+        sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
+        # mozilla repo
+        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+        gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+        printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
+        # lutris repo
+        #echo "deb [signed-by=/etc/apt/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/Debian_12/ ./" | sudo tee /etc/apt/sources.list.d/lutris.list > /dev/null
+        #wget -q -O- https://download.opensuse.org/repositories/home:/strycore/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/lutris.gpg > /dev/null
+    fi
 
     sudo apt update
-    sudo apt install -y firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386 nodejs
-    sudo apt install -y --install-recommends winehq-stable lutris winbind mesa-vulkan-drivers:i386
+    sudo apt install -y firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386
+    sudo apt install -y --install-recommends winehq-staging winbind mesa-vulkan-drivers:i386
     sudo apt remove -y firefox-esr gwenview konqueror pulseaudio
     sudo apt autoremove -y
 

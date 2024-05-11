@@ -24,6 +24,7 @@ gnome-calculator
 gnome-disk-utility
 google-noto-sans-fonts
 hplip
+igt-gpu-tools
 intel-media-driver
 k3b
 kate
@@ -53,7 +54,7 @@ xdelta
 yt-dlp
 )
 
-MainMenu() {
+main() {
     select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore"; do
     case $opt in
         "Install stuff" ) installstuff; break;;
@@ -65,8 +66,14 @@ MainMenu() {
     done
 }
 
+coprpkgs() {
+    sudo dnf copr enable nucleo/linssid -y
+    sudo dnf copr enable rok/cdemu -y
+    sudo dnf install -y libmirage vhba kmod-vhba akmod-vhba dkms cdemu-daemon gcdemu openssl mokutil kernel-devel linssid-ex
+}
+
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager"; do
+    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
         "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
@@ -77,6 +84,7 @@ installstuff() {
         "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
+        "copr packages" ) coprpkgs; break;;
         * ) exit;;
     esac
     done
@@ -135,14 +143,6 @@ postinst() {
     sudo dnf install -y $HOME/Programs/Packages/rpm/*.rpm
     sudo dnf autoremove -y
 
-    #LINE='exclude=qview, xorg-x11-server-Xwayland'
-    #sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
-    #sudo dnf versionlock add qview xorg-x11-server-Xwayland
-    #echo 'KWIN_DRM_NO_AMS=1' | sudo tee /etc/environment
-    #sudo systemctl disable firewalld sddm
-    #sudo systemctl enable gdm
-    #sudo ln -sf /usr/lib64/libbz2.so.1.0.8 /usr/lib64/libbz2.so.1.0
-
     sudo systemctl disable --now firewalld
     sudo usermod -aG vboxusers $USER
     sudo chown -R $USER: /usr/local
@@ -156,14 +156,15 @@ postinst() {
         sudo chown $USER: /mnt/Data
     fi
     fc-cache -rv
-    echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
+    #echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
 
     #sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract lutris wine gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
+    sudo dnf remove -y gamemode
 
     pipinst
 
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     sudo flatpak override --filesystem=xdg-config/gtk-3.0
     sudo flatpak override --filesystem=xdg-config/gtk-4.0
     flatpak install -y flathub "${flatpkgs[@]}"
@@ -175,10 +176,10 @@ postinst() {
 # ----------------------------------
 
 if [[ $1 == "update" ]]; then
-    sudo dnf update -y --refresh
+    sudo dnf update -y
     pipinst
     flatpak update -y
     exit
 fi
 
-MainMenu
+main

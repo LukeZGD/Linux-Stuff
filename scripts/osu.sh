@@ -4,7 +4,7 @@ osupathlazer="$HOME/.local/share/osu"
 export WINEPREFIX="$osupath/prefix"
 . /etc/os-release
 #export vblank_mode=0
-#export WINEARCH=win32
+export WINEARCH=win32
 #export WINEFSYNC=1
 #. $HOME/Linux-Stuff/scripts/preparelutris.sh
 #preparelutris "$lutrisver"
@@ -67,8 +67,10 @@ update() {
 }
 
 osuinstall() {
-    ln -sf $HOME/Linux-Stuff/scripts/osu.sh /usr/local/bin/osu
-    return
+    if [[ $1 != "stable" ]]; then
+        ln -sf $HOME/Linux-Stuff/scripts/osu.sh /usr/local/bin/osu
+        return
+    fi
     pushd "$osupath"
     if [[ -d $WINEPREFIX ]]; then
         read -p "osu wineprefix detected! Delete and reinstall? (y/N) " opt
@@ -104,6 +106,8 @@ elif [[ $1 == "help" ]]; then
     osu {update}"
 elif [[ $1 == "install" ]]; then
     osuinstall
+elif [[ $1 == "installstable" ]]; then
+    osuinstall stable
 else
     osugame "$@"
 fi
