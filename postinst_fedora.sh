@@ -47,7 +47,6 @@ simple-scan
 stress
 tealdeer
 transmission-qt
-uget
 unrar
 VirtualBox
 xdelta
@@ -176,7 +175,7 @@ postinst() {
 # ----------------------------------
 
 if [[ $1 == "update" ]]; then
-    sudo dnf update -y
+    sudo dnf -y "$@"
     pipinst
     flatpak update -y
     exit
