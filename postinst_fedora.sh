@@ -1,5 +1,5 @@
 #!/bin/bash
-trap "exit 1" INT TERM EXIT
+trap "exit 1" INT TERM
 . $HOME/Linux-Stuff/scripts/preparelutris.sh
 . $HOME/Linux-Stuff/postinst_shared.sh
 

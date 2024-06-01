@@ -1,5 +1,5 @@
 #!/bin/bash
-trap "exit 1" INT TERM EXIT
+trap "exit 1" INT TERM
 BASEDIR="$(dirname $(type -p $0))"
 . $HOME/Linux-Stuff/scripts/preparelutris.sh
 
