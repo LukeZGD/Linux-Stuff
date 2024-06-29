@@ -13,6 +13,7 @@ audiocd-kio
 cpu-x
 dialog
 f3
+fedora-repos-archive
 ffmpeg
 ffmpegthumbs
 filezilla
@@ -130,24 +131,12 @@ postinst() {
     LINE='max_parallel_downloads=10'
     FILE='/etc/dnf/dnf.conf'
     sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
-    
-    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-    sudo dnf config-manager --enable fedora-cisco-openh264
-    sudo dnf groupupdate core -y
-    sudo dnf update -y --refresh
-    sudo dnf install -y --best --allowerasing ffmpeg-libs
-    sudo dnf install -y "${packages[@]}"
-    sudo dnf group install -y kde-desktop-environment
-    sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
-    sudo dnf install -y $HOME/Programs/Packages/rpm/*.rpm
-    sudo dnf autoremove -y
 
+    #sudo dnf install -y dnf5 dnf5-plugins
     sudo systemctl disable --now firewalld
-    sudo usermod -aG vboxusers $USER
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Linux-Stuff/postinst_fedora.sh /usr/local/bin/postinst
-    printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
-    chmod +x /usr/local/bin/youtube-dl
+    #ln -sf /usr/bin/dnf5 /usr/local/bin/dnf
     sudo rm -rf /media
     sudo ln -sf /run/media /media
     if [[ ! $(ls /mnt/Data) ]]; then
@@ -157,6 +146,21 @@ postinst() {
     fc-cache -rv
     #echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
 
+    sudo dnf group upgrade -y core
+    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf config-manager --enable fedora-cisco-openh264
+    sudo dnf update -y --refresh
+    sudo dnf install -y --best --allowerasing ffmpeg-libs
+    sudo dnf install -y "${packages[@]}"
+
+    sudo usermod -aG vboxusers $USER
+    printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
+    chmod +x /usr/local/bin/youtube-dl
+
+    sudo dnf group install -y kde-desktop-environment
+    sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
+    sudo dnf install -y $HOME/Programs/Packages/rpm/*.rpm
+    sudo dnf autoremove -y
     #sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
     sudo dnf install -y cabextract lutris wine gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
     sudo dnf remove -y gamemode

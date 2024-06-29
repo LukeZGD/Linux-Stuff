@@ -2,14 +2,19 @@
 trap 'wineserver -k; exit' INT TERM EXIT
 
 export WINEFSYNC=1
+export WINEDEBUG=-sync
+export DXVK_ASYNC=1
+export MANGOHUD=1
+#export DXVK_HUD=version,devinfo,fps
+
 BASEDIR="/mnt/Data/GamesS/Genshin Impact"
 export WINEPREFIX="$BASEDIR/prefix"
-export DXVK_ASYNC=1
-PROGDIR="$WINEPREFIX/drive_c/Program Files/Genshin Impact"
-GAMEDIR="$BASEDIR/Genshin Impact game"
+HOYODIR="$WINEPREFIX/drive_c/Program Files/HoYoPlay"
+GAMEDIR="$HOYODIR/games/Genshin Impact game"
 GIOLDIR="$BASEDIR/dawn"
 UPDATER="$GIOLDIR/updater/update_gi.sh"
 defaultres="1920x1080"
+
 if [[ $(lspci | grep -E "VGA|3D" | grep -c NVIDIA) != 0 ]]; then
     export __NV_PRIME_RENDER_OFFLOAD=1
     export __GLX_VENDOR_LIBRARY_NAME=nvidia
@@ -21,7 +26,6 @@ if [[ ! -d "$WINEPREFIX" ]]; then
     preparewineprefix "$WINEPREFIX"
     winetricks -q corefonts win10
 fi
-#export DXVK_HUD=version,devinfo,fps
 
 GetVersions() {
     # from update_gi script
@@ -130,15 +134,13 @@ updatelauncher() {
 Main() {
     running=1
 
-    ping -c1 google.com >/dev/null
+    ping -c1 8.8.8.8 >/dev/null
     if [[ $? != 0 ]]; then
         echo "Please check your Internet connection before proceeding."
-        exit 1
+        read -s
     fi
 
-    ln -sf "$BASEDIR" "$PROGDIR"
     cd "$GAMEDIR"
-    
     while [[ $running == 1 ]]; do
         clear
         echo "Genshin Impact"
@@ -153,7 +155,7 @@ Main() {
             "(Re-)Install Game" ) Install; break;;
             "Delete Update Files" ) rm "$BASEDIR/_update_gi_download/"*; break;;
             "Kill Wineserver" ) wineserver -k; break;;
-            "Open Launcher" ) wine "$BASEDIR/launcher.exe"; break;;
+            "Open Launcher" ) wine "$HOYODIR/launcher.exe"; break;;
             "Open Base Directory" ) dolphin "$BASEDIR"; break;;
             "Update Launcher" ) updatelauncher; break;;
             * ) running=0; break;;
