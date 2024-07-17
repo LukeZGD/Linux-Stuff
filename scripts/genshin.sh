@@ -164,4 +164,10 @@ Main() {
     done
 }
 
+if [[ $1 == "launcher" ]]; then
+    wine "$HOYODIR/launcher.exe"
+    wineserver -w
+    exit
+fi
+
 Main
