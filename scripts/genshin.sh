@@ -1,5 +1,5 @@
 #!/bin/bash
-trap 'wineserver -k; exit' INT TERM EXIT
+trap 'wineserver -k; qdbus org.kde.KWin /Compositor resume; exit' INT TERM EXIT
 
 export WINEFSYNC=1
 export WINEDEBUG=-sync
@@ -78,7 +78,7 @@ Updater() {
 }
 
 Game() {
-    #qdbus org.kde.KWin /Compositor suspend
+    qdbus org.kde.KWin /Compositor suspend
     #Patch install
     #[[ $? != 0 ]] && return
     cd "$GAMEDIR"
@@ -86,7 +86,7 @@ Game() {
     [[ -z $res ]] && res="$defaultres"
     #wine explorer /desktop=anyname,$res GenshinImpact.exe
     wine GenshinImpact.exe
-    #qdbus org.kde.KWin /Compositor resume
+    qdbus org.kde.KWin /Compositor resume
     running=0
 }
 
@@ -165,8 +165,10 @@ Main() {
 }
 
 if [[ $1 == "launcher" ]]; then
+    qdbus org.kde.KWin /Compositor suspend
     wine "$HOYODIR/launcher.exe"
     wineserver -w
+    qdbus org.kde.KWin /Compositor resume
     exit
 fi
 

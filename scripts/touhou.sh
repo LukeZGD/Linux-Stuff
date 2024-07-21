@@ -1,7 +1,8 @@
 #!/bin/bash
-BASEDIR="/mnt/Data/Games/Touhou"
+trap 'wineserver -k; qdbus org.kde.KWin /Compositor resume; exit' INT TERM EXIT
 
 export WINEPREFIX="$HOME/.wine_lutris"
+BASEDIR="/mnt/Data/Games/Touhou"
 . $HOME/Linux-Stuff/scripts/preparelutris.sh
 preparelutris "$lutrisver"
 

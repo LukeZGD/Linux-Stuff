@@ -81,6 +81,7 @@ excludelist=(
 "Android"
 "node_modules"
 "Games"
+"venv"
 "VMs"
 )
 

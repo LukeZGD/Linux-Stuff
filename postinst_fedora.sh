@@ -12,6 +12,7 @@ audacity
 audiocd-kio
 cpu-x
 dialog
+easyeffects
 f3
 fedora-repos-archive
 ffmpeg

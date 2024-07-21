@@ -40,6 +40,7 @@ kio-fuse
 krdc
 libadwaita-1-0
 libgtk-4-1
+libreoffice
 libspa-0.2-bluetooth
 linssid
 mangohud
@@ -67,7 +68,6 @@ tealdeer
 transmission-qt
 uget
 unrar
-wayland-utils
 xdelta3
 )
 
@@ -115,26 +115,23 @@ postinst() {
     #systemctl --user enable --now pipewire
 
     sudo mkdir -pm755 /etc/apt/keyrings
+    # winehq repo
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
     if [[ -n $UBUNTU_CODENAME ]]; then
         sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/$UBUNTU_CODENAME/winehq-$UBUNTU_CODENAME.sources
     else
-        # winehq repo
         sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
-        # mozilla repo
-        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-        gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
-        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
-        printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
-        # lutris repo
-        #echo "deb [signed-by=/etc/apt/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/Debian_12/ ./" | sudo tee /etc/apt/sources.list.d/lutris.list > /dev/null
-        #wget -q -O- https://download.opensuse.org/repositories/home:/strycore/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/lutris.gpg > /dev/null
     fi
+    # mozilla repo
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+    gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+    printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
 
     sudo apt update
     sudo apt install -y firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386
     sudo apt install -y --install-recommends winehq-staging winbind mesa-vulkan-drivers:i386
-    sudo apt remove -y firefox-esr gwenview konqueror pulseaudio
+    sudo apt remove -y firefox-esr gamemode gwenview konqueror pulseaudio
     sudo apt autoremove -y
 
     pipinst
