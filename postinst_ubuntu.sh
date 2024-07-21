@@ -310,9 +310,6 @@ EOF'
 
 # ----------------------------------
 
-clear
-echo "LukeZGD Ubuntu Post-Install Script"
-echo "This script will assume that you have a working Internet connection"
-echo
-
-MainMenu
+echo "use postinst_debian instead"
+exit 1
+#MainMenu

@@ -460,7 +460,6 @@ opentabletdriver() {
 # ----------------------------------
 
 . /etc/os-release
-clear
 if [[ $ID == arch || $ID_LIKE == arch ]]; then
     echo "LukeZGD Arch Post-Install Script"
     echo "This script will assume that you have a working Internet connection"

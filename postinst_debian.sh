@@ -15,6 +15,7 @@ cpu-x
 curl
 default-jre
 docker.io
+easyeffects
 f3
 filezilla
 fish
@@ -54,6 +55,7 @@ okular-extra-backends
 pavucontrol
 piper
 pipewire
+pipewire-audio-client-libraries
 power-profiles-daemon
 python-is-python3
 python3-pip
@@ -117,11 +119,11 @@ postinst() {
     sudo mkdir -pm755 /etc/apt/keyrings
     # winehq repo
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+    codename="$VERSION_CODENAME"
     if [[ -n $UBUNTU_CODENAME ]]; then
-        sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/$UBUNTU_CODENAME/winehq-$UBUNTU_CODENAME.sources
-    else
-        sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
+        codename="$UBUNTU_CODENAME"
     fi
+    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$codename/winehq-$codename.sources
     # mozilla repo
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
     gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
@@ -129,9 +131,8 @@ postinst() {
     printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
 
     sudo apt update
-    sudo apt install -y firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386
-    sudo apt install -y --install-recommends winehq-staging winbind mesa-vulkan-drivers:i386
-    sudo apt remove -y firefox-esr gamemode gwenview konqueror pulseaudio
+    sudo apt install -y --install-recommends firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386 winehq-staging winbind mesa-vulkan-drivers:i386
+    sudo apt remove -y firefox-esr gamemode gwenview kcalc konqueror pulseaudio
     sudo apt autoremove -y
 
     pipinst
