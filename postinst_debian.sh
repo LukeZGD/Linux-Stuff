@@ -78,6 +78,8 @@ postinst() {
     if [[ -n $UBUNTU_CODENAME ]]; then
         sudo add-apt-repository -y universe
         sudo add-apt-repository -y multiverse
+        sudo mv /etc/apt/apt.conf.d/20apt-esm-hook.conf /etc/apt/apt.conf.d/20apt-esm-hook.conf.bak
+        sudo touch /etc/apt/apt.conf.d/20apt-esm-hook.conf
     else
         sudo add-apt-repository -y contrib
         sudo add-apt-repository -y non-free
@@ -129,9 +131,12 @@ postinst() {
     gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
     printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
+    # shiftkey repo
+    wget -qO - https://apt.packages.shiftkey.dev/gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/shiftkey-packages.gpg > /dev/null
+    sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg] https://apt.packages.shiftkey.dev/ubuntu/ any main" > /etc/apt/sources.list.d/shiftkey-packages.list'
 
     sudo apt update
-    sudo apt install -y --install-recommends firefox fonts-{takao,mona,monapo} gstreamer1.0-{plugins-{good,ugly},libav}:i386 winehq-staging winbind mesa-vulkan-drivers:i386
+    sudo apt install -y --install-recommends firefox fonts-{takao,mona,monapo} github-desktop gstreamer1.0-{plugins-{good,ugly},libav}:i386 winehq-staging winbind mesa-vulkan-drivers:i386
     sudo apt remove -y firefox-esr gamemode gwenview kcalc konqueror pulseaudio
     sudo apt autoremove -y
 

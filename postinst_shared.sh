@@ -28,7 +28,7 @@ org.ryujinx.Ryujinx
 pipinst() {
     mkdir ~/.config/pip 2>/dev/null
     printf "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf
-    python3 -m pip install -U gallery-dl yt-dlp
+    python3 -m pip install --user -U gallery-dl yt-dlp
 }
 
 flatpakemusinst() {
