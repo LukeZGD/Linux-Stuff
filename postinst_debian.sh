@@ -15,12 +15,12 @@ cpu-x
 curl
 default-jre
 docker.io
-easyeffects
 f3
 filezilla
 fish
 flac
 flatpak
+gimp
 git
 gnome-calculator
 gnome-disk-utility
@@ -51,6 +51,7 @@ neofetch
 network-manager-openvpn
 obs-studio
 okteta
+okular
 okular-extra-backends
 pavucontrol
 piper

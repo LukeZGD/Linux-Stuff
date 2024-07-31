@@ -3,6 +3,7 @@
 flatpkgs=(
 com.github.tchx84.Flatseal
 com.github.unrud.VideoDownloader
+com.github.wwmm.easyeffects
 com.moonlight_stream.Moonlight
 com.protonvpn.www
 fr.handbrake.ghb
