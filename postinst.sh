@@ -461,9 +461,6 @@ opentabletdriver() {
 
 . /etc/os-release
 if [[ $ID == arch || $ID_LIKE == arch ]]; then
-    echo "LukeZGD Arch Post-Install Script"
-    echo "This script will assume that you have a working Internet connection"
-    echo
     if [[ ! $(which paru) ]]; then
         echo "No paru detected, installing paru"
         installpac paru-bin

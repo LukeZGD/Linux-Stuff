@@ -73,7 +73,7 @@ coprpkgs() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages"; do
+    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "HSR"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
         "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
@@ -85,6 +85,7 @@ installstuff() {
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "copr packages" ) coprpkgs; break;;
+        "HSR" ) hsr; break;;
         * ) exit;;
     esac
     done

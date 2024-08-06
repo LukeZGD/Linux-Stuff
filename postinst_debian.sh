@@ -92,9 +92,14 @@ postinst() {
     sudo apt upgrade -y
     #sudo apt -t bookworm-backports install linux-image-amd64
     sudo apt install -y "${packages[@]}"
-    sudo apt install -y $HOME/Programs/Packages/deb/*.deb
     if [[ -n $UBUNTU_CODENAME ]]; then
         sudo apt install -y virtualbox virtualbox-guest-additions-iso
+        # workaround for 7z regression with ark
+        sudo apt remove -y p7zip p7zip-full 7zip
+        sudo apt install -y $HOME/Programs/Packages/deb/*.deb
+        sudo apt-mark hold p7zip p7zip-full
+    else
+        sudo apt install -y $HOME/Programs/Packages/deb/*.deb
     fi
 
     sudo chown -R $USER: /usr/local
@@ -108,9 +113,6 @@ postinst() {
         sudo chown $USER: /mnt/Data
     fi
     sudo usermod -aG vboxusers $USER
-    sudo cp /usr/share/samba/smb.conf /etc/samba/smb.conf
-    sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
-    sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
     fc-cache -rv
     #echo '#!/bin/sh' | sudo tee /etc/rc.local
     #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
@@ -122,15 +124,15 @@ postinst() {
     sudo mkdir -pm755 /etc/apt/keyrings
     # winehq repo
     sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-    codename="$VERSION_CODENAME"
+    name="debian"
     if [[ -n $UBUNTU_CODENAME ]]; then
-        codename="$UBUNTU_CODENAME"
+        name="ubuntu"
     fi
-    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/$codename/winehq-$codename.sources
+    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/$name/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
     # mozilla repo
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
     gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
     printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
     # shiftkey repo
     wget -qO - https://apt.packages.shiftkey.dev/gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/shiftkey-packages.gpg > /dev/null
@@ -149,6 +151,13 @@ postinst() {
     flatpak install -y flathub "${flatpkgs[@]}"
 }
 
+sambainstall() {
+    sudo cp /usr/share/samba/smb.conf /etc/samba/smb.conf
+    sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
+    sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
+    sudo smbpasswd -a $USER
+}
+
 emulatorsinst() {
     #sudo apt install -y nestopia
     flatpakemusinst
@@ -164,7 +173,6 @@ kvm() {
 }
 
 main() {
-    clear
     select opt in "postinst" "install stuff" "backup and restore"; do
     case $opt in
         "postinst" ) postinst; break;;
@@ -175,7 +183,7 @@ main() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "FL Studio" "VBox Extension Pack" "KVM w/ virt-manager"; do
+    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "VBox Extension Pack" "KVM w/ virt-manager" "HSR"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
         "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
@@ -183,6 +191,8 @@ installstuff() {
         "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
+        "samba" ) sambainstall; break;;
+        "HSR" ) hsr; break;;
         * ) exit;;
     esac
     done

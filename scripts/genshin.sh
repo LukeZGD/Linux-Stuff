@@ -6,8 +6,10 @@ export WINEDEBUG=-sync
 export DXVK_ASYNC=1
 export MANGOHUD=1
 #export DXVK_HUD=version,devinfo,fps
+export DXVK_ENABLE_NVAPI=0
+export DXVK_CONFIG="dxgi.emulateUMA = True"
 
-BASEDIR="/mnt/Data/GamesS/Genshin Impact"
+BASEDIR="/mnt/Data/GamesS/HoYoPlay"
 export WINEPREFIX="$BASEDIR/prefix"
 HOYODIR="$WINEPREFIX/drive_c/Program Files/HoYoPlay"
 GAMEDIR="$HOYODIR/games/Genshin Impact game"

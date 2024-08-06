@@ -1,6 +1,6 @@
 #!/bin/bash
 
-compdir="$HOME/Programs/ios-utils"
+compdir="$HOME/Documents/GitHub/LukeZGD"
 instdir="/opt/ios-utils"
 export PKG_CONFIG_PATH=$instdir/lib/pkgconfig:/usr/lib/$(uname -m)-linux-gnu/pkgconfig:/usr/lib/pkgconfig
 export CC=$(which gcc)
@@ -11,7 +11,7 @@ if [[ $1 == static ]]; then
 fi
 . /etc/os-release
 if [[ -n $UBUNTU_CODENAME || -f "/etc/debian_version" ]]; then
-    sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev libxml2-dev git ca-certificates
+    sudo apt install -y pkg-config libtool automake g++ python-dev-is-python3 libzip-dev libcurl4-openssl-dev cmake libssl-dev libusb-1.0-0-dev libreadline-dev libbz2-dev libpng-dev libxml2-dev git ca-certificates libfuse-dev
 elif [[ $ID == "fedora" ]]; then
     sudo dnf install -y fuse-devel libcurl-devel libusb1-devel libtool libzip-devel readline-devel bzip2-devel
 fi
@@ -44,20 +44,20 @@ compile() {
 }
 
 mkdir $compdir 2>/dev/null
-updaterepo libimobiledevice libplist
-updaterepo libimobiledevice libimobiledevice-glue
-updaterepo libimobiledevice libusbmuxd
-updaterepo libimobiledevice libimobiledevice
-updaterepo libimobiledevice usbmuxd
+updaterepo LukeeGD libplist
+updaterepo LukeeGD libimobiledevice-glue
+updaterepo LukeeGD libusbmuxd
+updaterepo LukeeGD libimobiledevice
+#updaterepo libimobiledevice usbmuxd
 updaterepo lzfse lzfse
-updaterepo libimobiledevice libirecovery
-updaterepo libimobiledevice libideviceactivation
-updaterepo libimobiledevice ideviceinstaller
-updaterepo libimobiledevice idevicerestore
-updaterepo libimobiledevice ifuse
+updaterepo LukeeGD libirecovery
+updaterepo LukeeGD libideviceactivation
+updaterepo LukeeGD ideviceinstaller
+#updaterepo libimobiledevice idevicerestore
+updaterepo LukeeGD ifuse
 updaterepo tihmstar libgeneral
 updaterepo tihmstar libfragmentzip
-updaterepo tihmstar img4tool
+updaterepo LukeZGD img4tool
 updaterepo tihmstar partialZipBrowser
 #updaterepo 1Conan tsschecker
 updaterepo aburgh bsdiff
@@ -123,11 +123,11 @@ compile libplist $is_static --without-cython
 compile libimobiledevice-glue $is_static
 compile libusbmuxd $is_static
 compile libimobiledevice $is_static --without-cython
-compile usbmuxd $is_static
+#compile usbmuxd $is_static
 compile libirecovery $is_static
 compile libideviceactivation $is_static
 compile ideviceinstaller $is_static
-compile idevicerestore
+#compile idevicerestore
 compile ifuse $is_static
 
 cd $compdir/libgeneral
@@ -143,8 +143,6 @@ make install
 make clean
 
 cd $compdir/img4tool
-git reset aca6cf0 --hard
-git clean -fxd
 env LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
 make
 make install

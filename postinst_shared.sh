@@ -36,6 +36,12 @@ flatpakemusinst() {
     flatpak install -y flathub "${flatemus[@]}" "$@"
 }
 
+hsr() {
+    flatpak remote-add --if-not-exists --user launcher.moe https://gol.launcher.moe/gol.launcher.moe.flatpakrepo
+    flatpak install -y org.gnome.Platform/x86_64/45
+    flatpak install -y launcher.moe moe.launcher.the-honkers-railway-launcher
+}
+
 vboxextension() {
     vboxversion=$(curl https://download.virtualbox.org/virtualbox/LATEST-STABLE.TXT)
     vboxextpack="Oracle_VM_VirtualBox_Extension_Pack-$vboxversion.vbox-extpack"
