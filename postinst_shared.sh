@@ -52,8 +52,7 @@ vboxextension() {
 
 wineprefixes() {
     cd $HOME/.cache
-    rm -rf wine winetricks
-    ln -sf /mnt/Data/$USER/cache/wine
+    rm -rf winetricks
     ln -sf /mnt/Data/$USER/cache/winetricks
 
     curl -L https://github.com/Winetricks/winetricks/raw/20230212/src/winetricks -o /usr/local/bin/winetricks

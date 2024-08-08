@@ -35,6 +35,7 @@ intel-media-va-driver-non-free
 intel-opencl-icd
 k3b
 kamoso
+kdeconnect
 kdenlive
 kio-audiocd
 kio-fuse
