@@ -5,13 +5,18 @@ com.github.tchx84.Flatseal
 com.github.unrud.VideoDownloader
 com.github.wwmm.easyeffects
 com.moonlight_stream.Moonlight
-com.protonvpn.www
+com.usebottles.bottles
 fr.handbrake.ghb
-io.github.ungoogled_software.ungoogled_chromium
-org.gtk.Gtk3theme.Breeze
+io.github.shiftey.Desktop
+io.missioncenter.MissionCenter
+org.atheme.audacious
+org.kde.kate
+org.kde.kdenlive
 org.telegram.desktop
 us.zoom.Zoom
 )
+#org.freedesktop.Platform.VulkanLayer.gamescope
+#org.freedesktop.Platform.VulkanLayer.MangoHud
 
 flatemus=(net.retrodeck.retrodeck)
 : '
@@ -37,9 +42,7 @@ flatpakemusinst() {
 }
 
 hsr() {
-    flatpak remote-add --if-not-exists --user launcher.moe https://gol.launcher.moe/gol.launcher.moe.flatpakrepo
-    flatpak install -y org.gnome.Platform/x86_64/45
-    flatpak install -y launcher.moe moe.launcher.the-honkers-railway-launcher
+    flatpak install -y moe.launcher.the-honkers-railway-launcher
 }
 
 vboxextension() {

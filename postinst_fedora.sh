@@ -1,66 +1,51 @@
 #!/bin/bash
 trap "exit 1" INT TERM
-. $HOME/Linux-Stuff/scripts/preparelutris.sh
-. $HOME/Linux-Stuff/postinst_shared.sh
+WORKDIR="$HOME/Documents/GitHub/Linux-Stuff"
+. $WORKDIR/scripts/preparelutris.sh
+. $WORKDIR/postinst_shared.sh
 
 packages=(
 aria2
-audacious
-audacious-plugins-amidi
-audacious-plugins-freeworld
 audacity
-audiocd-kio
-cpu-x
+corectrl
 dialog
 f3
-fedora-repos-archive
-ffmpeg
-ffmpegthumbs
-filezilla
+fastfetch
+file-roller
 fish
-gamescope
+fuse
+fuse-libs
+ghex
 gimp
 git
-gnome-calculator
-gnome-disk-utility
-google-noto-sans-fonts
-hplip
-igt-gpu-tools
-intel-media-driver
-k3b
-kate
-kdenlive
-kio-fuse
+gnome-tweaks
+lutris
 mangohud
 mpv
-neofetch
 nodejs-npm
 obs-studio
-okteta
-persepolis
+p7zip
+p7zip-plugins
 piper
-python3-pip
-python3-wxpython4
+pipx
 qdirstat
 qview
 shellcheck
-simple-scan
 stress
 tealdeer
-transmission-qt
+transmission-gtk
 unrar
-VirtualBox
 xdelta
 yt-dlp
 )
 
 main() {
-    select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore"; do
+    select opt in "Install stuff" "Run postinstall commands" "Backup and restore"; do
     case $opt in
         "Install stuff" ) installstuff; break;;
         "Run postinstall commands" ) postinst; break;;
         "pip install/update" ) pipinst; break;;
-        "Backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
+        "Backup and restore" ) $WORKDIR/postinst.sh BackupRestore; break;;
         * ) exit;;
     esac
     done
@@ -73,19 +58,15 @@ coprpkgs() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "Brother DCP-L2540DW" "Brother DCP-T720DW" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "HSR"; do
+    select opt in "wine prefixes" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "libinput-config"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
-        "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) emulatorsinst; break;;
         "samba" ) sambainstall; break;;
-        "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
-        "Brother DCP-L2540DW" ) brother_dcpl2540dw; break;;
-        "Brother DCP-T720DW" ) brother_dcpt720dw; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "copr packages" ) coprpkgs; break;;
-        "HSR" ) hsr; break;;
+        "libinput-config" ) libinput_config; break;;
         * ) exit;;
     esac
     done
@@ -98,19 +79,6 @@ kvm() {
     echo 'add "iommu=pt" and "amd_iommu=on" or "intel_iommu=on" to GRUB_CMDLINE_LINUX in /etc/default/grub'
     echo 'optionally add: "pcie_acs_override=downstream,multifunction"'
     echo "then run: sudo bash -c 'grub2-mkconfig -o \"\$(readlink -e /etc/grub2.cfg)\"'"
-}
-
-brother_dcpl2540dw() {
-    read -p "[Input] IP Address of printer: " ip
-    sudo brsaneconfig4 -a name="DCP-L2540DW" model="DCP-L2540DW" ip=$ip
-}
-
-brother_dcpt720dw() {
-    #read -p "[Input] IP Address of printer: " ip
-    #sudo brsaneconfig4 -a name="DCP-T720DW" model="DCP-T720DW" ip=$ip
-    if [[ ! $(cat /etc/sane.d/dll.conf | grep "brother5") ]]; then
-        echo "brother5" | sudo tee -a /etc/sane.d/dll.conf
-    fi
 }
 
 sambainstall() {
@@ -129,63 +97,141 @@ emulatorsinst() {
 }
 
 postinst() {
-    LINE='max_parallel_downloads=10'
-    FILE='/etc/dnf/dnf.conf'
-    sudo grep -qF -- "$LINE" "$FILE" || echo "$LINE" | sudo tee -a "$FILE"
-
-    #sudo dnf install -y dnf5 dnf5-plugins
-    sudo systemctl disable --now firewalld
-    sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Linux-Stuff/postinst_fedora.sh /usr/local/bin/postinst
-    #ln -sf /usr/bin/dnf5 /usr/local/bin/dnf
+    echo '[main]
+fastestmirror=true
+max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     sudo rm -rf /media
     sudo ln -sf /run/media /media
     if [[ ! $(ls /mnt/Data) ]]; then
         sudo mkdir -p /mnt/Data
-        sudo chown $USER: /mnt/Data
     fi
-    fc-cache -rv
-    #echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
+    sudo chown $USER: /mnt/Data
+    sudo chmod 755 /mnt/Data
+    sudo chown -R $USER: /usr/local
+    ln -sf $WORKDIR/postinst_fedora.sh /usr/local/bin/postinst
 
-    sudo dnf group upgrade -y core
-    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-    sudo dnf config-manager --enable fedora-cisco-openh264
-    sudo dnf update -y --refresh
-    sudo dnf install -y --best --allowerasing ffmpeg-libs
+    # from https://github.com/wz790/Fedora-Noble-Setup
+    rpmfusion_setup
+    sudo dnf update -y
+    flathub_setup
+    graphics_drivers
+    media_stuff
+    microsoft_fonts
+
     sudo dnf install -y "${packages[@]}"
+    sudo dnf remove -y gamemode gnome-text-editor
+    sudo dnf group install -y c-development
+    gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
+    #sudo usermod -aG vboxusers $USER
 
-    sudo usermod -aG vboxusers $USER
-    printf '#!/bin/sh\n/usr/bin/yt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
-    chmod +x /usr/local/bin/youtube-dl
+    flatpak install -y "${flatpkgs[@]}"
+}
 
-    sudo dnf group install -y kde-desktop-environment
-    sudo dnf remove -y akregator dragon elisa-player gwenview kaddressbook kcalc kf5-ktnef kmahjongg kmail kmouth konversation korganizer kpat
-    sudo dnf install -y $HOME/Programs/Packages/rpm/*.rpm
-    sudo dnf autoremove -y
-    # winehq repo
-    sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
-    # shiftkey repo
-    sudo rpm --import https://mirror.mwt.me/shiftkey-desktop/gpgkey
-    sudo sh -c 'echo -e "[mwt-packages]\nname=GitHub Desktop\nbaseurl=https://mirror.mwt.me/shiftkey-desktop/rpm\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://mirror.mwt.me/shiftkey-desktop/gpgkey" > /etc/yum.repos.d/mwt-packages.repo'
-    sudo dnf install -y cabextract lutris winehq-staging github-desktop gstreamer1-plugins-{good,ugly}.i686 gstreamer1-plugins-{good,ugly} gstreamer1-plugin-libav gstreamer1-plugin-libav.i686 hanazono-fonts mona-*-fonts langpacks-ja
-    sudo dnf remove -y gamemode
+rpmfusion_setup() {
+    # Get the free repository (most stuff you need)
+    sudo dnf install -y \
+    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
-    pipinst
+    # Get the nonfree repository (NVIDIA drivers, some codecs)
+    sudo dnf install -y \
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
-    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    sudo flatpak override --filesystem=xdg-config/gtk-3.0
-    sudo flatpak override --filesystem=xdg-config/gtk-4.0
-    flatpak install -y flathub "${flatpkgs[@]}"
-    LINE='enableWaylandShare=true'
-    FILE='/home/lukee/.var/app/us.zoom.Zoom/config/zoomus.conf'
-    grep -qF -- "$LINE" "$FILE" || echo "$LINE" | tee -a "$FILE"
+    # Update everything so it all plays nice together
+    sudo dnf group upgrade core -y
+    sudo dnf check-update
+}
+
+flathub_setup() {
+    # Remove the limited Fedora repo
+    flatpak remote-delete fedora
+
+    # Add the real Flathub
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+    # Update everything
+    flatpak update --appstream
+}
+
+graphics_drivers() {
+    # Basic drivers and Vulkan support
+    sudo dnf install -y mesa-dri-drivers mesa-vulkan-drivers vulkan-loader mesa-libGLU
+
+    # AMD video acceleration (makes videos smoother)
+    sudo dnf install -y mesa-va-drivers-freeworld mesa-vdpau-drivers-freeworld
+
+    # Intel video acceleration (for newer Intel GPUs)
+    sudo dnf install -y intel-media-driver
+}
+
+media_stuff() {
+    # Replace the neutered ffmpeg with the real one
+    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+
+    # Install all the GStreamer plugins
+    sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
+        gstreamer1-plugin-openh264 gstreamer1-libav lame\* \
+        --exclude=gstreamer1-plugins-bad-free-devel,gstreamer1-plugins-bad-free-opencv
+
+    sudo dnf install --setopt=install_weak_deps=False gstreamer1-plugins-bad-free-opencv
+
+    # Install multimedia groups
+    sudo dnf group install -y multimedia
+    sudo dnf group install -y sound-and-video
+
+    # Install VA-API stuff
+    sudo dnf install -y ffmpeg-libs libva libva-utils
+
+    # Install the Cisco codec (it's free but weird licensing)
+    sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+
+    # Enable the Cisco repo
+    sudo dnf config-manager --set-enabled fedora-cisco-openh264
+    sudo dnf update -y
+}
+
+microsoft_fonts() {
+    # Install dependencies
+    sudo dnf install -y curl cabextract xorg-x11-font-utils fontconfig
+
+    # Install the fonts
+    sudo rpm -i --nodigest --nosignature https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+
+    # Update font cache
+    sudo fc-cache -fv
+}
+
+firmware_update() {
+    # See what can be updated
+    sudo fwupdmgr get-devices
+
+    # Refresh the firmware database
+    sudo fwupdmgr refresh --force
+
+    # Check for updates
+    sudo fwupdmgr get-updates
+
+    # Apply them
+    sudo fwupdmgr update
+}
+
+libinput_config() {
+    sudo dnf builddep -y libinput
+    sudo dnf install -y libinput-devel
+    git clone https://gitlab.com/warningnonpotablewater/libinput-config.git
+    pushd libinput-config
+    meson build
+    pushd build
+    ninja
+    sudo ninja install
+    echo 'scroll-factor=0.5' | sudo tee /etc/libinput.conf
+    popd
+    popd
 }
 
 # ----------------------------------
 
 if [[ $1 == "update" ]]; then
     sudo dnf -y "$@"
-    pipinst
     flatpak update -y
     exit
 fi
