@@ -6,6 +6,9 @@ WORKDIR="$HOME/Documents/GitHub/Linux-Stuff"
 
 packages=(
 aria2
+audacious
+audacious-plugins-amidi
+audacious-plugins-freeworld
 audacity
 corectrl
 dialog
@@ -19,7 +22,7 @@ ghex
 gimp
 git
 gnome-tweaks
-lutris
+guvcview
 mangohud
 mpv
 nodejs-npm

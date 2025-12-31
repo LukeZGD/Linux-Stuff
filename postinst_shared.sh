@@ -9,10 +9,9 @@ com.usebottles.bottles
 fr.handbrake.ghb
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
-org.atheme.audacious
+org.filezillaproject.Filezilla
 org.kde.kate
 org.kde.kdenlive
-org.telegram.desktop
 us.zoom.Zoom
 )
 #org.freedesktop.Platform.VulkanLayer.gamescope
@@ -58,8 +57,8 @@ wineprefixes() {
     rm -rf winetricks
     ln -sf /mnt/Data/$USER/cache/winetricks
 
-    curl -L https://github.com/Winetricks/winetricks/raw/20230212/src/winetricks -o /usr/local/bin/winetricks
-    chmod +x /usr/local/bin/winetricks
+    #curl -L https://github.com/Winetricks/winetricks/raw/20230212/src/winetricks -o /usr/local/bin/winetricks
+    #chmod +x /usr/local/bin/winetricks
     preparewineprefix "$HOME/.wine"
     winetricks -q corefonts devenum quartz qasf mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp9 wmp11
     WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
