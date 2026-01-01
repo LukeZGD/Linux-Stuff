@@ -18,6 +18,7 @@ file-roller
 fish
 fuse
 fuse-libs
+gh
 ghex
 gimp
 git
@@ -64,7 +65,7 @@ installstuff() {
     select opt in "wine prefixes" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "libinput-config"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
-        "Emulators" ) emulatorsinst; break;;
+        "Emulators" ) flatpakemusinst; break;;
         "samba" ) sambainstall; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
@@ -92,11 +93,6 @@ sambainstall() {
     sudo sed -i 's|writable = yes|writable = yes\n\tfollow symlinks = yes\n\twide links = yes\n\tacl allow execute always = True|g' /etc/samba/smb.conf
     sudo sed -i 's|workgroup = MYGROUP|workgroup = MYGROUP\n\tallow insecure wide links = yes|g' /etc/samba/smb.conf
     sudo smbpasswd -a $USER
-}
-
-emulatorsinst() {
-    #flatpakemusinst ca._0ldsk00l.Nestopia
-    flatpakemusinst
 }
 
 postinst() {
@@ -175,7 +171,7 @@ media_stuff() {
         gstreamer1-plugin-openh264 gstreamer1-libav lame\* \
         --exclude=gstreamer1-plugins-bad-free-devel,gstreamer1-plugins-bad-free-opencv
 
-    sudo dnf install --setopt=install_weak_deps=False gstreamer1-plugins-bad-free-opencv
+    sudo dnf install -y --setopt=install_weak_deps=False gstreamer1-plugins-bad-free-opencv
 
     # Install multimedia groups
     sudo dnf group install -y multimedia
