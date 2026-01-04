@@ -6,6 +6,7 @@ com.github.unrud.VideoDownloader
 com.github.wwmm.easyeffects
 com.moonlight_stream.Moonlight
 com.usebottles.bottles
+com.valvesoftware.Steam
 fr.handbrake.ghb
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter

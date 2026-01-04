@@ -35,6 +35,7 @@ pipx
 qdirstat
 qview
 shellcheck
+steam-devices
 stress
 tealdeer
 transmission-gtk
