@@ -47,7 +47,7 @@ hsr() {
 
 vboxextension() {
     vboxversion=$(curl https://download.virtualbox.org/virtualbox/LATEST-STABLE.TXT)
-    vboxextpack="Oracle_VM_VirtualBox_Extension_Pack-$vboxversion.vbox-extpack"
+    vboxextpack="Oracle_VirtualBox_Extension_Pack-$vboxversion.vbox-extpack"
     wget https://download.virtualbox.org/virtualbox/$vboxversion/$vboxextpack
     sudo VBoxManage extpack install --replace $vboxextpack
     rm $vboxextpack
