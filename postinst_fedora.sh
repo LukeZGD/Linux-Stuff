@@ -8,6 +8,7 @@ packages=(
 aria2
 audacious
 audacious-plugins-amidi
+audacious-plugins-exotic
 audacious-plugins-freeworld
 audacity
 corectrl
@@ -109,6 +110,7 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     sudo chmod 755 /mnt/Data
     sudo chown -R $USER: /usr/local
     ln -sf $WORKDIR/postinst_fedora.sh /usr/local/bin/postinst
+    echo 'ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTR{power/wakeup}="disabled"' | sudo tee /etc/udev/rules.d/90-usb-wakeup.rules
 
     # from https://github.com/wz790/Fedora-Noble-Setup
     rpmfusion_setup
@@ -130,11 +132,11 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
 rpmfusion_setup() {
     # Get the free repository (most stuff you need)
     sudo dnf install -y \
-    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
     # Get the nonfree repository (NVIDIA drivers, some codecs)
     sudo dnf install -y \
-    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
     # Update everything so it all plays nice together
     sudo dnf group upgrade core -y
