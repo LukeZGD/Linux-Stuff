@@ -121,7 +121,7 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     microsoft_fonts
 
     sudo dnf install -y "${packages[@]}"
-    sudo dnf remove -y gamemode gnome-text-editor
+    sudo dnf remove -y gamemode gnome-text-editor gnome-software PackageKit
     sudo dnf group install -y c-development
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     #sudo usermod -aG vboxusers $USER
