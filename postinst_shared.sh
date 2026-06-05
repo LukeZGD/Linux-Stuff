@@ -8,11 +8,13 @@ com.moonlight_stream.Moonlight
 com.usebottles.bottles
 com.valvesoftware.Steam
 fr.handbrake.ghb
+io.ente.auth
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
 org.filezillaproject.Filezilla
 org.kde.kate
 org.kde.kdenlive
+org.localsend.localsend_app
 us.zoom.Zoom
 )
 #org.freedesktop.Platform.VulkanLayer.gamescope
