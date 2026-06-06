@@ -193,7 +193,7 @@ media_stuff() {
 
 microsoft_fonts() {
     # Install dependencies
-    sudo dnf install -y curl cabextract xorg-x11-font-utils fontconfig
+    sudo dnf install -y curl cabextract xorg-x11-font-utils fontconfig mkfontscale
 
     # Install the fonts
     sudo rpm -i --nodigest --nosignature https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
