@@ -8,23 +8,18 @@ packages=(
 aria2
 audacious
 audacity
-ca-certificates
-cabextract
+build-essential
 clinfo
-cpu-x
 curl
 default-jre
-docker.io
 f3
+fastfetch
 filezilla
+firmware-linux-nonfree
 fish
-flac
 flatpak
 gimp
 git
-gnome-calculator
-gnome-disk-utility
-gnupg
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
@@ -33,121 +28,43 @@ hplip
 intel-gpu-tools
 intel-media-va-driver-non-free
 intel-opencl-icd
-k3b
-kamoso
-kdeconnect
-kdenlive
-kio-audiocd
-kio-fuse
-krdc
-libadwaita-1-0
-libgtk-4-1
 libreoffice
-libspa-0.2-bluetooth
-linssid
-mesa-vulkan-drivers
 mpv
-neofetch
 network-manager-openvpn
-obs-studio
-okteta
-okular
-okular-extra-backends
 pavucontrol
 piper
-pipewire
-pipewire-audio-client-libraries
-power-profiles-daemon
+pipx
 python-is-python3
 python3-pip
-python3-wxgtk4.0
 qdirstat
+rar
 samba
-shellcheck
-simple-scan
 stress
-system-config-printer
-tealdeer
-transmission-qt
-uget
+transmission-gtk
+ttf-mscorefonts-installer
 unrar
 xdelta3
 )
 
 postinst() {
-    sudo dpkg --add-architecture i386
-    if [[ -n $UBUNTU_CODENAME ]]; then
-        sudo add-apt-repository -y universe
-        sudo add-apt-repository -y multiverse
-        sudo mv /etc/apt/apt.conf.d/20apt-esm-hook.conf /etc/apt/apt.conf.d/20apt-esm-hook.conf.bak
-        sudo touch /etc/apt/apt.conf.d/20apt-esm-hook.conf
-    else
-        sudo add-apt-repository -y contrib
-        sudo add-apt-repository -y non-free
-    fi
-    #if [[ $(cat /etc/apt/sources.list | grep -c 'backports main') == 0 ]]; then
-    #    echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-free" | sudo tee -a /etc/apt/sources.list
-    #fi
     sudo apt update
     sudo apt upgrade -y
-    #sudo apt -t bookworm-backports install linux-image-amd64
     sudo apt install -y "${packages[@]}"
-    if [[ -n $UBUNTU_CODENAME ]]; then
-        sudo apt install -y virtualbox virtualbox-guest-additions-iso
-        # workaround for 7z regression with ark
-        sudo apt remove -y p7zip p7zip-full 7zip
-        sudo apt install -y $HOME/Programs/Packages/deb/*.deb
-        sudo apt-mark hold p7zip p7zip-full
-    else
-        sudo apt install -y $HOME/Programs/Packages/deb/*.deb
-    fi
+    sudo apt autoremove -y
+    sudo apt remove -y gnome-software gnome-text-editor loupe yt-dlp
+    gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
 
     sudo chown -R $USER: /usr/local
     ln -sf $HOME/Linux-Stuff/postinst_debian.sh /usr/local/bin/postinst
-    printf '#!/bin/sh\nyt-dlp --compat-options youtube-dl "$@"' > /usr/local/bin/youtube-dl
     printf '#!/bin/sh\nsystemctl poweroff' > /usr/local/bin/poweroff
     printf '#!/bin/sh\nsystemctl reboot' > /usr/local/bin/reboot
-    chmod +x /usr/local/bin/youtube-dl /usr/local/bin/poweroff /usr/local/bin/reboot
+    chmod +x /usr/local/bin/*
     if [[ ! $(ls /mnt/Data) ]]; then
         sudo mkdir /mnt/Data
         sudo chown $USER: /mnt/Data
     fi
-    sudo usermod -aG vboxusers $USER
-    fc-cache -rv
-    #echo '#!/bin/sh' | sudo tee /etc/rc.local
-    #echo 'echo "1" | tee /sys/devices/system/cpu/intel_pstate/no_turbo' | sudo tee -a /etc/rc.local
-    #sudo chmod 700 /etc/rc.local
-    #echo "options snd-hda-intel power_save=0 power_save_controller=N" | sudo tee /etc/modprobe.d/audio-disable-powersave.conf
-    #echo 'w /sys/power/pm_async - - - - 0' | sudo tee /etc/tmpfiles.d/no-pm-async.conf
-    #systemctl --user enable --now pipewire
 
-    sudo mkdir -pm755 /etc/apt/keyrings
-    # winehq repo
-    sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-    name="debian"
-    if [[ -n $UBUNTU_CODENAME ]]; then
-        name="ubuntu"
-    fi
-    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/$name/dists/$VERSION_CODENAME/winehq-$VERSION_CODENAME.sources
-    # mozilla repo
-    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-    gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); print "\n"$0"\n"}'
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
-    printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000" | sudo tee /etc/apt/preferences.d/mozilla
-    # shiftkey repo
-    wget -qO - https://mirror.mwt.me/shiftkey-desktop/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/mwt-desktop.gpg > /dev/null
-    sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/mwt-desktop.gpg] https://mirror.mwt.me/shiftkey-desktop/deb/ any main" > /etc/apt/sources.list.d/mwt-desktop.list'
-
-    sudo apt update
-    sudo apt install -y --install-recommends firefox fonts-{takao,mona,monapo} github-desktop gstreamer1.0-{plugins-{good,ugly},libav}:i386 winehq-staging winbind mesa-vulkan-drivers:i386
-    sudo apt remove -y firefox-esr gamemode gwenview kcalc konqueror pulseaudio
-    sudo apt autoremove -y
-
-    pipinst
-
-    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    sudo flatpak override --filesystem=xdg-config/gtk-3.0
-    sudo flatpak override --filesystem=xdg-config/gtk-4.0
+    flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     flatpak install -y flathub "${flatpkgs[@]}"
 }
 
@@ -173,22 +90,22 @@ kvm() {
 }
 
 main() {
-    select opt in "postinst" "install stuff" "backup and restore"; do
+    select opt in "Install stuff" "Run postinstall commands" "Backup and restore"; do
     case $opt in
-        "postinst" ) postinst; break;;
-        "install stuff" ) installstuff; break;;
+        "Install stuff" ) installstuff; break;;
+        "Run postinstall commands" ) postinst; break;;
+        "pip install/update" ) pipinst; break;;
         "backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
     esac
     done
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "FL Studio" "VBox Extension Pack" "KVM w/ virt-manager" "HSR"; do
+    select opt in "wine prefixes" "osu!" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "HSR"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
         "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
-        "Emulators" ) emulatorsinst; break;;
-        "FL Studio" ) $HOME/Linux-Stuff/scripts/flstudio.sh install; break;;
+        "Emulators" ) flatpakemusinst; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "samba" ) sambainstall; break;;

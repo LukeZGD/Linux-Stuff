@@ -28,7 +28,6 @@ guvcview
 mangohud
 mpv
 nodejs-npm
-obs-studio
 p7zip
 p7zip-plugins
 piper
@@ -64,7 +63,7 @@ coprpkgs() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "libinput-config"; do
+    select opt in "wine prefixes" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "libinput-config" "HSR"; do
     case $opt in
         "wine prefixes" ) wineprefixes; break;;
         "Emulators" ) flatpakemusinst; break;;
@@ -73,6 +72,7 @@ installstuff() {
         "KVM w/ virt-manager" ) kvm; break;;
         "copr packages" ) coprpkgs; break;;
         "libinput-config" ) libinput_config; break;;
+        "HSR" ) hsr; break;;
         * ) exit;;
     esac
     done
@@ -121,12 +121,12 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     microsoft_fonts
 
     sudo dnf install -y "${packages[@]}"
-    sudo dnf remove -y gamemode gnome-text-editor gnome-software PackageKit
+    sudo dnf remove -y decibels gamemode gnome-text-editor gnome-software loupe PackageKit
     sudo dnf group install -y c-development
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     #sudo usermod -aG vboxusers $USER
 
-    flatpak install -y "${flatpkgs[@]}"
+    flatpak install -y flathub "${flatpkgs[@]}"
 }
 
 rpmfusion_setup() {
@@ -148,7 +148,7 @@ flathub_setup() {
     flatpak remote-delete fedora
 
     # Add the real Flathub
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
     # Update everything
     flatpak update --appstream

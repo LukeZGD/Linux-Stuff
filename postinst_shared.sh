@@ -5,9 +5,9 @@ com.github.tchx84.Flatseal
 com.github.unrud.VideoDownloader
 com.github.wwmm.easyeffects
 com.moonlight_stream.Moonlight
+com.obsproject.Studio
 com.usebottles.bottles
 com.valvesoftware.Steam
-fr.handbrake.ghb
 io.ente.auth
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
@@ -15,6 +15,7 @@ org.filezillaproject.Filezilla
 org.kde.kate
 org.kde.kdenlive
 org.localsend.localsend_app
+org.mozilla.firefox
 us.zoom.Zoom
 )
 #org.freedesktop.Platform.VulkanLayer.gamescope
@@ -34,9 +35,7 @@ org.ryujinx.Ryujinx
 ) '
 
 pipinst() {
-    mkdir ~/.config/pip 2>/dev/null
-    printf "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf
-    python3 -m pip install --user -U gallery-dl yt-dlp
+    pipx install gallery-dl yt-dlp
 }
 
 flatpakemusinst() {
