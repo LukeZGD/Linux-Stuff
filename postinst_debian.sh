@@ -70,6 +70,7 @@ postinst() {
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     bashrc_custom
     disable_bluetooth_le
+    echo 'ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTR{power/wakeup}="disabled"' | sudo tee /etc/udev/rules.d/90-usb-wakeup.rules
 
     sudo chown -R $USER: /usr/local
     ln -sf $WORKDIR/postinst_debian.sh /usr/local/bin/postinst
