@@ -30,7 +30,6 @@ gstreamer1.0-plugins-ugly
 guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
-intel-opencl-icd
 libreoffice
 mangohud
 mpv
@@ -55,11 +54,17 @@ xdelta3
 )
 
 postinst() {
+    sudo sed -Ei '
+    /^[[:space:]]*deb(-src)?[[:space:]]/ {
+        /\bcontrib\b/! s/$/ contrib/
+        /\bnon-free\b/! s/$/ non-free/
+    }
+    ' "/etc/apt/sources.list"
     sudo apt update
     sudo apt upgrade -y
     sudo apt install -y "${packages[@]}"
     sudo apt autoremove -y
-    sudo apt remove -y firefox-esr gnome-software gnome-text-editor loupe yt-dlp
+    sudo apt remove -y firefox-esr gnome-software gnome-text-editor loupe totem yt-dlp
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     bashrc_custom
     disable_bluetooth_le
@@ -73,6 +78,9 @@ postinst() {
         sudo mkdir /mnt/Data
         sudo chown $USER: /mnt/Data
     fi
+
+    sudo sed -Ei 's/^[[:space:]]*GRUB_TIMEOUT=5$/GRUB_TIMEOUT=0/' "/etc/default/grub"
+    sudo update-grub
 
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     flatpak install -y "${flatpkgs[@]}"
@@ -89,9 +97,9 @@ kvm() {
     sudo apt install qemu-system-x86 qemu-utils libvirt-daemon-system libvirt-clients bridge-utils virt-manager ovmf
     sudo usermod -aG kvm,libvirt $USER
     echo 'SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"' | sudo tee /etc/udev/rules.d/10-qemu.rules
-    echo "add 'iommu=pt intel-iommu=on' (or amd-iommu) to /etc/default/grub then press enter"
-    read -s
-    sudo update-grub
+    echo 'add "iommu=pt" and "amd_iommu=on" or "intel_iommu=on" to GRUB_CMDLINE_LINUX in /etc/default/grub'
+    echo 'optionally add: "pcie_acs_override=downstream,multifunction"'
+    echo "then run: sudo update-grub"
 }
 
 main() {
