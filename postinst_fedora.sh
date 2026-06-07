@@ -43,7 +43,7 @@ xdelta
 )
 
 main() {
-    select opt in "Install stuff" "Run postinstall commands" "Backup and restore"; do
+    select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore"; do
     case $opt in
         "Install stuff" ) installstuff; break;;
         "Run postinstall commands" ) postinst; break;;

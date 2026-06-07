@@ -16,6 +16,7 @@ default-jre
 dialog
 f3
 fastfetch
+ffmpeg
 firmware-linux-nonfree
 fish
 flatpak
@@ -31,6 +32,7 @@ guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
 libreoffice
+linux-headers-$(uname -m)
 mangohud
 mpv
 netselect-apt
@@ -63,8 +65,8 @@ postinst() {
     sudo apt update
     sudo apt upgrade -y
     sudo apt install -y "${packages[@]}"
-    sudo apt autoremove -y
     sudo apt remove -y firefox-esr gnome-software gnome-text-editor loupe totem yt-dlp
+    sudo apt autoremove -y
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     bashrc_custom
     disable_bluetooth_le
@@ -103,7 +105,7 @@ kvm() {
 }
 
 main() {
-    select opt in "Install stuff" "Run postinstall commands" "Backup and restore"; do
+    select opt in "Install stuff" "Run postinstall commands" "pip install/update" "Backup and restore"; do
     case $opt in
         "Install stuff" ) installstuff; break;;
         "Run postinstall commands" ) postinst; break;;
