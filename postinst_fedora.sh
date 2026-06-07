@@ -33,7 +33,6 @@ p7zip-plugins
 piper
 pipx
 qdirstat
-qview
 shellcheck
 steam-devices
 stress
@@ -41,7 +40,6 @@ tealdeer
 transmission-gtk
 unrar
 xdelta
-yt-dlp
 )
 
 main() {
@@ -63,16 +61,15 @@ coprpkgs() {
 }
 
 installstuff() {
-    select opt in "wine prefixes" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "copr packages" "libinput-config" "HSR"; do
+    select opt in "copr packages" "Emulators" "HSR" "KVM w/ virt-manager" "libinput-config" "samba" "VBox Extension Pack"; do
     case $opt in
-        "wine prefixes" ) wineprefixes; break;;
+        "copr packages" ) coprpkgs; break;;
         "Emulators" ) flatpakemusinst; break;;
+        "HSR" ) hsr; break;;
+        "KVM w/ virt-manager" ) kvm; break;;
+        "libinput-config" ) libinput_config; break;;
         "samba" ) sambainstall; break;;
         "VBox Extension Pack" ) vboxextension; break;;
-        "KVM w/ virt-manager" ) kvm; break;;
-        "copr packages" ) coprpkgs; break;;
-        "libinput-config" ) libinput_config; break;;
-        "HSR" ) hsr; break;;
         * ) exit;;
     esac
     done
@@ -126,7 +123,7 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     #sudo usermod -aG vboxusers $USER
 
-    flatpak install -y flathub "${flatpkgs[@]}"
+    flatpak install -y "${flatpkgs[@]}"
 }
 
 rpmfusion_setup() {

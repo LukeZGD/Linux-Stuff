@@ -1,8 +1,8 @@
 #!/bin/bash
 trap "exit 1" INT TERM
-. $HOME/Linux-Stuff/scripts/preparelutris.sh
-. $HOME/Linux-Stuff/postinst_shared.sh
-. /etc/os-release
+WORKDIR="$HOME/Documents/GitHub/Linux-Stuff"
+. $WORKDIR/scripts/preparelutris.sh
+. $WORKDIR/postinst_shared.sh
 
 packages=(
 aria2
@@ -10,27 +10,34 @@ audacious
 audacity
 build-essential
 clinfo
+corectrl
 curl
 default-jre
+dialog
 f3
 fastfetch
-filezilla
 firmware-linux-nonfree
 fish
 flatpak
+gh
+ghex
 gimp
 git
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
-hplip
+guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
 intel-opencl-icd
 libreoffice
+mangohud
 mpv
+netselect-apt
 network-manager-openvpn
+p7zip
+p7zip-full
 pavucontrol
 piper
 pipx
@@ -39,6 +46,7 @@ python3-pip
 qdirstat
 rar
 samba
+shellcheck
 stress
 transmission-gtk
 ttf-mscorefonts-installer
@@ -55,9 +63,9 @@ postinst() {
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
 
     sudo chown -R $USER: /usr/local
-    ln -sf $HOME/Linux-Stuff/postinst_debian.sh /usr/local/bin/postinst
-    printf '#!/bin/sh\nsystemctl poweroff' > /usr/local/bin/poweroff
-    printf '#!/bin/sh\nsystemctl reboot' > /usr/local/bin/reboot
+    ln -sf $WORKDIR/postinst_debian.sh /usr/local/bin/postinst
+    printf '#!/bin/sh\nsystemctl poweroff "$@"' > /usr/local/bin/poweroff
+    printf '#!/bin/sh\nsystemctl reboot "$@"' > /usr/local/bin/reboot
     chmod +x /usr/local/bin/*
     if [[ ! $(ls /mnt/Data) ]]; then
         sudo mkdir /mnt/Data
@@ -65,7 +73,7 @@ postinst() {
     fi
 
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    flatpak install -y flathub "${flatpkgs[@]}"
+    flatpak install -y "${flatpkgs[@]}"
 }
 
 sambainstall() {
@@ -73,11 +81,6 @@ sambainstall() {
     sudo sed -i '/them./{n;s/.*/read only = no\nfollow symlinks = yes\nwide links = yes\nacl allow execute always = yes/}' /etc/samba/smb.conf
     sudo sed -i '/\[global\]/{n;s/.*/allow insecure wide links = yes/}' /etc/samba/smb.conf
     sudo smbpasswd -a $USER
-}
-
-emulatorsinst() {
-    #sudo apt install -y nestopia
-    flatpakemusinst
 }
 
 kvm() {
@@ -95,21 +98,19 @@ main() {
         "Install stuff" ) installstuff; break;;
         "Run postinstall commands" ) postinst; break;;
         "pip install/update" ) pipinst; break;;
-        "backup and restore" ) $HOME/Linux-Stuff/postinst.sh BackupRestore; break;;
+        "backup and restore" ) $WORKDIR/postinst.sh BackupRestore; break;;
     esac
     done
 }
 
 installstuff() {
-    select opt in "wine prefixes" "osu!" "Emulators" "samba" "VBox Extension Pack" "KVM w/ virt-manager" "HSR"; do
+    select opt in "Emulators" "HSR" "KVM w/ virt-manager" "samba" "VBox Extension Pack"; do
     case $opt in
-        "wine prefixes" ) wineprefixes; break;;
-        "osu!" ) $HOME/Linux-Stuff/scripts/osu.sh install; break;;
         "Emulators" ) flatpakemusinst; break;;
-        "VBox Extension Pack" ) vboxextension; break;;
+        "HSR" ) hsr; break;;
         "KVM w/ virt-manager" ) kvm; break;;
         "samba" ) sambainstall; break;;
-        "HSR" ) hsr; break;;
+        "VBox Extension Pack" ) vboxextension; break;;
         * ) exit;;
     esac
     done

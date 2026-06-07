@@ -4,6 +4,7 @@ flatpkgs=(
 com.github.tchx84.Flatseal
 com.github.unrud.VideoDownloader
 com.github.wwmm.easyeffects
+com.interversehq.qView
 com.moonlight_stream.Moonlight
 com.obsproject.Studio
 com.usebottles.bottles
@@ -39,7 +40,7 @@ pipinst() {
 }
 
 flatpakemusinst() {
-    flatpak install -y flathub "${flatemus[@]}" "$@"
+    flatpak install -y "${flatemus[@]}" "$@"
 }
 
 hsr() {
