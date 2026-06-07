@@ -59,8 +59,10 @@ postinst() {
     sudo apt upgrade -y
     sudo apt install -y "${packages[@]}"
     sudo apt autoremove -y
-    sudo apt remove -y gnome-software gnome-text-editor loupe yt-dlp
+    sudo apt remove -y firefox-esr gnome-software gnome-text-editor loupe yt-dlp
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
+    bashrc_custom
+    disable_bluetooth_le
 
     sudo chown -R $USER: /usr/local
     ln -sf $WORKDIR/postinst_debian.sh /usr/local/bin/postinst

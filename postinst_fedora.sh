@@ -121,6 +121,7 @@ max_parallel_downloads=10' | sudo tee /etc/dnf/libdnf5.conf.d/80-local.conf
     sudo dnf remove -y decibels gamemode gnome-text-editor gnome-software loupe PackageKit
     sudo dnf group install -y c-development
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
+    bashrc_custom
     #sudo usermod -aG vboxusers $USER
 
     flatpak install -y "${flatpkgs[@]}"
