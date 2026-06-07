@@ -57,7 +57,7 @@ postinst() {
     sudo sed -Ei '
     /^[[:space:]]*deb(-src)?[[:space:]]/ {
         /\bcontrib\b/! s/$/ contrib/
-        /\bnon-free\b/! s/$/ non-free/
+        /(^|[[:space:]])non-free([[:space:]]|$)/! s/$/ non-free/
     }
     ' "/etc/apt/sources.list"
     sudo apt update
