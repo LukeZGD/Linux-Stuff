@@ -13,8 +13,10 @@ io.ente.auth
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
 org.filezillaproject.Filezilla
+org.gnome.Papers
 org.kde.kate
 org.kde.kdenlive
+org.libreoffice.LibreOffice
 org.localsend.localsend_app
 org.mozilla.firefox
 us.zoom.Zoom

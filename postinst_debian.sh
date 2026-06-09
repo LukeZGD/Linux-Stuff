@@ -17,6 +17,7 @@ dialog
 f3
 fastfetch
 ffmpeg
+ffmpegthumbnailer
 firmware-linux-nonfree
 fish
 flatpak
@@ -31,12 +32,12 @@ gstreamer1.0-plugins-ugly
 guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
-libreoffice
 linux-headers-$(uname -m)
 mangohud
 mpv
+needrestart
 netselect-apt
-network-manager-openvpn
+network-manager-openvpn-gnome
 p7zip
 p7zip-full
 pavucontrol
@@ -65,8 +66,12 @@ postinst() {
     sudo apt update
     sudo apt upgrade -y
     sudo apt install -y "${packages[@]}"
-    sudo apt remove -y firefox-esr gnome-software gnome-text-editor loupe totem yt-dlp
+    sudo apt remove -y evince firefox-esr gnome-software gnome-text-editor loupe totem yt-dlp
     sudo apt autoremove -y
+
+    sudo apt purge -y "libreoffice*"
+    sudo apt autoremove -y --purge
+
     gsettings set org.gnome.desktop.sound allow-volume-above-100-percent 'true'
     bashrc_custom
     disable_bluetooth_le
