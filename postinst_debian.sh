@@ -21,6 +21,7 @@ ffmpegthumbnailer
 firmware-linux-nonfree
 fish
 flatpak
+fonts-noto-cjk
 gh
 ghex
 gimp
@@ -35,7 +36,6 @@ intel-media-va-driver-non-free
 linux-headers-$(uname -m)
 mangohud
 mpv
-needrestart
 netselect-apt
 network-manager-openvpn-gnome
 p7zip
