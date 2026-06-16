@@ -47,6 +47,7 @@ python-is-python3
 python3-pip
 qdirstat
 rar
+rsync
 samba
 shellcheck
 stress
