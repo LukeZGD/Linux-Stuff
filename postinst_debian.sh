@@ -33,7 +33,7 @@ gstreamer1.0-plugins-ugly
 guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
-linux-headers-$(uname -m)
+linux-headers-amd64
 mangohud
 mpv
 netselect-apt
