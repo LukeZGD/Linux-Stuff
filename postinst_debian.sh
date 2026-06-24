@@ -123,16 +123,31 @@ main() {
 }
 
 installstuff() {
-    select opt in "Emulators" "HSR" "KVM w/ virt-manager" "samba" "VBox Extension Pack"; do
+    select opt in "Emulators" "HSR" "KVM w/ virt-manager" "libinput-config" "samba" "VBox Extension Pack"; do
     case $opt in
         "Emulators" ) flatpakemusinst; break;;
         "HSR" ) hsr; break;;
         "KVM w/ virt-manager" ) kvm; break;;
+        "libinput-config" ) libinput_config; break;;
         "samba" ) sambainstall; break;;
         "VBox Extension Pack" ) vboxextension; break;;
         * ) exit;;
     esac
     done
+}
+
+libinput_config() {
+    sudo apt update
+    sudo apt install -y cmake libinput-dev meson ninja-build pkg-config
+    git clone https://gitlab.com/warningnonpotablewater/libinput-config.git
+    pushd libinput-config
+    meson build
+    pushd build
+    ninja
+    sudo ninja install
+    echo 'scroll-factor=0.5' | sudo tee /etc/libinput.conf
+    popd
+    popd
 }
 
 if [[ $(groups | grep -c 'sudo') == 0 ]]; then

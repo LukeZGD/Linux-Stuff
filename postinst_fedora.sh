@@ -61,9 +61,8 @@ coprpkgs() {
 }
 
 installstuff() {
-    select opt in "copr packages" "Emulators" "HSR" "KVM w/ virt-manager" "libinput-config" "samba" "VBox Extension Pack"; do
+    select opt in "Emulators" "HSR" "KVM w/ virt-manager" "libinput-config" "samba" "VBox Extension Pack"; do
     case $opt in
-        "copr packages" ) coprpkgs; break;;
         "Emulators" ) flatpakemusinst; break;;
         "HSR" ) hsr; break;;
         "KVM w/ virt-manager" ) kvm; break;;
