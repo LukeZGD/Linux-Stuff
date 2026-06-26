@@ -33,6 +33,7 @@ gstreamer1.0-plugins-ugly
 guvcview
 intel-gpu-tools
 intel-media-va-driver-non-free
+libfuse2t64
 linux-headers-amd64
 mangohud
 mpv
@@ -50,6 +51,7 @@ rar
 rsync
 samba
 shellcheck
+steam-devices
 stress
 transmission-gtk
 ttf-mscorefonts-installer

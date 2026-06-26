@@ -9,6 +9,7 @@ com.moonlight_stream.Moonlight
 com.obsproject.Studio
 com.usebottles.bottles
 com.valvesoftware.Steam
+com.vysp3r.ProtonPlus
 io.ente.auth
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
