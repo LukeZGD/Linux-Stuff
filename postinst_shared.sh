@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 flatpkgs=(
 com.github.tchx84.Flatseal
@@ -25,25 +25,12 @@ us.zoom.Zoom
 #org.freedesktop.Platform.VulkanLayer.gamescope
 #org.freedesktop.Platform.VulkanLayer.MangoHud
 
-flatemus=(net.retrodeck.retrodeck)
-: '
-com.snes9x.Snes9x
-io.mgba.mGBA
-net.kuribo64.melonDS
-net.pcsx2.PCSX2
-net.rpcs3.RPCS3
-org.DolphinEmu.dolphin-emu
-org.duckstation.DuckStation
-org.ppsspp.PPSSPP
-org.ryujinx.Ryujinx
-) '
-
 pipinst() {
     pipx install gallery-dl yt-dlp
 }
 
 flatpakemusinst() {
-    flatpak install -y "${flatemus[@]}" "$@"
+    flatpak install -y net.retrodeck.retrodeck
 }
 
 hsr() {
@@ -56,29 +43,6 @@ vboxextension() {
     wget https://download.virtualbox.org/virtualbox/$vboxversion/$vboxextpack
     sudo VBoxManage extpack install --replace $vboxextpack
     rm $vboxextpack
-}
-
-wineprefixes() {
-    cd $HOME/.cache
-    rm -rf winetricks
-    ln -sf /mnt/Data/$USER/cache/winetricks
-
-    #curl -L https://github.com/Winetricks/winetricks/raw/20230212/src/winetricks -o /usr/local/bin/winetricks
-    #chmod +x /usr/local/bin/winetricks
-    preparewineprefix "$HOME/.wine"
-    winetricks -q corefonts devenum quartz qasf mfc42 vcrun2010 vcrun2013 vcrun2019 vkd3d win10 wmp9 wmp11
-    WINEPREFIX=$HOME/.wine $HOME/Documents/mf-install/mf-install.sh
-
-    preparelutris "$lutrisver"
-    preparewineprefix "$HOME/.wine_lutris"
-    WINEPREFIX=$HOME/.wine_lutris winetricks -q corefonts devenum quartz qasf vkd3d win10 wmp9 wmp11
-
-    preparelutris "$protonver" "proton"
-    preparewineprefix "$HOME/.wine_proton"
-    mkdir -p $WINEPREFIX/drive_c/users/steamuser
-    cd $WINEPREFIX/drive_c/users/steamuser
-    rm -rf 'Saved Games'
-    ln -sf $HOME/AppData 'Saved Games'
 }
 
 bashrc_custom() {

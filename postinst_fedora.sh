@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 trap "exit 1" INT TERM
 WORKDIR="$HOME/Documents/GitHub/Linux-Stuff"
-. $WORKDIR/scripts/preparelutris.sh
 . $WORKDIR/postinst_shared.sh
 
 packages=(
