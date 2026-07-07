@@ -20,7 +20,6 @@ fuse
 fuse-libs
 gh
 ghex
-gimp
 git
 gnome-tweaks
 guvcview
@@ -141,10 +140,10 @@ rpmfusion_setup() {
 
 flathub_setup() {
     # Remove the limited Fedora repo
-    flatpak remote-delete fedora
+    sudo flatpak remote-delete fedora
 
     # Add the real Flathub
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
     # Update everything
     flatpak update --appstream

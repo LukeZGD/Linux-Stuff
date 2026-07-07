@@ -14,6 +14,7 @@ io.ente.auth
 io.github.shiftey.Desktop
 io.missioncenter.MissionCenter
 org.filezillaproject.Filezilla
+org.gimp.GIMP
 org.gnome.Papers
 org.kde.kate
 org.kde.kdenlive

@@ -23,7 +23,6 @@ flatpak
 fonts-noto-cjk
 gh
 ghex
-gimp
 git
 gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-base
