@@ -29,10 +29,12 @@ gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
 gstreamer1.0-plugins-ugly
 guvcview
+hdparm
 intel-gpu-tools
 intel-media-va-driver-non-free
 libfuse2t64
 linux-headers-amd64
+lm-sensors
 mangohud
 mpv
 netselect-apt
@@ -49,6 +51,7 @@ rar
 rsync
 samba
 shellcheck
+smartmontools
 steam-devices
 stress
 transmission-gtk
