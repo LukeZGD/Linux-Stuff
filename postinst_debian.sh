@@ -18,6 +18,8 @@ fastfetch
 ffmpeg
 ffmpegthumbnailer
 firmware-linux-nonfree
+firmware-misc-nonfree
+firmware-realtek
 fish
 flatpak
 fonts-noto-cjk
